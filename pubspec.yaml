@@ -1,0 +1,55 @@
+name: mlritpool
+description: A new Flutter project.
+
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+ 
+  flutter_native_splash: ^2.3.0
+  flutter_riverpod: ^2.3.6
+  google_nav_bar: ^5.0.6
+  flutter_map: ^4.0.0
+  latlong2: ^0.8.0
+  flutter_typeahead: ^4.4.0
+  flutter_dotenv: ^5.0.2
+  http: ^0.13.5
+  permission_handler: ^10.2.0
+  geolocator: ^9.0.2
+ 
+  
+  
+
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  fonts:
+    - family: Outfit  # Replace with your desired font family name
+      fonts:
+        - asset: fonts/Outfit.ttf  # Replace with the path to your font file
+  uses-material-design: true
+ 
+
+  assets:
+  - assets/
+  - .env
