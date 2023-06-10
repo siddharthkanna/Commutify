@@ -1,8 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mlritpool/components/search_screen.dart';
+import 'package:mlritpool/models/map_box_place.dart';
 import '../components/map_widget.dart';
 import '../Themes/app_theme.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,6 +10,7 @@ class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
+
 
 class _HomeScreenState extends State<HomeScreen> {
   LatLng? pickupLocation;
@@ -65,10 +65,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          if (pickupLocation != null && destinationLocation != null)
+          if ((pickupLocation != null && destinationLocation == null) ||
+              (pickupLocation != null && destinationLocation != null))
             MapWidget(
-              pickupLocation: pickupLocation!,
-              destinationLocation: destinationLocation!,
+              pickupLocation: pickupLocation,
+              destinationLocation: destinationLocation,
+              isCurrentLocation: true,
             ),
           Positioned(
             top: 70,
@@ -80,18 +82,15 @@ class _HomeScreenState extends State<HomeScreen> {
               pickupController: _pickupController,
             ),
           ),
-          if (showCurrentLocationButton)
-            Positioned(
-              bottom: 100,
-              right: 20,
-              height: 50,
-              width: 50,
-              child: FloatingActionButton(
-                onPressed: getCurrentLocation,
-                backgroundColor: Apptheme.primaryColor,
-                child: const Icon(Icons.my_location),
-              ),
+          Positioned(
+            bottom: 100,
+            right: 18,
+            child: FloatingActionButton(
+              onPressed: getCurrentLocation,
+              backgroundColor: Apptheme.primaryColor,
+              child: const Icon(Icons.my_location),
             ),
+          ),
         ],
       ),
     );
@@ -122,26 +121,16 @@ class _SearchContainerState extends State<SearchContainer> {
     super.dispose();
   }
 
-  Future<List<MapBoxPlace>> fetchLocationSuggestions(String query) async {
-    final apiKey = mapBoxAccessToken;
-    const country = 'IN';
-    final endpoint =
-        'https://api.mapbox.com/geocoding/v5/mapbox.places/$query.json?country=$country&access_token=$apiKey';
-
-    final response = await http.get(Uri.parse(endpoint));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final features = data['features'] as List<dynamic>;
-      return features
-          .map((feature) => MapBoxPlace(
-                placeName: feature['place_name'],
-                longitude: feature['geometry']['coordinates'][0],
-                latitude: feature['geometry']['coordinates'][1],
-              ))
-          .toList();
-    } else {
-      throw Exception('Failed to fetch location suggestions');
+  void openSearchScreen(TextEditingController controller,
+      Function(MapBoxPlace) setLocation) async {
+    final selectedResults = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SearchScreen()),
+    );
+    if (selectedResults != null && selectedResults.isNotEmpty) {
+      final selectedResult = selectedResults[0];
+      controller.text = selectedResult.placeName;
+      setLocation(selectedResult);
     }
   }
 
@@ -150,15 +139,14 @@ class _SearchContainerState extends State<SearchContainer> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-           shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-          side: const BorderSide(color: Colors.black),
-        ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: const BorderSide(color: Colors.black),
+          ),
           title: const Text(
               style: TextStyle(fontWeight: FontWeight.bold),
               'Select Your Role!'),
-          backgroundColor: Apptheme.fourthColor,
-          
+          backgroundColor: Apptheme.thirdColor,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -229,74 +217,53 @@ class _SearchContainerState extends State<SearchContainer> {
           SizedBox(
             width: 300.0,
             height: 60,
-            child: TypeAheadField<MapBoxPlace>(
-              textFieldConfiguration: TextFieldConfiguration(
-                controller: widget.pickupController,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  labelText: 'Pickup',
-                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                  filled: true,
-                  fillColor: Apptheme.inputBox,
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      widget.pickupController.clear();
-                    },
+            child: GestureDetector(
+              onTap: () => openSearchScreen(
+                  widget.pickupController,
+                  widget
+                      .setPickupLocation), // Redirect to the search screen on tap
+              child: AbsorbPointer(
+                child: TextFormField(
+                  controller: widget.pickupController,
+                   style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    
+                    labelText: 'Pickup',
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
                   ),
                 ),
               ),
-              suggestionsCallback: (pattern) async {
-                return await fetchLocationSuggestions(pattern);
-              },
-              itemBuilder: (context, suggestion) {
-                return ListTile(
-                  title: Text(suggestion.placeName),
-                );
-              },
-              onSuggestionSelected: (suggestion) {
-                widget.pickupController.text = suggestion.placeName;
-                widget.setPickupLocation(suggestion);
-              },
             ),
           ),
           const SizedBox(height: 10.0),
           SizedBox(
             width: 300.0,
-            height: 60.0,
-            child: TypeAheadField<MapBoxPlace>(
-              textFieldConfiguration: TextFieldConfiguration(
-                controller: _destinationController,
-                decoration: InputDecoration(
-                  labelText: 'Destination',
-                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                  filled: true,
-                  fillColor: Apptheme.inputBox,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      _destinationController.clear();
-                    },
+            height: 60,
+            child: GestureDetector(
+              onTap: () => openSearchScreen(
+                  _destinationController,
+                  widget
+                      .setDestinationLocation), // Redirect to the search screen on tap
+              child: AbsorbPointer(
+                child: TextFormField(
+                  controller: _destinationController,
+                  style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    labelText: 'Destination',
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
                   ),
                 ),
               ),
-              suggestionsCallback: (pattern) async {
-                return await fetchLocationSuggestions(pattern);
-              },
-              itemBuilder: (context, suggestion) {
-                return ListTile(
-                  title: Text(suggestion.placeName),
-                );
-              },
-              onSuggestionSelected: (suggestion) {
-                _destinationController.text = suggestion.placeName;
-                widget.setDestinationLocation(suggestion);
-              },
             ),
           ),
           const SizedBox(
@@ -325,16 +292,4 @@ class _SearchContainerState extends State<SearchContainer> {
       ),
     );
   }
-}
-
-class MapBoxPlace {
-  final String placeName;
-  final double longitude;
-  final double latitude;
-
-  MapBoxPlace({
-    required this.placeName,
-    required this.longitude,
-    required this.latitude,
-  });
 }

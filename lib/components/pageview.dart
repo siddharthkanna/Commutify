@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/components/navbar.dart';
 import 'package:mlritpool/screens/home_screen.dart';
+import 'package:mlritpool/screens/myactivity_screen.dart';
 import 'package:mlritpool/screens/profile_screen.dart';
-
 class PageViewScreen extends StatefulWidget {
   const PageViewScreen({Key? key}) : super(key: key);
 
@@ -44,28 +44,45 @@ class _PageViewScreenState extends State<PageViewScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          PageView(
-            controller: _pageController,
-            onPageChanged: _onPageChanged,
-            children: [
-              HomeScreen(),
-              ProfileScreen(),
-            ],
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: NavBar(
-              selectedIndex: _currentPage,
-              onTabChanged: _onNavItemTapped,
+    return ScaffoldMessenger(
+      child: Scaffold(
+        resizeToAvoidBottomInset: false, // Disable automatic resizing to avoid the screen moving up with the keyboard
+        body: Stack(
+          children: [
+            NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification is ScrollStartNotification && notification.metrics.axis == Axis.vertical) {
+                  // Disable scrolling when the keyboard is open
+                  return true;
+                }
+                return false;
+              },
+              child: SingleChildScrollView( // Wrap PageView with SingleChildScrollView
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height, // Set container height
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: _onPageChanged,
+                    children: [
+                      KeepAlivePage(child: HomeScreen()),
+                      KeepAlivePage(child: MyActivity()),
+                      KeepAlivePage(child: ProfileScreen()), // Wrap ProfileScreen with KeepAlivePage
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 8,
+              child: NavBar(
+                selectedIndex: _currentPage,
+                onTabChanged: _onNavItemTapped,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -83,7 +100,7 @@ class KeepAlivePage extends StatefulWidget {
 class _KeepAlivePageState extends State<KeepAlivePage>
     with AutomaticKeepAliveClientMixin<KeepAlivePage> {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => true; // Return true to indicate that the page should be kept alive
 
   @override
   Widget build(BuildContext context) {

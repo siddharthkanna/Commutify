@@ -16,13 +16,14 @@ dependencies:
   flutter_native_splash: ^2.3.0
   flutter_riverpod: ^2.3.6
   google_nav_bar: ^5.0.6
-  flutter_map: ^4.0.0
-  latlong2: ^0.8.0
+  flutter_map: ^5.0.0
+  latlong2: ^0.9.0
   flutter_typeahead: ^4.4.0
   flutter_dotenv: ^5.0.2
-  http: ^0.13.5
+  http: ^1.0.0
   permission_handler: ^10.2.0
   geolocator: ^9.0.2
+  flutter_map_animations: ^0.4.0
  
   
   

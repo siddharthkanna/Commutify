@@ -3,9 +3,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+
 final mapBoxAccessToken = dotenv.env['accessToken']!;
 final mapBoxStyleId = dotenv.env['styleId']!;
-final myLocation = LatLng(17.3850, 78.4867);
+final myLocation = LatLng(0, 0);
 
 class MapWidget extends StatefulWidget {
   final LatLng? pickupLocation;
@@ -23,14 +24,10 @@ class MapWidget extends StatefulWidget {
   _MapWidgetState createState() => _MapWidgetState();
 }
 
-class _MapWidgetState extends State<MapWidget> {
+class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   late MapController mapController;
 
-  @override
-  void initState() {
-    super.initState();
-    mapController = MapController();
-  }
+  _MapWidgetState() : mapController = MapController();
 
   @override
   void didUpdateWidget(MapWidget oldWidget) {
@@ -50,7 +47,7 @@ class _MapWidgetState extends State<MapWidget> {
   void moveToPickupLocation() {
     if (widget.pickupLocation != null) {
       mapController.move(widget.pickupLocation!, 20.0);
-    }else{
+    } else {
       mapController.move(myLocation, 30);
     }
   }
@@ -70,6 +67,8 @@ class _MapWidgetState extends State<MapWidget> {
         maxZoom: 18,
         zoom: 13,
         center: widget.pickupLocation ?? myLocation,
+        interactiveFlags: InteractiveFlag.pinchZoom |
+            InteractiveFlag.drag, // Disable rotation
       ),
       children: [
         TileLayer(
@@ -94,24 +93,12 @@ class _MapWidgetState extends State<MapWidget> {
             Marker(
               width: 200.0,
               height: 200.0,
-              point: widget.destinationLocation!,
+              point: widget.destinationLocation ?? myLocation,
               builder: (context) => const Icon(
                 Icons.location_on,
                 color: Colors.red,
               ),
             ),
-            if(widget.isCurrentLocation)
-            Marker(
-              width: 200.0,
-              height: 200.0,
-              point: widget.pickupLocation!,
-              builder: (context) => const Icon(
-                Icons.location_on,
-                color: Colors.green,
-              ),
-            ),
-            
-
           ],
         ),
       ],

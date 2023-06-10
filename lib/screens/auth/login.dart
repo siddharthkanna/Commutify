@@ -26,7 +26,7 @@ class _LoginState extends State<Login> {
               'MLRITPOOL',
               style: TextStyle(
                 fontWeight: FontWeight.w900,
-                fontSize: 28.0,
+                fontSize: 36.0,
                 color: Apptheme.fourthColor,
               ),
             ),
