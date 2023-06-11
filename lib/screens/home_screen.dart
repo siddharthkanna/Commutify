@@ -7,8 +7,9 @@ import 'package:mlritpool/models/map_box_place.dart';
 import 'package:mlritpool/themes/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {

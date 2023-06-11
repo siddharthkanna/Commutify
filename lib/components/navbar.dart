@@ -8,6 +8,7 @@ class NavBar extends StatelessWidget {
   final Function(int) onTabChanged;
 
   const NavBar({
+    super.key,
     required this.selectedIndex,
     required this.onTabChanged,
   });

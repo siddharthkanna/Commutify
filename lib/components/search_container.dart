@@ -9,13 +9,14 @@ class SearchContainer extends StatefulWidget {
   final TextEditingController pickupController;
 
   const SearchContainer({
+    super.key,
     required this.setPickupLocation,
     required this.setDestinationLocation,
     required this.pickupController,
   });
 
   @override
-  _SearchContainerState createState() => _SearchContainerState();
+  State<SearchContainer> createState() => _SearchContainerState();
 }
 
 class _SearchContainerState extends State<SearchContainer> {
@@ -32,7 +33,7 @@ class _SearchContainerState extends State<SearchContainer> {
       Function(MapBoxPlace) setLocation) async {
     final selectedResults = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SearchScreen()),
+      MaterialPageRoute(builder: (context) => const SearchScreen()),
     );
     if (selectedResults != null && selectedResults.isNotEmpty) {
       final selectedResult = selectedResults[0];

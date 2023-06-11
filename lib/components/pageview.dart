@@ -7,7 +7,7 @@ class PageViewScreen extends StatefulWidget {
   const PageViewScreen({Key? key}) : super(key: key);
 
   @override
-  _PageViewScreenState createState() => _PageViewScreenState();
+  State<PageViewScreen> createState() => _PageViewScreenState();
 }
 
 class _PageViewScreenState extends State<PageViewScreen>
@@ -63,7 +63,7 @@ class _PageViewScreenState extends State<PageViewScreen>
                   child: PageView(
                     controller: _pageController,
                     onPageChanged: _onPageChanged,
-                    children: [
+                    children: const [
                       KeepAlivePage(child: HomeScreen()),
                       KeepAlivePage(child: MyActivity()),
                       KeepAlivePage(child: ProfileScreen()), // Wrap ProfileScreen with KeepAlivePage
@@ -94,7 +94,7 @@ class KeepAlivePage extends StatefulWidget {
   const KeepAlivePage({Key? key, required this.child}) : super(key: key);
 
   @override
-  _KeepAlivePageState createState() => _KeepAlivePageState();
+  State<KeepAlivePage> createState() => _KeepAlivePageState();
 }
 
 class _KeepAlivePageState extends State<KeepAlivePage>
