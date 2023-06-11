@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
+import '../services/location_service.dart';
 import 'package:mlritpool/components/map_widget.dart';
-import 'package:mlritpool/components/search_container.dart';
+import 'package:mlritpool/components/search/search_container.dart';
 import 'package:mlritpool/models/map_box_place.dart';
 import 'package:mlritpool/themes/app_theme.dart';
 
@@ -25,26 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void getCurrentLocation() async {
-    try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission != LocationPermission.whileInUse &&
-            permission != LocationPermission.always) {
-          return;
-        }
-      }
-
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
+    LatLng? currentLocation = await LocationService.getCurrentLocation();
+    if (currentLocation != null) {
       setState(() {
-        pickupLocation = LatLng(position.latitude, position.longitude);
+        pickupLocation = currentLocation;
         _pickupController.text = 'Your Location';
       });
-    } catch (e) {
-      print('Error: $e');
     }
   }
 

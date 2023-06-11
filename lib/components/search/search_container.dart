@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mlritpool/components/search_screen.dart';
+import 'package:mlritpool/components/search/search_screen.dart';
 import 'package:mlritpool/models/map_box_place.dart';
 import 'package:mlritpool/themes/app_theme.dart';
 
