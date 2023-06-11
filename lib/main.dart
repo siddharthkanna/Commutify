@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import './screens/auth/login.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await dotenv.load();
   runApp(const MyApp());
 }
