@@ -100,7 +100,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     onChanged: (query) => updateSuggestions(query),
                     style: const TextStyle(
                       fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.normal,
                     ),
                     decoration: InputDecoration(
                       hintText: _searchController.text.isEmpty
@@ -133,7 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   title: Text(
                     suggestion.placeName,
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600),
+                        fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                   onTap: () {
                     Navigator.pop(context, [suggestion]);

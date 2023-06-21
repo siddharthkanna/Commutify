@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/components/search/search_screen.dart';
 import 'package:mlritpool/models/map_box_place.dart';
+import 'package:mlritpool/screens/Driver/driverscreen.dart';
+import 'package:mlritpool/screens/Passenger/passengerScreen.dart';
 import 'package:mlritpool/themes/app_theme.dart';
 
 class SearchContainer extends StatefulWidget {
@@ -49,11 +51,11 @@ class _SearchContainerState extends State<SearchContainer> {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
-            side: const BorderSide(color: Colors.black),
+            
           ),
           title: const Text(
             'Select Your Role!',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          
           ),
           backgroundColor: Apptheme.thirdColor,
           content: Column(
@@ -63,7 +65,7 @@ class _SearchContainerState extends State<SearchContainer> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.button,
                   textStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.normal,
                     fontFamily: 'Outfit',
                     fontSize: 15.0,
                   ),
@@ -74,7 +76,12 @@ class _SearchContainerState extends State<SearchContainer> {
                 ),
                 onPressed: () {
                   // Handle driver button press
-                  Navigator.of(context).pop();
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DriverDetailScreen(),
+                  ),
+                );
                   // Navigate to driver screen
                 },
                 child: const Text('Driver'),
@@ -83,7 +90,7 @@ class _SearchContainerState extends State<SearchContainer> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.button,
                   textStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.normal,
                     fontFamily: 'Outfit',
                     fontSize: 15.0,
                   ),
@@ -94,7 +101,12 @@ class _SearchContainerState extends State<SearchContainer> {
                 ),
                 onPressed: () {
                   // Handle passenger button press
-                  Navigator.of(context).pop();
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>PassengerScreen(),
+                  )
+                  );
                   // Navigate to passenger screen
                 },
                 child: const Text('Passenger'),
@@ -110,10 +122,17 @@ class _SearchContainerState extends State<SearchContainer> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
+        boxShadow: [   BoxShadow(
+        color: Colors.grey.withOpacity(0.5), // specify the shadow color
+        spreadRadius: 5, // adjust the spread radius
+        blurRadius: 7, // adjust the blur radius
+        offset: const Offset(0, 3), // adjust the offset
+      ),],
         color: Apptheme.conatainer,
         borderRadius: BorderRadius.circular(15.0),
-        border: Border.all(color: Colors.black),
+       
       ),
+      
       constraints: const BoxConstraints(minHeight: 200.0, minWidth: 330.0),
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -134,7 +153,7 @@ class _SearchContainerState extends State<SearchContainer> {
                 child: TextFormField(
                   controller: widget.pickupController,
                   style: const TextStyle(
-                      fontSize: 18.0, fontWeight: FontWeight.bold),
+                      fontSize: 18.0, fontWeight: FontWeight.normal),
                   decoration: InputDecoration(
                     labelText: 'Pickup',
                     focusedBorder: OutlineInputBorder(
@@ -160,7 +179,7 @@ class _SearchContainerState extends State<SearchContainer> {
                 child: TextFormField(
                   controller: _destinationController,
                   style: const TextStyle(
-                      fontSize: 18.0, fontWeight: FontWeight.bold),
+                      fontSize: 18.0, fontWeight: FontWeight.normal),
                   decoration: InputDecoration(
                     labelText: 'Destination',
                     focusedBorder: OutlineInputBorder(
@@ -181,7 +200,7 @@ class _SearchContainerState extends State<SearchContainer> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Apptheme.button,
               textStyle: const TextStyle(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.normal,
                 fontFamily: 'Outfit',
                 fontSize: 15.0,
               ),
