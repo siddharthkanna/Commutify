@@ -83,7 +83,7 @@ class _SearchScreenState extends State<SearchScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 50.0, left: 8.0),
+            padding: const EdgeInsets.only(top: 60.0, left: 8.0),
             child: Row(
               children: [
                 IconButton(

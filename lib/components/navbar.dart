@@ -34,7 +34,7 @@ class NavBar extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6),
             child: GNav(
               gap: 6,
               activeColor: Colors.white,
@@ -49,7 +49,7 @@ class NavBar extends StatelessWidget {
                 ),
                 GButton(
                   icon: Icons.dashboard,
-                  text: 'My Activity',
+                  text: 'My Rides',
                 ),
                 GButton(
                   icon: Icons.person,

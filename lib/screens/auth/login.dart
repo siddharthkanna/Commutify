@@ -1,32 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mlritpool/common/error.dart';
+import 'package:mlritpool/common/loading.dart';
 import 'package:mlritpool/screens/auth/details.dart';
 import '../../Themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
 
-class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+final emailController = TextEditingController();
+final passwordController = TextEditingController();
 
-  @override
-  State<Login> createState() => _LoginState();
-}
-
-class _LoginState extends State<Login> {
+class Login extends ConsumerWidget {
   final _formKey = GlobalKey<FormState>();
-  String? _email;
-  String? _password;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authProvider);
+    final loading = auth.loading;
+    final error = auth.error;
+
     return Scaffold(
       backgroundColor: Apptheme.primaryColor,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Consumer(
-          builder: (context, WidgetRef ref, child) {
-            final auth = ref.watch(authProvider);
-
-            return Column(
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
@@ -39,9 +37,24 @@ class _LoginState extends State<Login> {
                 ),
                 const SizedBox(height: 50.0),
                 SizedBox(
-                  width: 300, // Adjust the width as needed
+                  width: 300,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      await auth.signInWithGoogle();
+                      final user = auth.getCurrentUser();
+                      if (user != null) {
+                        // User signed in successfully, handle the next steps
+                        // save user data, navigate to next screen
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const DetailsPage(),
+                          ),
+                        );
+                      } else {
+                        // Error occurred during sign-in
+                        // Handle the error or show a message to the user
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       textStyle: const TextStyle(
                         fontWeight: FontWeight.w300,
@@ -74,7 +87,6 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 50.0),
                 const Text(
                   "OR",
@@ -83,91 +95,104 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 const SizedBox(height: 50.0),
-                Center(
-                  child: SizedBox(
-                    width: 300,
-                    child: TextFormField(
-                      style: const TextStyle(color: Apptheme.fourthColor),
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 18.0,
-                          horizontal: 18.0,
-                        ),
-                        labelText: 'Email',
-                        labelStyle: const TextStyle(color: Apptheme.thirdColor),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18.0),
-                          borderSide:
-                              const BorderSide(color: Apptheme.fourthColor),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Please enter your email';
-                        }
-                        // You can add more validation logic for email format, etc.
-                        return null;
-                      },
-                      onSaved: (value) {
-                        _email = value;
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Center(
-                  child: SizedBox(
-                    width: 300,
-                    child: TextFormField(
-                      style: const TextStyle(color: Apptheme.fourthColor),
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 18.0,
-                          horizontal: 18.0,
-                        ),
-                        labelText: 'Password',
-                        labelStyle: const TextStyle(color: Apptheme.thirdColor),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18.0),
-                          borderSide:
-                              const BorderSide(color: Apptheme.fourthColor),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Please enter your password';
-                        }
-                        //  add more validation logic for password strength, etc.
-                        return null;
-                      },
-                      onSaved: (value) {
-                        _password = value;
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30), // Add spacing of 20
-                ElevatedButton(
-                  onPressed: () async {
-                  //  if (_formKey.currentState?.validate() ?? false) {
-                  //   _formKey.currentState?.save();
-                  //    final loginSuccess =
-                  //        await auth.login(_email!, _password!);
-
-                      {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const DetailsPage(),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Center(
+                        child: SizedBox(
+                          width: 300,
+                          child: TextFormField(
+                            style: const TextStyle(color: Apptheme.fourthColor),
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 18.0,
+                                horizontal: 18.0,
+                              ),
+                              labelText: 'Email',
+                              labelStyle:
+                                  const TextStyle(color: Apptheme.thirdColor),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                borderSide: const BorderSide(
+                                    color: Apptheme.fourthColor),
+                              ),
                             ),
-                          );
-                        });
-                      }
-                    //}
-                  },
+                            validator: (value) {
+                              if (value?.isEmpty ?? true) {
+                                return 'Please enter your email';
+                              }
+                              // You can add more validation logic for email format, etc.
+                              return null;
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25),
+                      Center(
+                        child: SizedBox(
+                          width: 300,
+                          child: TextFormField(
+                            style: const TextStyle(color: Apptheme.fourthColor),
+                            controller: passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 18.0,
+                                horizontal: 18.0,
+                              ),
+                              labelText: 'Password',
+                              labelStyle:
+                                  const TextStyle(color: Apptheme.thirdColor),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                borderSide: const BorderSide(
+                                    color: Apptheme.fourthColor),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value?.isEmpty ?? true) {
+                                return 'Please enter your password';
+                              }
+                              //  add more validation logic for password strength, etc.
+                              return null;
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: loading
+                      ? null
+                      : () async {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            final email = emailController.text.trim();
+                            final password = passwordController.text.trim();
+                            await auth.signInWithEmailAndPassword(
+                                email, password);
+
+                            // Retrieve the error message
+                            if (error.isNotEmpty) {
+                              ErrorDialog.showErrorDialog(context, error);
+                              // Error occurred during sign-in
+                              // Handle the error or show a message to the user
+                            } else {
+                              // User signed in successfully, handle the next steps
+                              // save user data, navigate to next screen
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const DetailsPage(),
+                                ),
+                              );
+                            }
+                          }
+                        },
                   style: ElevatedButton.styleFrom(
                     textStyle: const TextStyle(
                       fontFamily: 'Outfit',
@@ -185,9 +210,10 @@ class _LoginState extends State<Login> {
                   child: const Text('Login'),
                 ),
               ],
-            );
-          },
-        ),
+            ),
+          ),
+          if (loading) const Loader(),
+        ],
       ),
     );
   }

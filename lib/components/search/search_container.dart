@@ -167,7 +167,7 @@ class _SearchContainerState extends State<SearchContainer> {
               ),
             ),
           ),
-          const SizedBox(height: 10.0),
+          const SizedBox(height: 12.0),
           SizedBox(
             width: 300.0,
             height: 60,
@@ -194,7 +194,7 @@ class _SearchContainerState extends State<SearchContainer> {
             ),
           ),
           const SizedBox(
-            height: 5.0,
+            height: 10.0,
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -207,7 +207,7 @@ class _SearchContainerState extends State<SearchContainer> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
               ),
-              minimumSize: const Size(100, 40),
+              minimumSize: const Size(100, 42),
             ),
             onPressed: () {
               // Handle button press

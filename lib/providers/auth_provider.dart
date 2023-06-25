@@ -1,18 +1,100 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 
-final authProvider = Provider<Auth>((ref) => Auth());
+final authProvider =
+    ChangeNotifierProvider<AuthService>((ref) => AuthService());
 
-class Auth {
-  Future<bool> login(String email, String password) async {
-    // Perform login functionality here
-    // You can use Firebase, REST API, or any other authentication service
+class AuthService extends ChangeNotifier {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  bool _loading = false;
+  String _error = '';
 
-    // Return true if login is successful, false otherwise
-    return true;
+  bool get loading => _loading;
+  String get error => _error;
+
+  void setLoading(bool value) {
+    _loading = value;
+    notifyListeners();
   }
 
-  Future<void> logout() async {
-    // Perform logout functionality here
-    // You can clear user session, tokens, or any other necessary actions
+  void setError(String errorMessage) {
+    _error = errorMessage;
+    notifyListeners();
+  }
+
+  // Register with email and password
+  Future<void> registerWithEmailAndPassword(
+      String email, String password) async {
+    setLoading(true);
+
+    try {
+      await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email, password: password);
+    } catch (e) {
+      setError('Failed to register with email and password. Please try again.');
+    }
+
+    setLoading(false);
+  }
+
+  // Sign in with email and password
+  Future<void> signInWithEmailAndPassword(String email, String password) async {
+    setLoading(true);
+    setError('');
+
+    try {
+      await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password);
+    } catch (e) {
+      setError(
+          'Failed to sign in with email and password. Please try again.: $e');
+    }
+
+    setLoading(false);
+  }
+
+  // Sign in with Google
+  Future<void> signInWithGoogle() async {
+    setLoading(true);
+
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await _firebaseAuth.signInWithCredential(credential);
+    } catch (e) {
+      setError('Failed to sign in with Google. Please try again.: $e');
+    }
+
+    setLoading(false);
+  }
+
+  // Sign out
+  Future<void> signOut() async {
+    setLoading(true);
+    setError('');
+
+    try {
+      await _firebaseAuth.signOut();
+      await _googleSignIn.signOut();
+    } catch (e) {
+      setError('Failed to sign out. Please try again.: $e');
+    }
+
+    setLoading(false);
+  }
+
+  // Get the current user
+  User? getCurrentUser() {
+    return _firebaseAuth.currentUser;
   }
 }

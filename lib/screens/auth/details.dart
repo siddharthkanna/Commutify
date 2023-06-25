@@ -11,14 +11,15 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailsPageState extends State<DetailsPage> {
   final _formKey = GlobalKey<FormState>();
-  String? _rollNo;
   String? _vehicleNumber;
   String? _mobileNumber;
-  String? _selectedBranch;
-  String? _selectedYear;
+  String? _vehicleName;
+  String? _vehicleType;
+ 
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Apptheme.primaryColor,
       appBar: AppBar(
@@ -48,11 +49,12 @@ class _DetailsPageState extends State<DetailsPage> {
                       ),
                       labelStyle: const TextStyle(
                         color: Apptheme.thirdColor,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.normal,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(22.0),
-                        borderSide: const BorderSide(color: Apptheme.fourthColor),
+                        borderSide:
+                            const BorderSide(color: Apptheme.fourthColor),
                       ),
                     ),
                   ),
@@ -71,68 +73,12 @@ class _DetailsPageState extends State<DetailsPage> {
                         },
                       ),
                       const SizedBox(height: 32.0),
-                      DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(labelText: 'Branch'),
-                        value: _selectedBranch,
-                        items: ['CSE', 'ECE', 'IT','CSIT','CSM','CSC','CSD','MECH','AERO'] // Replace with your branch options
-                            .map((branch) => DropdownMenuItem<String>(
-                                  value: branch,
-                                  child: Text(branch),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedBranch = value as String;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select your branch';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 32.0),
-                      DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(labelText: 'Year'),
-                        value: _selectedYear,
-                        items: ['I Year', 'II Year', 'III Year','IV Year'] // Replace with your year options
-                            .map((year) => DropdownMenuItem<String>(
-                                  value: year,
-                                  child: Text(year),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedYear = value as String;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select your year';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 32.0),
                       TextFormField(
-                        decoration: const InputDecoration(labelText: 'Roll Number'),
+                        decoration:
+                            const InputDecoration(labelText: 'Mobile Number'),
                         validator: (value) {
                           if (value?.isEmpty ?? true) {
-                            return 'Please enter your roll number';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          _rollNo = value;
-                        },
-                      ),
-                      const SizedBox(height: 32.0),
-                      TextFormField(
-                        decoration: const InputDecoration(labelText: 'Vehicle Number'),
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please enter your vehicle number';
+                            return 'Please enter your Mobile number';
                           }
                           return null;
                         },
@@ -142,10 +88,39 @@ class _DetailsPageState extends State<DetailsPage> {
                       ),
                       const SizedBox(height: 32.0),
                       TextFormField(
-                        decoration: const InputDecoration(labelText: 'Mobile Number'),
+                        decoration:
+                            const InputDecoration(labelText: 'Vehicle Number'),
                         validator: (value) {
                           if (value?.isEmpty ?? true) {
-                            return 'Please enter your mobile number';
+                            return 'Please enter your Vehicle number';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _mobileNumber = value;
+                        },
+                      ),
+                      const SizedBox(height: 32.0),
+                      TextFormField(
+                        decoration:
+                            const InputDecoration(labelText: 'Vehivle Name'),
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Please enter your Vehicle Name';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _mobileNumber = value;
+                        },
+                      ),
+                      const SizedBox(height: 32.0),
+                      TextFormField(
+                        decoration:
+                            const InputDecoration(labelText: 'Vehicle Type'),
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Please enter your Vehicle Type';
                           }
                           return null;
                         },
@@ -161,19 +136,18 @@ class _DetailsPageState extends State<DetailsPage> {
                   onPressed: () {
                     //if (_formKey.currentState?.validate() ?? false) {
                     //  _formKey.currentState?.save();
-                      // TODO: Handle form submission and navigate to the main screen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PageViewScreen(),
-                        ),
-                      );
-                    
+                    // TODO: Handle form submission and navigate to the main screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PageViewScreen(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     textStyle: const TextStyle(
                       fontFamily: 'Outfit',
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.normal,
                       fontSize: 18.0,
                     ),
                     minimumSize: const Size(300, 50),
