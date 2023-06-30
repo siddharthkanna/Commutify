@@ -7,8 +7,8 @@ final authProvider =
     ChangeNotifierProvider<AuthService>((ref) => AuthService());
 
 class AuthService extends ChangeNotifier {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  late final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  late final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool _loading = false;
   String _error = '';
 
@@ -23,37 +23,6 @@ class AuthService extends ChangeNotifier {
   void setError(String errorMessage) {
     _error = errorMessage;
     notifyListeners();
-  }
-
-  // Register with email and password
-  Future<void> registerWithEmailAndPassword(
-      String email, String password) async {
-    setLoading(true);
-
-    try {
-      await _firebaseAuth.createUserWithEmailAndPassword(
-          email: email, password: password);
-    } catch (e) {
-      setError('Failed to register with email and password. Please try again.');
-    }
-
-    setLoading(false);
-  }
-
-  // Sign in with email and password
-  Future<void> signInWithEmailAndPassword(String email, String password) async {
-    setLoading(true);
-    setError('');
-
-    try {
-      await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
-    } catch (e) {
-      setError(
-          'Failed to sign in with email and password. Please try again.: $e');
-    }
-
-    setLoading(false);
   }
 
   // Sign in with Google
