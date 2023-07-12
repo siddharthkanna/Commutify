@@ -5,9 +5,11 @@ import 'package:mlritpool/components/map_widget.dart';
 import 'package:mlritpool/components/search/search_container.dart';
 import 'package:mlritpool/models/map_box_place.dart';
 import 'package:mlritpool/themes/app_theme.dart';
+import 'package:flutter/scheduler.dart' show SchedulerBinding;
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -16,7 +18,8 @@ class _HomeScreenState extends State<HomeScreen> {
   LatLng? pickupLocation;
   LatLng? destinationLocation;
   bool showCurrentLocationButton = true;
-  final TextEditingController _pickupController = TextEditingController();
+
+  MapBoxPlace? currentLocation;
 
   @override
   void initState() {
@@ -25,18 +28,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void getCurrentLocation() async {
-    LatLng? currentLocation = await LocationService.getCurrentLocation();
-    if (currentLocation != null) {
+    LatLng? currentLatLng = await LocationService.getCurrentLocation();
+    if (currentLatLng != null) {
+      String address = await getAddressFromCoordinates(
+        currentLatLng.latitude,
+        currentLatLng.longitude,
+      );
+
       setState(() {
-        pickupLocation = currentLocation;
-        _pickupController.text = 'Your Location';
+        pickupLocation = currentLatLng;
+        currentLocation = MapBoxPlace(
+          latitude: currentLatLng.latitude,
+          longitude: currentLatLng.longitude,
+          placeName: address,
+        );
       });
+
+      setPickupLocation(currentLocation!);
     }
   }
 
   void setPickupLocation(MapBoxPlace location) {
-    setState(() {
-      pickupLocation = LatLng(location.latitude, location.longitude);
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        pickupLocation = LatLng(location.latitude, location.longitude);
+      });
     });
   }
 
@@ -63,13 +79,13 @@ class _HomeScreenState extends State<HomeScreen> {
             left: 20,
             right: 20,
             child: SearchContainer(
+              currentLocation: currentLocation,
               setPickupLocation: setPickupLocation,
               setDestinationLocation: setDestinationLocation,
-              pickupController: _pickupController,
             ),
           ),
           Positioned(
-            bottom: 100,
+            bottom: 80,
             right: 18,
             child: FloatingActionButton(
               onPressed: getCurrentLocation,

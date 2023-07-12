@@ -8,4 +8,5 @@ class Apptheme {
   static const Color conatainer = Color(0xffe4e5f1);
   static const Color inputBox = Color(0xffd2d3db);
   static const Color button = Color(0xff484b6a);
+  static const Color background = Color(0xffcfebf9);
 }

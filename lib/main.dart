@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 import './components/pageview.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -21,23 +20,25 @@ void main() async {
   );
   runApp(const ProviderScope(child: MyApp()));
 }
-final authProvider = ChangeNotifierProvider<AuthService>((ref) => AuthService());
+
+final authProvider =
+    ChangeNotifierProvider<AuthService>((ref) => AuthService());
 
 class MyApp extends ConsumerWidget {
-   const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final authService = ref.read(authProvider);
 
     return MaterialApp(
-      title: 'MLRITPOOL',
+      title: 'RideRover',
       theme: ThemeData(fontFamily: 'Outfit'),
       home: FutureBuilder<User?>(
-         future: Future.value(authService.getCurrentUser()),// Check if user is logged in
+        future: Future.value(authService.getCurrentUser()),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Show loading indicator while checking login state
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
             return Scaffold(
               body: Center(
@@ -47,7 +48,7 @@ class MyApp extends ConsumerWidget {
           } else {
             final user = snapshot.data;
             if (user != null) {
-              return const PageViewScreen(); // User is logged in, show PageView screen
+              return const PageViewScreen(); // User is  logged in, show PageView screen
             } else {
               return Login(); // User is not logged in, show Login screen
             }

@@ -26,18 +26,18 @@ class Login extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'MLRITPOOL',
+                      'RideRover',
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
-                        fontSize: 36.0,
+                        fontSize: 42.0,
                         color: Apptheme.fourthColor,
                       ),
                     ),
-                    const SizedBox(height: 60.0),
+                    const SizedBox(height: 50.0),
                     CarouselWidget(),
-                    const SizedBox(height: 60.0),
+                    const SizedBox(height: 50.0),
                     SizedBox(
-                      width: 300,
+                      width: 280,
                       child: ElevatedButton(
                         onPressed: () async {
                           await auth.signInWithGoogle();
@@ -51,8 +51,7 @@ class Login extends ConsumerWidget {
                               ),
                             );
                           } else {
-                            final error = auth.error;
-                            ErrorDialog.showErrorDialog(context, error);
+                            Snackbar.showSnackbar(context, 'Error Signing in!');
 
                             // Error occurred during sign-in
                             // Handle the error or show a message to the user
@@ -65,10 +64,9 @@ class Login extends ConsumerWidget {
                           ),
                           minimumSize: const Size.fromHeight(
                               50), // Adjust the height as needed
-                          backgroundColor: Apptheme.primaryColor,
+                          backgroundColor: Apptheme.fourthColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18.0),
-                            side: const BorderSide(color: Apptheme.fourthColor),
                           ),
                         ),
                         child: Row(
@@ -84,7 +82,8 @@ class Login extends ConsumerWidget {
                                     10.0), // Add spacing between the image and text
                             const Text(
                               'Sign in with Google',
-                              style: TextStyle(fontFamily: 'Outfit'),
+                              style: TextStyle(
+                                  fontFamily: 'Outfit', color: Colors.black),
                             ),
                           ],
                         ),

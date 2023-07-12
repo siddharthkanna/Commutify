@@ -9,6 +9,7 @@ class CarouselWidget extends StatefulWidget {
 class _CarouselWidgetState extends State<CarouselWidget> {
   int _currentIndex = 0;
 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -20,7 +21,7 @@ class _CarouselWidgetState extends State<CarouselWidget> {
             Image.asset('assets/img3.png'),
           ],
           options: CarouselOptions(
-            height: 400.0,
+            height: 325.0,
             enlargeCenterPage: true,
             autoPlay: true,
             aspectRatio: 16 / 9,
@@ -35,7 +36,7 @@ class _CarouselWidgetState extends State<CarouselWidget> {
             },
           ),
         ),
-        const SizedBox(height: 20.0),
+        const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(

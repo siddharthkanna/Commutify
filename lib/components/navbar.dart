@@ -17,7 +17,7 @@ class NavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25.0),
+        borderRadius: BorderRadius.circular(26.0),
         border: Border.all(
           color: Colors.black,
     
@@ -30,16 +30,16 @@ class NavBar extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(25.0),
+        borderRadius: BorderRadius.circular(26.0),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 4),
             child: GNav(
               gap: 6,
               activeColor: Colors.white,
               iconSize: 24,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               duration: const Duration(milliseconds: 500),
               tabBackgroundColor: Apptheme.primaryColor,
               tabs: const [

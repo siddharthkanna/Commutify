@@ -27,6 +27,7 @@ dependencies:
   google_sign_in: ^6.1.4
   firebase_auth: ^4.6.3
   carousel_slider: ^4.2.1
+  lite_rolling_switch: ^1.0.1
   
  
   

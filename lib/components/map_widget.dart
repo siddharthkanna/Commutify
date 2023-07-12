@@ -9,6 +9,29 @@ final mapBoxAccessToken = dotenv.env['accessToken']!;
 final mapBoxStyleId = dotenv.env['styleId']!;
 const myLocation = LatLng(0, 0);
 
+Future<String> getAddressFromCoordinates(
+    double latitude, double longitude) async {
+  final apiKey = mapBoxAccessToken;
+  final url =
+      'https://api.mapbox.com/geocoding/v5/mapbox.places/$longitude,$latitude.json?access_token=$apiKey';
+
+  try {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['features'] != null && data['features'].length > 0) {
+        return data['features'][0]['place_name'];
+      } else {
+        return 'Unknown Location';
+      }
+    } else {
+      return 'Error fetching address';
+    }
+  } catch (e) {
+    return 'Error fetching address';
+  }
+}
+
 class MapWidget extends StatefulWidget {
   final LatLng? pickupLocation;
   final LatLng? destinationLocation;
@@ -89,7 +112,6 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       double maxLat = -double.infinity;
       double minLng = double.infinity;
       double maxLng = -double.infinity;
-      
 
       for (final coord in routeCoordinates) {
         if (coord.latitude < minLat) minLat = coord.latitude;
@@ -105,7 +127,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
       mapController.fitBounds(
         bounds,
-        options: const FitBoundsOptions(padding: EdgeInsets.all(110.0),),
+        options: const FitBoundsOptions(
+          padding: EdgeInsets.all(110.0),
+        ),
       );
     }
   }
@@ -119,9 +143,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         maxZoom: 18,
         zoom: 13,
         center: widget.pickupLocation ?? myLocation,
-        interactiveFlags: InteractiveFlag.pinchZoom |
-            InteractiveFlag.drag,
-             // Disable rotation
+        interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+        // Disable rotation
       ),
       children: [
         TileLayer(

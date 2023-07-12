@@ -15,11 +15,9 @@ class _DetailsPageState extends State<DetailsPage> {
   String? _mobileNumber;
   String? _vehicleName;
   String? _vehicleType;
- 
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: Apptheme.primaryColor,
       appBar: AppBar(
@@ -103,7 +101,7 @@ class _DetailsPageState extends State<DetailsPage> {
                       const SizedBox(height: 32.0),
                       TextFormField(
                         decoration:
-                            const InputDecoration(labelText: 'Vehivle Name'),
+                            const InputDecoration(labelText: 'Vehicle Name'),
                         validator: (value) {
                           if (value?.isEmpty ?? true) {
                             return 'Please enter your Vehicle Name';
@@ -137,6 +135,7 @@ class _DetailsPageState extends State<DetailsPage> {
                     //if (_formKey.currentState?.validate() ?? false) {
                     //  _formKey.currentState?.save();
                     // TODO: Handle form submission and navigate to the main screen
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(

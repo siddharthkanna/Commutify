@@ -1,38 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/components/search/search_screen.dart';
 import 'package:mlritpool/models/map_box_place.dart';
-import 'package:mlritpool/screens/Driver/driverscreen.dart';
+import 'package:mlritpool/screens/Driver/Driver_Screen.dart';
 import 'package:mlritpool/screens/Passenger/passengerScreen.dart';
 import 'package:mlritpool/themes/app_theme.dart';
 
 class SearchContainer extends StatefulWidget {
   final Function(MapBoxPlace) setPickupLocation;
   final Function(MapBoxPlace) setDestinationLocation;
-  final TextEditingController pickupController;
+  final MapBoxPlace? currentLocation;
 
-  const SearchContainer({
-    super.key,
-    required this.setPickupLocation,
-    required this.setDestinationLocation,
-    required this.pickupController,
-  });
+  const SearchContainer(
+      {Key? key,
+      required this.setPickupLocation,
+      required this.setDestinationLocation,
+      required this.currentLocation})
+      : super(key: key);
 
   @override
   State<SearchContainer> createState() => _SearchContainerState();
 }
 
 class _SearchContainerState extends State<SearchContainer> {
+  final TextEditingController _pickupController = TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
+  MapBoxPlace? selectedPickupLocation;
+  MapBoxPlace? selectedDestinationLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _setInitialPickupLocation();
+  }
+
+  @override
+  void didUpdateWidget(covariant SearchContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentLocation != oldWidget.currentLocation) {
+      selectedPickupLocation = widget.currentLocation;
+      _pickupController.text = widget.currentLocation!.placeName;
+      widget.setPickupLocation(widget.currentLocation!);
+    }
+  }
 
   @override
   void dispose() {
-    widget.pickupController.dispose();
+    _pickupController.dispose();
     _destinationController.dispose();
     super.dispose();
   }
 
-  void openSearchScreen(TextEditingController controller,
-      Function(MapBoxPlace) setLocation) async {
+  void _setInitialPickupLocation() {
+    if (widget.currentLocation != null) {
+      setState(() {
+        selectedPickupLocation = widget.currentLocation;
+        _pickupController.text = widget.currentLocation!.placeName;
+      });
+      widget.setPickupLocation(widget.currentLocation!);
+    }
+  }
+
+  void openSearchScreen(
+    TextEditingController controller,
+    Function(MapBoxPlace) setLocation,
+  ) async {
     final selectedResults = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const SearchScreen()),
@@ -41,6 +72,16 @@ class _SearchContainerState extends State<SearchContainer> {
       final selectedResult = selectedResults[0];
       controller.text = selectedResult.placeName;
       setLocation(selectedResult);
+
+      if (controller == _pickupController) {
+        setState(() {
+          selectedPickupLocation = selectedResult;
+        });
+      } else if (controller == _destinationController) {
+        setState(() {
+          selectedDestinationLocation = selectedResult;
+        });
+      }
     }
   }
 
@@ -51,11 +92,9 @@ class _SearchContainerState extends State<SearchContainer> {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
-            
           ),
           title: const Text(
             'Select Your Role!',
-          
           ),
           backgroundColor: Apptheme.thirdColor,
           content: Column(
@@ -63,7 +102,7 @@ class _SearchContainerState extends State<SearchContainer> {
             children: [
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Apptheme.button,
+                  backgroundColor: Apptheme.primaryColor,
                   textStyle: const TextStyle(
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Outfit',
@@ -77,18 +116,20 @@ class _SearchContainerState extends State<SearchContainer> {
                 onPressed: () {
                   // Handle driver button press
                   Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DriverDetailScreen(),
-                  ),
-                );
-                  // Navigate to driver screen
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DriverScreen(
+                        pickupLocation: selectedPickupLocation,
+                        destinationLocation: selectedDestinationLocation,
+                      ),
+                    ),
+                  );
                 },
                 child: const Text('Driver'),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Apptheme.button,
+                  backgroundColor: Apptheme.primaryColor,
                   textStyle: const TextStyle(
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Outfit',
@@ -102,10 +143,10 @@ class _SearchContainerState extends State<SearchContainer> {
                 onPressed: () {
                   // Handle passenger button press
                   Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>PassengerScreen(),
-                  )
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PassengerScreen(),
+                    ),
                   );
                   // Navigate to passenger screen
                 },
@@ -122,17 +163,17 @@ class _SearchContainerState extends State<SearchContainer> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        boxShadow: [   BoxShadow(
-        color: Colors.grey.withOpacity(0.5), // specify the shadow color
-        spreadRadius: 5, // adjust the spread radius
-        blurRadius: 7, // adjust the blur radius
-        offset: const Offset(0, 3), // adjust the offset
-      ),],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: const Offset(0, 3),
+          ),
+        ],
         color: Apptheme.conatainer,
         borderRadius: BorderRadius.circular(15.0),
-       
       ),
-      
       constraints: const BoxConstraints(minHeight: 200.0, minWidth: 330.0),
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -146,12 +187,11 @@ class _SearchContainerState extends State<SearchContainer> {
             width: 300.0,
             height: 60,
             child: GestureDetector(
-              onTap: () => openSearchScreen(
-                  widget.pickupController,
-                  widget.setPickupLocation),
+              onTap: () =>
+                  openSearchScreen(_pickupController, widget.setPickupLocation),
               child: AbsorbPointer(
                 child: TextFormField(
-                  controller: widget.pickupController,
+                  controller: _pickupController,
                   style: const TextStyle(
                       fontSize: 18.0, fontWeight: FontWeight.normal),
                   decoration: InputDecoration(
@@ -173,8 +213,7 @@ class _SearchContainerState extends State<SearchContainer> {
             height: 60,
             child: GestureDetector(
               onTap: () => openSearchScreen(
-                  _destinationController,
-                  widget.setDestinationLocation),
+                  _destinationController, widget.setDestinationLocation),
               child: AbsorbPointer(
                 child: TextFormField(
                   controller: _destinationController,
@@ -198,7 +237,7 @@ class _SearchContainerState extends State<SearchContainer> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Apptheme.button,
+              backgroundColor: Apptheme.primaryColor,
               textStyle: const TextStyle(
                 fontWeight: FontWeight.normal,
                 fontFamily: 'Outfit',

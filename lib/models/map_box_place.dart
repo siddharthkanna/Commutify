@@ -1,3 +1,5 @@
+import 'package:latlong2/latlong.dart';
+
 class MapBoxPlace {
   final String placeName;
   final double longitude;
@@ -9,6 +11,12 @@ class MapBoxPlace {
     required this.latitude,
   });
 
+  LatLng toLatLng(){
+  return LatLng(latitude, longitude);
+}
+
+  
+
   factory MapBoxPlace.fromJson(Map<String, dynamic> json) {
     return MapBoxPlace(
       placeName: json['place_name'] as String,
@@ -17,3 +25,5 @@ class MapBoxPlace {
     );
   }
 }
+
+
