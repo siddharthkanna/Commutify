@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/components/navbar.dart';
 import 'package:mlritpool/screens/home_screen.dart';
-import 'package:mlritpool/screens/myactivity_screen.dart';
+import 'package:mlritpool/screens/myrides_screen.dart';
 import 'package:mlritpool/screens/profile_screen.dart';
 
 class PageViewScreen extends StatefulWidget {
@@ -76,9 +76,9 @@ class _PageViewScreenState extends State<PageViewScreen>
                   child: PageView(
                     controller: _pageController,
                     onPageChanged: _onPageChanged,
-                    children: const [
+                    children:  [
                       KeepAlivePage(child: HomeScreen()),
-                      KeepAlivePage(child: MyActivity()),
+                      KeepAlivePage(child: MyRides()),
                       KeepAlivePage(
                           child:
                               ProfileScreen()), // Wrap ProfileScreen with KeepAlivePage

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mlritpool/common/error.dart';
 import 'package:mlritpool/common/loading.dart';
-import 'package:mlritpool/screens/auth/details.dart';
 import '../../components/carousel.dart';
 import '../../Themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
@@ -40,22 +38,7 @@ class Login extends ConsumerWidget {
                       width: 280,
                       child: ElevatedButton(
                         onPressed: () async {
-                          await auth.signInWithGoogle();
-                          final user = auth.getCurrentUser();
-                          if (user != null) {
-                            // User signed in successfully, handle the next steps
-                            // save user data, navigate to next screen
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const DetailsPage(),
-                              ),
-                            );
-                          } else {
-                            Snackbar.showSnackbar(context, 'Error Signing in!');
-
-                            // Error occurred during sign-in
-                            // Handle the error or show a message to the user
-                          }
+                          await auth.signInWithGoogle(context);
                         },
                         style: ElevatedButton.styleFrom(
                           textStyle: const TextStyle(

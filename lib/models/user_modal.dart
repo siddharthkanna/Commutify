@@ -1,17 +1,27 @@
 class User {
-  String name;
-  String email;
-  String phoneNumber;
-  String vehicleName;
-  String vehicleType;
-  String vehicleNumber;
+  final String uid;
+  final String email;
+  final String name;
+  final String mobileNumber;
+  final List<Vehicle> vehicles;
 
   User({
-    required this.name,
+    required this.uid,
     required this.email,
-    required this.phoneNumber,
+    required this.name,
+    required this.mobileNumber,
+    required this.vehicles,
+  });
+}
+
+class Vehicle {
+  final String vehicleNumber;
+  final String vehicleName;
+  final String vehicleType;
+
+  Vehicle({
+    required this.vehicleNumber,
     required this.vehicleName,
     required this.vehicleType,
-    required this.vehicleNumber,
   });
 }

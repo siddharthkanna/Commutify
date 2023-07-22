@@ -48,9 +48,9 @@ class MyApp extends ConsumerWidget {
           } else {
             final user = snapshot.data;
             if (user != null) {
-              return const PageViewScreen(); // User is  logged in, show PageView screen
+              return const PageViewScreen(); 
             } else {
-              return Login(); // User is not logged in, show Login screen
+              return Login();
             }
           }
         },

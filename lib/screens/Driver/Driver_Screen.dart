@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
 import 'package:mlritpool/models/map_box_place.dart';
 import 'package:mlritpool/screens/Driver/Ride_Publish.dart';
+import 'package:mlritpool/screens/Driver/DriverComponents/destination_location_input.dart';
+import 'package:mlritpool/screens/Driver/DriverComponents/pickup_location_input.dart';
+import 'package:mlritpool/screens/Driver/DriverComponents/mode_switch.dart';
+import 'package:mlritpool/screens/Driver/DriverComponents/scheduled_mode_section.dart';
+import 'package:mlritpool/screens/Driver/DriverComponents/vehicle_selection.dart';
+import 'package:mlritpool/screens/Driver/DriverComponents/seating_capacity_selection.dart';
+
 
 class DriverScreen extends StatefulWidget {
   MapBoxPlace? pickupLocation;
@@ -20,7 +27,7 @@ class DriverScreen extends StatefulWidget {
 class _DriverScreenState extends State<DriverScreen> {
   bool immediateMode = true;
   bool scheduledMode = false;
-  String selectedVehicle = 'Car';
+  late String selectedVehicle = '';
   int selectedCapacity = 1;
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
@@ -35,6 +42,8 @@ class _DriverScreenState extends State<DriverScreen> {
     pickupLocationController.text = widget.pickupLocation?.placeName ?? '';
     destinationLocationController.text =
         widget.destinationLocation?.placeName ?? '';
+    selectedTime = TimeOfDay.now();
+    selectedDate = DateTime.now();
   }
 
   @override
@@ -103,6 +112,18 @@ class _DriverScreenState extends State<DriverScreen> {
     });
   }
 
+  void updateSelectedVehicle(String newValue) {
+    setState(() {
+      selectedVehicle = newValue;
+    });
+  }
+
+  void updateSelectedCapacity(int newValue) {
+    setState(() {
+      selectedCapacity = newValue;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,27 +145,9 @@ class _DriverScreenState extends State<DriverScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 55,
-              child: TextFormField(
-                readOnly: true,
-                controller: pickupLocationController,
-                style: const TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.normal,
-                ),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Apptheme.thirdColor,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  labelText: 'Pickup',
-                ),
-              ),
+            PickupLocationInput(
+              pickupLocation: widget.pickupLocation,
+              pickupLocationController: pickupLocationController,
             ),
             Align(
               alignment: Alignment.topRight,
@@ -182,224 +185,30 @@ class _DriverScreenState extends State<DriverScreen> {
                 ),
               ),
             ),
-            SizedBox(
-              height: 55,
-              child: TextFormField(
-                readOnly: true,
-                controller: destinationLocationController,
-                style: const TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.normal,
-                ),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Apptheme.thirdColor,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  labelText: 'Destination',
-                ),
-              ),
+            DestinationLocationInput(
+              destinationLocation: widget.destinationLocation,
+              destinationLocationController: destinationLocationController,
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 120,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color:
-                        scheduledMode ? Apptheme.button : Apptheme.primaryColor,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: SizedBox(
-                    child: Center(
-                      child: Text(
-                        scheduledMode ? 'SCHEDULED' : 'IMMEDIATE',
-                        style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ),
-                Switch(
-                  value: scheduledMode,
-                  onChanged: (value) {
-                    toggleMode();
-                  },
-                  activeColor: Apptheme.button,
-                  inactiveThumbColor: Apptheme.primaryColor,
-                ),
-              ],
+            ModeSwitch(
+              immediateMode: immediateMode,
+              scheduledMode: scheduledMode,
+              toggleMode: toggleMode,
             ),
-
-            if (scheduledMode) ...[
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Scheduled Date: ${selectedDate.toString().substring(0, 10)}',
-                  ),
-                  ElevatedButton(
-                    onPressed: () => _selectDate(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Apptheme.primaryColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0)),
-                    ),
-                    child: const Text('Select Date'),
-                  )
-                ],
+            if (scheduledMode)
+              ScheduledModeSection(
+                selectedDate: selectedDate,
+                selectedTime: selectedTime,
+                selectDate: _selectDate,
+                selectTime: _selectTime,
               ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Scheduled Time: ${selectedTime.format(context)}'),
-                  ElevatedButton(
-                    onPressed: () => _selectTime(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Apptheme.primaryColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0)),
-                    ),
-                    child: const Text('Select Time'),
-                  ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 30),
-            const Text(
-              'SELECT YOUR VEHICLE:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            VehicleSelection(
+              selectedVehicle: selectedVehicle,
+              updateSelectedVehicle: updateSelectedVehicle,
             ),
-            const SizedBox(height: 10),
-            Container(
-              alignment: Alignment.center,
-              width: 200,
-              height: 45,
-              decoration: BoxDecoration(
-                color: Apptheme.thirdColor,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-                borderRadius: BorderRadius.circular(15.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black54.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: DropdownButton<String>(
-                value: selectedVehicle,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedVehicle = newValue!;
-                  });
-                },
-                items: <String>['Car', 'Motorcycle', 'Truck', 'Van']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 12.0,
-                          right: 50.0), // Add padding to adjust the space
-                      child: Text(
-                        value,
-                        style: const TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-                style: const TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black,
-                ),
-                icon: const Icon(Icons.arrow_drop_down),
-                iconSize: 32.0,
-                underline: const SizedBox(), // Remove the default underline
-                dropdownColor: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              'SEATING CAPACITY:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              alignment: Alignment.center,
-              width: 200,
-              height: 45,
-              decoration: BoxDecoration(
-                color: Apptheme.thirdColor,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-                borderRadius: BorderRadius.circular(15.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black54
-                        .withOpacity(0.5), // Specify the shadow color
-                    spreadRadius: 1, // Specify the spread radius
-                    blurRadius: 5, // Specify the blur radius
-                    offset: const Offset(0, 3), // Specify the offset
-                  ),
-                ],
-              ),
-              child: DropdownButton<int>(
-                value: selectedCapacity,
-                onChanged: (int? newValue) {
-                  setState(() {
-                    selectedCapacity = newValue!;
-                  });
-                },
-                items: <int>[1, 2, 3, 4, 5]
-                    .map<DropdownMenuItem<int>>((int value) {
-                  return DropdownMenuItem<int>(
-                    value: value,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 100.0),
-                      child: Text(
-                        value.toString(),
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black,
-                ),
-                icon: Icon(Icons.arrow_drop_down),
-                iconSize: 32.0,
-                underline: SizedBox(),
-                dropdownColor: Apptheme.thirdColor,
-              ),
+            SeatingCapacitySelection(
+              selectedCapacity: selectedCapacity,
+              updateSelectedCapacity: updateSelectedCapacity,
             ),
             const SizedBox(height: 30),
             const Text(
@@ -413,19 +222,19 @@ class _DriverScreenState extends State<DriverScreen> {
                     decrementPrice();
                   },
                   icon: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                         shape: BoxShape.circle, color: Apptheme.thirdColor),
-                    child: Icon(Icons.remove),
+                    child: const Icon(Icons.remove),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 15,
                 ),
                 Text(
-                  '\Rs. $price',
-                  style: TextStyle(fontSize: 20),
+                  'Rs. $price',
+                  style: const TextStyle(fontSize: 20),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 15,
                 ),
                 IconButton(
@@ -433,42 +242,42 @@ class _DriverScreenState extends State<DriverScreen> {
                     incrementPrice();
                   },
                   icon: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Apptheme.thirdColor,
                     ),
-                    child: Icon(Icons.add),
+                    child: const Icon(Icons.add),
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 50),
-
             Container(
               width: double.infinity,
               alignment: Alignment.bottomCenter,
               padding: const EdgeInsets.only(bottom: 30.0),
               child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const RidePublished()),
-                    );
-                    // Handle the "Proceed" button press
-                  },
-                  child: Text(
-                    'Proceed',
-                    style: TextStyle(fontSize: 18),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const RidePublished()),
+                  );
+                  // Handle the "Proceed" button press
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: Apptheme.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
                   ),
-                  style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 50),
-                      backgroundColor: Apptheme.primaryColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0)))),
+                ),
+                child: const Text(
+                  'Proceed',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
             ),
-            // Add additional padding at the bottom
           ],
         ),
       ),

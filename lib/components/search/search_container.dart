@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/components/search/search_screen.dart';
 import 'package:mlritpool/models/map_box_place.dart';
-import 'package:mlritpool/screens/Driver/Driver_Screen.dart';
+import 'package:mlritpool/screens/Driver/driver_screen.dart';
 import 'package:mlritpool/screens/Passenger/passengerScreen.dart';
 import 'package:mlritpool/themes/app_theme.dart';
 
@@ -121,6 +121,7 @@ class _SearchContainerState extends State<SearchContainer> {
                       builder: (context) => DriverScreen(
                         pickupLocation: selectedPickupLocation,
                         destinationLocation: selectedDestinationLocation,
+                        
                       ),
                     ),
                   );
