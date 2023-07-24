@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mlritpool/Themes/app_theme.dart';
 import 'dart:convert';
-import '../../../providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VehicleSelection extends ConsumerStatefulWidget {
-  final String selectedVehicle;
+  String selectedVehicle;
   final Function(String) updateSelectedVehicle;
+  String? uid;
 
   VehicleSelection({
     Key? key,
     required this.selectedVehicle,
     required this.updateSelectedVehicle,
+    required this.uid,
   }) : super(key: key);
 
   @override
@@ -30,18 +31,15 @@ class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
   }
 
   Future<void> fetchVehicles() async {
-    final authService = ref.read(authProvider);
-    final user = authService.getCurrentUser();
-    final uid = user?.uid;
-
     try {
-      final response = await http
-          .get(Uri.parse('http://192.168.0.103:3000/auth/vehicles/$uid'));
+      final response = await http.get(
+          Uri.parse('http://192.168.0.103:3000/auth/vehicles/${widget.uid}'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final vehicleNames = data['vehicleNames'];
         setState(() {
           vehicleList = List<String>.from(vehicleNames);
+          widget.selectedVehicle = vehicleList.first;
           isLoading = false;
         });
         print(vehicleList);
@@ -98,9 +96,7 @@ class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
           child: isLoading
               ? const CircularProgressIndicator()
               : DropdownButton<String>(
-                  value: vehicleList.isNotEmpty
-                      ? vehicleList.first
-                      : 'Default Vehicle',
+                  value: widget.selectedVehicle,
                   onChanged: (String? newValue) {
                     widget.updateSelectedVehicle(newValue!);
                   },
@@ -132,7 +128,7 @@ class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
                   icon: const Icon(Icons.arrow_drop_down),
                   iconSize: 32.0,
                   underline: const SizedBox(), // Remove the default underline
-                  dropdownColor: Apptheme.fourthColor,
+                  dropdownColor: Colors.white,
                 ),
         ),
       ],

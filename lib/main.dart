@@ -1,8 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mlritpool/common/loading.dart';
 import './providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import './screens/auth/login.dart';
+import './common/error.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,17 +40,13 @@ class MyApp extends ConsumerWidget {
         future: Future.value(authService.getCurrentUser()),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Loader();
           } else if (snapshot.hasError) {
-            return Scaffold(
-              body: Center(
-                child: Text('Error occurred: ${snapshot.error}'),
-              ),
-            );
+            return Snackbar.showSnackbar(context, snapshot.error.toString());
           } else {
             final user = snapshot.data;
             if (user != null) {
-              return const PageViewScreen(); 
+              return const PageViewScreen();
             } else {
               return Login();
             }

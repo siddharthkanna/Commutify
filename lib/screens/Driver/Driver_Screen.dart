@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:mlritpool/common/loading.dart';
 import 'package:mlritpool/models/map_box_place.dart';
 import 'package:mlritpool/screens/Driver/Ride_Publish.dart';
 import 'package:mlritpool/screens/Driver/DriverComponents/destination_location_input.dart';
@@ -8,9 +9,11 @@ import 'package:mlritpool/screens/Driver/DriverComponents/mode_switch.dart';
 import 'package:mlritpool/screens/Driver/DriverComponents/scheduled_mode_section.dart';
 import 'package:mlritpool/screens/Driver/DriverComponents/vehicle_selection.dart';
 import 'package:mlritpool/screens/Driver/DriverComponents/seating_capacity_selection.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/api_service.dart';
 
-
-class DriverScreen extends StatefulWidget {
+class DriverScreen extends ConsumerStatefulWidget {
   MapBoxPlace? pickupLocation;
   MapBoxPlace? destinationLocation;
 
@@ -24,7 +27,7 @@ class DriverScreen extends StatefulWidget {
   _DriverScreenState createState() => _DriverScreenState();
 }
 
-class _DriverScreenState extends State<DriverScreen> {
+class _DriverScreenState extends ConsumerState<DriverScreen> {
   bool immediateMode = true;
   bool scheduledMode = false;
   late String selectedVehicle = '';
@@ -32,6 +35,7 @@ class _DriverScreenState extends State<DriverScreen> {
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
   int price = 0;
+  bool isRidePublishing = false;
 
   TextEditingController pickupLocationController = TextEditingController();
   TextEditingController destinationLocationController = TextEditingController();
@@ -126,6 +130,60 @@ class _DriverScreenState extends State<DriverScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = ref.read(authProvider);
+    String? uid = authService.getCurrentUser()?.uid;
+
+    Future<void> _publishRide() async {
+      setState(() {
+        isRidePublishing = true;
+      });
+      final Map<String, dynamic> rideData = {
+        'driverId': uid,
+        'pickupLocation': [
+          {
+            'latitude': widget.pickupLocation?.latitude,
+            'longitude': widget.pickupLocation?.longitude,
+            'placeName': widget.pickupLocation?.placeName,
+          }
+        ],
+        'destinationLocation': [
+          {
+            'latitude': widget.destinationLocation?.latitude,
+            'longitude': widget.destinationLocation?.longitude,
+            'placeName': widget.destinationLocation?.placeName,
+          }
+        ],
+        'immediateMode': immediateMode,
+        'scheduledMode': scheduledMode,
+        'selectedVehicle': selectedVehicle,
+        'selectedCapacity': selectedCapacity,
+        'selectedDate':
+            selectedDate.toIso8601String(), // Convert DateTime to String
+        'selectedTime': selectedTime.format(context),
+        'price': price,
+        'userRole': 'driver',
+      };
+
+      final isRidePublished = await publishRide(rideData);
+      setState(() {
+        isRidePublishing = false;
+      });
+
+      if (isRidePublished) {
+        // Ride published successfully
+        print('Ride published successfully');
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const RidePublished()),
+        );
+        print(rideData);
+      } else {
+        // Handle error case
+        print('Failed to publish ride');
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Apptheme.fourthColor,
@@ -205,6 +263,7 @@ class _DriverScreenState extends State<DriverScreen> {
             VehicleSelection(
               selectedVehicle: selectedVehicle,
               updateSelectedVehicle: updateSelectedVehicle,
+              uid: uid,
             ),
             SeatingCapacitySelection(
               selectedCapacity: selectedCapacity,
@@ -257,14 +316,6 @@ class _DriverScreenState extends State<DriverScreen> {
               alignment: Alignment.bottomCenter,
               padding: const EdgeInsets.only(bottom: 30.0),
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const RidePublished()),
-                  );
-                  // Handle the "Proceed" button press
-                },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                   backgroundColor: Apptheme.primaryColor,
@@ -272,10 +323,16 @@ class _DriverScreenState extends State<DriverScreen> {
                     borderRadius: BorderRadius.circular(15.0),
                   ),
                 ),
-                child: const Text(
-                  'Proceed',
-                  style: TextStyle(fontSize: 18),
-                ),
+                onPressed: isRidePublishing
+                    ? null // Disable button while publishing
+                    : _publishRide,
+                // ... (existing code)
+                child: isRidePublishing
+                    ? const Loader() // Show progress indicator while publishing
+                    : const Text(
+                        'Proceed',
+                        style: TextStyle(fontSize: 18),
+                      ),
               ),
             ),
           ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
+import '../models/ride_modal.dart';
+import '../services/api_service.dart';
 
 class MyRides extends StatefulWidget {
   const MyRides({Key? key}) : super(key: key);
@@ -13,44 +15,40 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
 
   final List<Ride> bookedRides = [
     Ride(
-      pickup: 'Pickup 1',
-      destination: 'Destination 1',
-      price: 10.0,
-      time: '9:00 AM',
-    ),
-    Ride(
       pickup: 'Pickup 2',
       destination: 'Destination 2',
-      price: 15.0,
+      price: 15,
       time: '10:30 AM',
+      name: 'Name 1',
     ),
   ];
 
-  final List<Ride> publishedRides = [
-    Ride(
-      pickup: 'Pickup 3',
-      destination: 'Destination 3',
-      price: 20.0,
-      time: '12:00 PM',
-    ),
-    Ride(
-      pickup: 'Pickup 4',
-      destination: 'Destination 4',
-      price: 25.0,
-      time: '2:30 PM',
-    ),
-  ];
+  List<Ride> publishedRides = [];
 
   @override
   void initState() {
     super.initState();
+
     _tabController = TabController(length: 2, vsync: this);
+    fetchPublishedRide();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  fetchPublishedRide() async {
+    final List<Ride> rides = await fetchPublishedRides();
+    setState(() {
+      publishedRides = rides;
+      print(publishedRides);
+    });
+  }
+
+  Future<void> _refreshData() async {
+    await fetchPublishedRide();
   }
 
   @override
@@ -76,12 +74,15 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildRidesList(bookedRides),
-          _buildRidesList(publishedRides),
-        ],
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildRidesList(bookedRides),
+            _buildRidesList(publishedRides),
+          ],
+        ),
       ),
     );
   }
@@ -96,20 +97,6 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
       },
     );
   }
-}
-
-class Ride {
-  final String pickup;
-  final String destination;
-  final double price;
-  final String time;
-
-  Ride({
-    required this.pickup,
-    required this.destination,
-    required this.price,
-    required this.time,
-  });
 }
 
 class RideCard extends StatelessWidget {
@@ -138,7 +125,7 @@ class RideCard extends StatelessWidget {
         children: [
           const SizedBox(height: 8.0),
           Text(
-            '${ride.pickup} --> ${ride.destination}',
+            '${ride.pickup.length > 15 ? ride.pickup.substring(0, 15) : ride.pickup} --> ${ride.destination.length > 15 ? ride.destination.substring(0, 15) : ride.destination}',
             style: const TextStyle(
               fontSize: 16.0,
               fontWeight: FontWeight.bold,
@@ -185,17 +172,18 @@ class RideCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16.0),
-          const Row(
+          Row(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 22.0,
                 // Replace the imageProvider with your driver's image asset or network image.
-                backgroundImage: AssetImage('assets/driver_avatar.png'),
+                backgroundImage: NetworkImage(
+                    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1600'),
               ),
               SizedBox(width: 12.0),
               Text(
-                'John Doe',
-                style: TextStyle(
+                ride.name,
+                style: const TextStyle(
                   fontSize: 15.0,
                   fontWeight: FontWeight.w400,
                 ),

@@ -11,7 +11,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authService = ref.watch(authProvider);
     final user = authService.getCurrentUser();
-
+    String image = user?.photoURL ?? '';
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile Screen'),
@@ -24,7 +24,7 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: 80.0,
-                backgroundImage: AssetImage('assets/profile_picture.png'),
+                backgroundImage: NetworkImage(image),
               ),
               const SizedBox(height: 24.0),
               Text(

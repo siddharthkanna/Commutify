@@ -11,18 +11,17 @@ class DetailsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final _formKey = GlobalKey<FormState>();
-    String? _vehicleNumber;
-    String? _mobileNumber;
-    String? _vehicleName;
-    String? _vehicleType;
-    String? _name;
+    final formKey = GlobalKey<FormState>();
+    String? vehicleNumber;
+    String? mobileNumber;
+    String? vehicleName;
+    String? vehicleType;
+    String? name;
 
     final auth = ref.watch(authProvider);
     final loading = auth.loading;
     final user = auth.getCurrentUser();
-
-    _name = user?.displayName;
+    name = user?.displayName;
 
     return Scaffold(
       backgroundColor: Apptheme.primaryColor,
@@ -41,17 +40,14 @@ class DetailsPage extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(52.0),
               child: Form(
-                key: _formKey,
+                key: formKey,
                 child: ListView(
                   shrinkWrap: true,
                   children: [
                     Theme(
                       data: Theme.of(context).copyWith(
                         textTheme: Theme.of(context).textTheme.copyWith(
-                              titleMedium: TextStyle(
-                                  color: Colors
-                                      .white), // Set the text color for TextFormField
-                              // Add other text styles as needed
+                              titleMedium: const TextStyle(color: Colors.white),
                             ),
                         inputDecorationTheme: InputDecorationTheme(
                           isDense: true,
@@ -87,7 +83,7 @@ class DetailsPage extends ConsumerWidget {
                               return null;
                             },
                             onSaved: (value) {
-                              _name = value;
+                              name = value;
                             },
                           ),
                           const SizedBox(height: 32.0),
@@ -101,7 +97,7 @@ class DetailsPage extends ConsumerWidget {
                               return null;
                             },
                             onSaved: (value) {
-                              _mobileNumber = value;
+                              mobileNumber = value;
                             },
                           ),
                           const SizedBox(height: 32.0),
@@ -115,7 +111,7 @@ class DetailsPage extends ConsumerWidget {
                               return null;
                             },
                             onSaved: (value) {
-                              _vehicleNumber = value;
+                              vehicleNumber = value;
                             },
                           ),
                           const SizedBox(height: 32.0),
@@ -129,7 +125,7 @@ class DetailsPage extends ConsumerWidget {
                               return null;
                             },
                             onSaved: (value) {
-                              _vehicleName = value;
+                              vehicleName = value;
                             },
                           ),
                           const SizedBox(height: 32.0),
@@ -143,7 +139,7 @@ class DetailsPage extends ConsumerWidget {
                               return null;
                             },
                             onSaved: (value) {
-                              _vehicleType = value;
+                              vehicleType = value;
                             },
                           ),
                         ],
@@ -152,29 +148,30 @@ class DetailsPage extends ConsumerWidget {
                     const SizedBox(height: 32.0),
                     ElevatedButton(
                       onPressed: () async {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          _formKey.currentState?.save();
+                        if (formKey.currentState?.validate() ?? false) {
+                          formKey.currentState?.save();
 
                           try {
                             final user =
                                 ref.read(authProvider).getCurrentUser();
                             final uid = user?.uid;
                             final email = user?.email;
+                            final image = user?.photoURL;
                             //final name  = user?.displayName;
-                            if (_name != null) {
-                              await user?.updateDisplayName(_name);
+                            if (name != null) {
+                              await user?.updateDisplayName(name);
                             }
 
                             final userData = {
                               'uid': uid,
                               'email': email,
-                              'name': _name,
-                              'mobileNumber': _mobileNumber,
+                              'name': name,
+                              'mobileNumber': mobileNumber,
                               'vehicles': [
                                 {
-                                  'vehicleNumber': _vehicleNumber,
-                                  'vehicleName': _vehicleName,
-                                  'vehicleType': _vehicleType,
+                                  'vehicleNumber': vehicleNumber,
+                                  'vehicleName': vehicleName,
+                                  'vehicleType': vehicleType,
                                 },
                               ],
                             };
