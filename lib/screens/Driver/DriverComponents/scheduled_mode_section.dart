@@ -29,7 +29,7 @@ class ScheduledModeSection extends StatelessWidget {
             ElevatedButton(
               onPressed: () => selectDate(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Apptheme.primaryColor,
+                backgroundColor: Apptheme.noir,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0)),
               ),
@@ -45,7 +45,7 @@ class ScheduledModeSection extends StatelessWidget {
             ElevatedButton(
               onPressed: () => selectTime(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Apptheme.primaryColor,
+                backgroundColor: Apptheme.noir,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0)),
               ),

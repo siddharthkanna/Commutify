@@ -63,7 +63,7 @@ class AuthService extends ChangeNotifier {
       final user = _firebaseAuth.currentUser;
       final uid = user?.uid;
 
-      final url = Uri.parse('http://192.168.0.103:3000/auth/exists');
+      final url = Uri.parse('https://ridesharing-backend-node.onrender.com/auth/exists');
       final response = await http.post(
         url,
         body: {
@@ -92,6 +92,7 @@ class AuthService extends ChangeNotifier {
         }
       } else {
         setError('Failed to check user existence. Please try again.');
+        
       }
     } catch (e) {
       setError('Failed to check user existence. Please try again.: $e');

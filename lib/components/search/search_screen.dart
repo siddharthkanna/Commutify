@@ -79,7 +79,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Apptheme.conatainer,
+      backgroundColor: Apptheme.ivory,
       body: Column(
         children: [
           Padding(

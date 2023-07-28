@@ -4,7 +4,7 @@ import '../services/location_service.dart';
 import 'package:mlritpool/components/map_widget.dart';
 import 'package:mlritpool/components/search/search_container.dart';
 import 'package:mlritpool/models/map_box_place.dart';
-import 'package:mlritpool/themes/app_theme.dart';
+import 'package:mlritpool/Themes/app_theme.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 
 class HomeScreen extends StatefulWidget {
@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
             right: 18,
             child: FloatingActionButton(
               onPressed: getCurrentLocation,
-              backgroundColor: Apptheme.primaryColor,
+              backgroundColor: Apptheme.navy,
               child: const Icon(Icons.my_location),
             ),
           ),

@@ -8,7 +8,7 @@ class RidePublished extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Apptheme.background,
+      backgroundColor: Apptheme.backgroundblue,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -51,16 +51,19 @@ class RidePublished extends StatelessWidget {
             const SizedBox(height: 100),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const PageViewScreen(initialPage : 1)),
+                      builder: (context) =>
+                          const PageViewScreen(initialPage: 1)),
+                  (route) =>
+                      false, // RoutePredicate: Always return false to remove all previous routes.
                 );
               },
               style: ElevatedButton.styleFrom(
                   elevation: 15,
                   minimumSize: const Size(280, 55),
-                  backgroundColor: Apptheme.primaryColor,
+                  backgroundColor: Apptheme.noir,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0))),
               child: const Text('See My Rides', style: TextStyle(fontSize: 24)),

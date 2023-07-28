@@ -40,7 +40,7 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
   }
 
   fetchPublishedRide() async {
-    final List<Ride> rides = await fetchPublishedRides();
+    final List<Ride> rides = await ApiService.fetchPublishedRides();
     setState(() {
       publishedRides = rides;
       print(publishedRides);
@@ -54,20 +54,21 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Apptheme.fourthColor,
+      backgroundColor: Apptheme.mist,
       appBar: AppBar(
         title: Padding(
           padding: EdgeInsets.only(left: 10.0, top: 10.0),
           child: const Text(
             'My Rides',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Apptheme.noir, fontWeight: FontWeight.bold, fontSize: 24),
           ),
         ),
-        backgroundColor: Apptheme.fourthColor,
+        backgroundColor: Apptheme.mist,
         elevation: 0.5,
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.black,
+          indicatorColor: Apptheme.noir,
           tabs: const [
             Tab(text: 'Booked'),
             Tab(text: 'Published'),
@@ -108,88 +109,89 @@ class RideCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Apptheme.fourthColor,
-        borderRadius: BorderRadius.circular(8.0),
+        color: Apptheme.ivory,
+        borderRadius: BorderRadius.circular(15.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.4),
-            spreadRadius: 2,
+            color: Colors.black.withOpacity(0.12),
+            spreadRadius: 3,
             blurRadius: 4,
             offset: Offset(0, 2), // changes the shadow direction
           ),
         ],
+        border: Border.all(
+          color: Colors.black,// Border color
+          width: 0.8, // Border width
+        ),
       ),
       padding: const EdgeInsets.all(18.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8.0),
-          Text(
-            '${ride.pickup.length > 15 ? ride.pickup.substring(0, 15) : ride.pickup} --> ${ride.destination.length > 15 ? ride.destination.substring(0, 15) : ride.destination}',
-            style: const TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 5.0),
-          Text(
-            '\$${ride.price.toStringAsFixed(2)}',
-            style: const TextStyle(
-              fontSize: 14.0,
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          const Row(
-            children: [
-              Icon(Icons.calendar_today, size: 16.0),
-              SizedBox(width: 4.0),
-              Text(
-                '12th October',
-                style: TextStyle(fontSize: 12.0),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4.0),
           Row(
             children: [
-              const Icon(Icons.access_time, size: 16.0),
-              const SizedBox(width: 4.0),
               Text(
-                '${ride.time}',
-                style: const TextStyle(fontSize: 12.0),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4.0),
-          const Row(
-            children: [
-              Icon(Icons.people, size: 16.0),
-              SizedBox(width: 4.0),
-              Text(
-                '2',
-                style: TextStyle(fontSize: 12.0),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16.0),
-          Row(
-            children: [
-              const CircleAvatar(
-                radius: 22.0,
-                // Replace the imageProvider with your driver's image asset or network image.
-                backgroundImage: NetworkImage(
-                    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1600'),
-              ),
-              SizedBox(width: 12.0),
-              Text(
-                ride.name,
+                '${ride.pickup.length > 15 ? ride.pickup.substring(0, 15) : ride.pickup}',
                 style: const TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w400,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.arrow_forward,
+                size: 16.0, // Adjust this value to make the arrow icon larger
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '${ride.destination.length > 15 ? ride.destination.substring(0, 15) : ride.destination}',
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 5.0),
+          Text(
+            '\Rs.${ride.price.toStringAsFixed(2)}',
+            style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
+          ),
+          const SizedBox(height: 16.0),
+          const Row(
+            children: [
+              Icon(Icons.calendar_today, size: 16.0,color: Colors.black54,),
+              SizedBox(width: 4.0),
+              Text(
+                '12th October',
+                style: TextStyle(fontSize: 12.0,color: Colors.black54),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4.0),
+          Row(
+            children: [
+              const Icon(Icons.access_time, size: 16.0,color: Colors.black54,),
+              const SizedBox(width: 4.0),
+              Text(
+                '${ride.time}',
+                style: const TextStyle(fontSize: 12.0,color: Colors.black54),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4.0),
+          const Row(
+            children: [
+              Icon(Icons.people, size: 16.0,color: Colors.black54,),
+              SizedBox(width: 4.0),
+              Text(
+                '2',
+                style: TextStyle(fontSize: 12.0,color: Colors.black54),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16.0),
         ],
       ),
     );

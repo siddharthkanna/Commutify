@@ -3,7 +3,7 @@ import 'package:mlritpool/components/search/search_screen.dart';
 import 'package:mlritpool/models/map_box_place.dart';
 import 'package:mlritpool/screens/Driver/driver_screen.dart';
 import 'package:mlritpool/screens/Passenger/passengerScreen.dart';
-import 'package:mlritpool/themes/app_theme.dart';
+import 'package:mlritpool/Themes/app_theme.dart';
 
 class SearchContainer extends StatefulWidget {
   final Function(MapBoxPlace) setPickupLocation;
@@ -96,13 +96,13 @@ class _SearchContainerState extends State<SearchContainer> {
           title: const Text(
             'Select Your Role!',
           ),
-          backgroundColor: Apptheme.thirdColor,
+          backgroundColor: Apptheme.ivory,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Apptheme.primaryColor,
+                  backgroundColor: Apptheme.navy,
                   textStyle: const TextStyle(
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Outfit',
@@ -121,7 +121,6 @@ class _SearchContainerState extends State<SearchContainer> {
                       builder: (context) => DriverScreen(
                         pickupLocation: selectedPickupLocation,
                         destinationLocation: selectedDestinationLocation,
-                        
                       ),
                     ),
                   );
@@ -130,7 +129,7 @@ class _SearchContainerState extends State<SearchContainer> {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Apptheme.primaryColor,
+                  backgroundColor: Apptheme.navy,
                   textStyle: const TextStyle(
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Outfit',
@@ -172,8 +171,12 @@ class _SearchContainerState extends State<SearchContainer> {
             offset: const Offset(0, 3),
           ),
         ],
-        color: Apptheme.conatainer,
+        color: Apptheme.mist,
         borderRadius: BorderRadius.circular(15.0),
+        border: Border.all(
+          color: Colors.black, // Set the border color here
+          width: 0.5, // Set the border width here
+        ),
       ),
       constraints: const BoxConstraints(minHeight: 200.0, minWidth: 330.0),
       padding: const EdgeInsets.all(16.0),
@@ -181,12 +184,15 @@ class _SearchContainerState extends State<SearchContainer> {
         children: [
           const Text(
             'Where to?',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Apptheme.noir),
           ),
           const SizedBox(height: 15.0),
           SizedBox(
             width: 300.0,
-            height: 60,
+            height: 58,
             child: GestureDetector(
               onTap: () =>
                   openSearchScreen(_pickupController, widget.setPickupLocation),
@@ -194,8 +200,10 @@ class _SearchContainerState extends State<SearchContainer> {
                 child: TextFormField(
                   controller: _pickupController,
                   style: const TextStyle(
-                      fontSize: 18.0, fontWeight: FontWeight.normal),
+                      fontSize: 14.0, fontWeight: FontWeight.normal),
                   decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Apptheme.ivory,
                     labelText: 'Pickup',
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15.0),
@@ -211,7 +219,7 @@ class _SearchContainerState extends State<SearchContainer> {
           const SizedBox(height: 12.0),
           SizedBox(
             width: 300.0,
-            height: 60,
+            height: 58,
             child: GestureDetector(
               onTap: () => openSearchScreen(
                   _destinationController, widget.setDestinationLocation),
@@ -219,9 +227,11 @@ class _SearchContainerState extends State<SearchContainer> {
                 child: TextFormField(
                   controller: _destinationController,
                   style: const TextStyle(
-                      fontSize: 18.0, fontWeight: FontWeight.normal),
+                      fontSize: 14.0, fontWeight: FontWeight.normal),
                   decoration: InputDecoration(
                     labelText: 'Destination',
+                    filled: true,
+                    fillColor: Apptheme.ivory,
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
@@ -234,11 +244,11 @@ class _SearchContainerState extends State<SearchContainer> {
             ),
           ),
           const SizedBox(
-            height: 10.0,
+            height: 8.0,
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Apptheme.primaryColor,
+              backgroundColor: Apptheme.navy,
               textStyle: const TextStyle(
                 fontWeight: FontWeight.normal,
                 fontFamily: 'Outfit',

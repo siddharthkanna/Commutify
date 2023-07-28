@@ -12,7 +12,7 @@ class Login extends ConsumerWidget {
     final loading = auth.loading;
 
     return Scaffold(
-      backgroundColor: Apptheme.primaryColor,
+      backgroundColor: Apptheme.navy,
       body: Stack(
         children: [
           Center(
@@ -28,7 +28,7 @@ class Login extends ConsumerWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 42.0,
-                        color: Apptheme.fourthColor,
+                        color: Apptheme.ivory,
                       ),
                     ),
                     const SizedBox(height: 50.0),
@@ -47,7 +47,7 @@ class Login extends ConsumerWidget {
                           ),
                           minimumSize: const Size.fromHeight(
                               50), // Adjust the height as needed
-                          backgroundColor: Apptheme.fourthColor,
+                          backgroundColor: Apptheme.ivory,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18.0),
                           ),

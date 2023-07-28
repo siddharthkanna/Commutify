@@ -164,7 +164,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
         'userRole': 'driver',
       };
 
-      final isRidePublished = await publishRide(rideData);
+      final isRidePublished = await ApiService.publishRide(rideData);
       setState(() {
         isRidePublishing = false;
       });
@@ -186,18 +186,16 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Apptheme.fourthColor,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Apptheme.primaryColor),
+        backgroundColor: Apptheme.mist,
+        elevation: 1,
+        iconTheme: const IconThemeData(color: Apptheme.noir),
         title: const Text(
-          'DRIVER',
+          'Driver',
           style: TextStyle(
-              color: Apptheme.primaryColor,
-              fontSize: 20,
-              fontWeight: FontWeight.bold),
+              color: Apptheme.noir, fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
-      backgroundColor: Apptheme.fourthColor,
+      backgroundColor: Apptheme.mist,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(32.0),
         child: Column(
@@ -221,7 +219,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                         width: 30,
                         height: 30,
                         decoration: ShapeDecoration(
-                          color: Apptheme.thirdColor,
+                          color: Apptheme.ivory,
                           shape: RoundedRectangleBorder(
                             side: const BorderSide(width: 0.50),
                             borderRadius: BorderRadius.circular(10),
@@ -282,7 +280,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                   },
                   icon: Container(
                     decoration: const BoxDecoration(
-                        shape: BoxShape.circle, color: Apptheme.thirdColor),
+                        shape: BoxShape.circle, color: Apptheme.ivory),
                     child: const Icon(Icons.remove),
                   ),
                 ),
@@ -303,14 +301,14 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                   icon: Container(
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Apptheme.thirdColor,
+                      color: Apptheme.ivory,
                     ),
                     child: const Icon(Icons.add),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 45),
             Container(
               width: double.infinity,
               alignment: Alignment.bottomCenter,
@@ -318,7 +316,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Apptheme.primaryColor,
+                  backgroundColor: Apptheme.noir,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
                   ),

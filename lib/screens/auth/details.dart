@@ -24,7 +24,7 @@ class DetailsPage extends ConsumerWidget {
     name = user?.displayName;
 
     return Scaffold(
-      backgroundColor: Apptheme.primaryColor,
+      backgroundColor: Apptheme.navy,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -56,18 +56,16 @@ class DetailsPage extends ConsumerWidget {
                             horizontal: 18.0,
                           ),
                           labelStyle: const TextStyle(
-                            color: Apptheme.thirdColor,
+                            color: Apptheme.ivory,
                             fontWeight: FontWeight.normal,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(22.0),
-                            borderSide:
-                                const BorderSide(color: Apptheme.fourthColor),
+                            borderSide: const BorderSide(color: Apptheme.ivory),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(22.0),
-                            borderSide:
-                                const BorderSide(color: Apptheme.fourthColor),
+                            borderSide: const BorderSide(color: Apptheme.ivory),
                           ),
                         ),
                       ),
@@ -176,7 +174,8 @@ class DetailsPage extends ConsumerWidget {
                               ],
                             };
 
-                            final success = await createUser(userData);
+                            final success =
+                                await ApiService.createUser(userData);
 
                             if (success) {
                               Navigator.pushReplacement(
@@ -195,6 +194,7 @@ class DetailsPage extends ConsumerWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         textStyle: const TextStyle(
+                          color: Apptheme.noir,
                           fontFamily: 'Outfit',
                           fontWeight: FontWeight.normal,
                           fontSize: 18.0,
@@ -203,7 +203,7 @@ class DetailsPage extends ConsumerWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(22.0),
                         ),
-                        backgroundColor: const Color(0xff30475e),
+                        backgroundColor: Apptheme.ivory,
                       ),
                       child: const Text('Save'),
                     ),

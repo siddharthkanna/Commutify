@@ -23,7 +23,7 @@ class ModeSwitch extends StatelessWidget {
           width: 120,
           height: 30,
           decoration: BoxDecoration(
-            color: scheduledMode ? Apptheme.button : Apptheme.primaryColor,
+            color: scheduledMode ? Apptheme.navy : Apptheme.noir,
             borderRadius: BorderRadius.circular(5),
           ),
           child: SizedBox(
@@ -43,8 +43,8 @@ class ModeSwitch extends StatelessWidget {
           onChanged: (value) {
             toggleMode();
           },
-          activeColor: Apptheme.button,
-          inactiveThumbColor: Apptheme.primaryColor,
+          activeColor: Apptheme.navy,
+          inactiveThumbColor: Apptheme.noir,
         ),
       ],
     );

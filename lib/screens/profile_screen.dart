@@ -17,7 +17,7 @@ class ProfileScreen extends ConsumerWidget {
         title: const Text('Profile Screen'),
       ),
       body: Container(
-        color: Apptheme.fourthColor,
+        color: Apptheme.mist,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -30,7 +30,7 @@ class ProfileScreen extends ConsumerWidget {
               Text(
                 'User Name: ${user?.displayName ?? "N/A"}',
                 style:
-                    const TextStyle(fontSize: 18, color: Apptheme.primaryColor),
+                    const TextStyle(fontSize: 18, color: Apptheme.noir),
               ),
               const SizedBox(height: 24.0),
               ElevatedButton(

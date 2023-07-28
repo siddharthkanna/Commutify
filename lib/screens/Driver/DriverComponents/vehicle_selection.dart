@@ -32,8 +32,8 @@ class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
 
   Future<void> fetchVehicles() async {
     try {
-      final response = await http.get(
-          Uri.parse('http://192.168.0.103:3000/auth/vehicles/${widget.uid}'));
+      final response = await http.get(Uri.parse(
+          'https://ridesharing-backend-node.onrender.com/auth/vehicles/${widget.uid}'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final vehicleNames = data['vehicleNames'];
@@ -78,7 +78,7 @@ class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
           width: 200,
           height: 45,
           decoration: BoxDecoration(
-            color: Apptheme.thirdColor,
+            color: Apptheme.ivory,
             border: Border.all(
               color: Colors.black,
               width: 1.0,

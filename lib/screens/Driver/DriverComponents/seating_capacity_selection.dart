@@ -26,7 +26,7 @@ class SeatingCapacitySelection extends StatelessWidget {
           width: 200,
           height: 45,
           decoration: BoxDecoration(
-            color: Apptheme.thirdColor,
+            color: Apptheme.ivory,
             border: Border.all(
               color: Colors.black,
               width: 1.0,
@@ -72,7 +72,7 @@ class SeatingCapacitySelection extends StatelessWidget {
             icon: const Icon(Icons.arrow_drop_down),
             iconSize: 32.0,
             underline: const SizedBox(),
-            dropdownColor: Apptheme.fourthColor,
+            dropdownColor: Apptheme.ivory,
           ),
         ),
       ],

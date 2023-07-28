@@ -25,7 +25,7 @@ class DestinationLocationInput extends StatelessWidget {
         ),
         decoration: InputDecoration(
           filled: true,
-          fillColor: Apptheme.thirdColor,
+          fillColor: Apptheme.ivory,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),
