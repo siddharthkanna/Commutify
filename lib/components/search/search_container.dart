@@ -10,12 +10,12 @@ class SearchContainer extends StatefulWidget {
   final Function(MapBoxPlace) setDestinationLocation;
   final MapBoxPlace? currentLocation;
 
-  const SearchContainer(
-      {Key? key,
-      required this.setPickupLocation,
-      required this.setDestinationLocation,
-      required this.currentLocation})
-      : super(key: key);
+  const SearchContainer({
+    Key? key,
+    required this.setPickupLocation,
+    required this.setDestinationLocation,
+    required this.currentLocation,
+  }) : super(key: key);
 
   @override
   State<SearchContainer> createState() => _SearchContainerState();
@@ -103,15 +103,16 @@ class _SearchContainerState extends State<SearchContainer> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.navy,
-                  textStyle: const TextStyle(
+                  textStyle: TextStyle(
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Outfit',
-                    fontSize: 15.0,
+                    fontSize: MediaQuery.of(context).size.width * 0.04,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
                   ),
-                  minimumSize: const Size(100, 40),
+                  minimumSize: Size(MediaQuery.of(context).size.width * 0.25,
+                      MediaQuery.of(context).size.width * 0.1),
                 ),
                 onPressed: () {
                   // Handle driver button press
@@ -130,25 +131,28 @@ class _SearchContainerState extends State<SearchContainer> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.navy,
-                  textStyle: const TextStyle(
+                  textStyle: TextStyle(
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Outfit',
-                    fontSize: 15.0,
+                    fontSize: MediaQuery.of(context).size.width * 0.04,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
                   ),
-                  minimumSize: const Size(50, 40),
+                  minimumSize: Size(MediaQuery.of(context).size.width * 0.25,
+                      MediaQuery.of(context).size.width * 0.1),
                 ),
                 onPressed: () {
                   // Handle passenger button press
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PassengerScreen(),
+                      builder: (context) => PassengerScreen(
+                        pickupLocation: selectedPickupLocation,
+                        destinationLocation: selectedDestinationLocation,
+                      ),
                     ),
                   );
-                  // Navigate to passenger screen
                 },
                 child: const Text('Passenger'),
               ),
@@ -161,109 +165,125 @@ class _SearchContainerState extends State<SearchContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
+    // Calculate responsive font size and button size based on screen width
+    final double fontSize22 = screenSize.width * 0.065;
+    final double fontSize14 = screenSize.width * 0.04;
+
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
+            spreadRadius: screenSize.width * 0.015,
+            blurRadius: screenSize.width * 0.02,
             offset: const Offset(0, 3),
           ),
         ],
         color: Apptheme.mist,
-        borderRadius: BorderRadius.circular(15.0),
+        borderRadius: BorderRadius.circular(screenSize.width * 0.04),
         border: Border.all(
-          color: Colors.black, // Set the border color here
-          width: 0.5, // Set the border width here
+          color: Colors.black,
+          width: screenSize.width * 0.0025,
         ),
       ),
-      constraints: const BoxConstraints(minHeight: 200.0, minWidth: 330.0),
-      padding: const EdgeInsets.all(16.0),
+      constraints: BoxConstraints(
+          minHeight: screenSize.width * 0.55,
+          minWidth: screenSize.width * 0.91),
+      padding: EdgeInsets.all(screenSize.width * 0.04),
       child: Column(
         children: [
-          const Text(
+          Text(
             'Where to?',
             style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Apptheme.noir),
+              fontSize: fontSize22,
+              fontWeight: FontWeight.bold,
+              color: Apptheme.noir,
+            ),
           ),
-          const SizedBox(height: 15.0),
+          SizedBox(height: screenSize.width * 0.035),
           SizedBox(
-            width: 300.0,
-            height: 58,
+            width: screenSize.width * 0.84,
+            height: screenSize.width * 0.16,
             child: GestureDetector(
               onTap: () =>
                   openSearchScreen(_pickupController, widget.setPickupLocation),
               child: AbsorbPointer(
                 child: TextFormField(
                   controller: _pickupController,
-                  style: const TextStyle(
-                      fontSize: 14.0, fontWeight: FontWeight.normal),
+                  style: TextStyle(
+                    fontSize: fontSize14,
+                    fontWeight: FontWeight.normal,
+                  ),
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Apptheme.ivory,
                     labelText: 'Pickup',
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius:
+                          BorderRadius.circular(screenSize.width * 0.04),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius:
+                          BorderRadius.circular(screenSize.width * 0.04),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 12.0),
+          SizedBox(height: screenSize.width * 0.03),
           SizedBox(
-            width: 300.0,
-            height: 58,
+            width: screenSize.width * 0.84,
+            height: screenSize.width * 0.16,
             child: GestureDetector(
               onTap: () => openSearchScreen(
                   _destinationController, widget.setDestinationLocation),
               child: AbsorbPointer(
                 child: TextFormField(
                   controller: _destinationController,
-                  style: const TextStyle(
-                      fontSize: 14.0, fontWeight: FontWeight.normal),
+                  style: TextStyle(
+                    fontSize: fontSize14,
+                    fontWeight: FontWeight.normal,
+                  ),
                   decoration: InputDecoration(
                     labelText: 'Destination',
                     filled: true,
                     fillColor: Apptheme.ivory,
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius:
+                          BorderRadius.circular(screenSize.width * 0.04),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius:
+                          BorderRadius.circular(screenSize.width * 0.04),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(
-            height: 8.0,
-          ),
+          SizedBox(height: screenSize.width * 0.03),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Apptheme.navy,
-              textStyle: const TextStyle(
+              textStyle: TextStyle(
                 fontWeight: FontWeight.normal,
                 fontFamily: 'Outfit',
-                fontSize: 15.0,
+                fontSize: screenSize.width * 0.04,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
+                borderRadius: BorderRadius.circular(screenSize.width * 0.04),
               ),
-              minimumSize: const Size(100, 42),
+              minimumSize:
+                  Size(screenSize.width * 0.25, screenSize.width * 0.1),
             ),
             onPressed: () {
               // Handle button press
               showDriverPassengerPopup();
             },
-            child: const Text('Confirm'),
+            child: Text('Confirm'),
           ),
         ],
       ),

@@ -13,8 +13,8 @@ final uidProvider = Provider<String?>((ref) {
 class ApiService {
   static Future<bool> createUser(Map<String, dynamic> userData) async {
     try {
-      final url = Uri.parse(
-          'https://ridesharing-backend-node.onrender.com/auth/'); 
+      final url =
+          Uri.parse('https://ridesharing-backend-node.onrender.com/auth/');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -83,19 +83,20 @@ class ApiService {
         throw Exception('UID not available. User not authenticated.');
       }
       final response = await http.get(Uri.parse(
-          'https://ridesharing-backend-node.onrender.com/ride/fetchPublishedRides?driverId=$uid'));
+          'http://192.168.0.103:3000/ride/fetchPublishedRides?driverId=$uid'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+        
         return data.map((item) => Ride.fromJson(item)).toList();
       } else {
         print(
             'Failed to fetch published rides. Status code: ${response.statusCode}');
-        return []; // Return an empty list in case of an error
+        return []; 
       }
     } catch (e) {
       print('Error fetching published rides: $e');
-      return []; // Return an empty list in case of an error
+      return []; 
     }
   }
 }

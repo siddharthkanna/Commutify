@@ -1,24 +1,51 @@
 class Ride {
-  final String pickup;
-  final String destination;
+  final LocationData pickupLocation;
+  final LocationData destinationLocation;
   final int price;
   final String time;
   final String name;
+  final int availableSeats;
+  final String vehicleName;
 
-  Ride(
-      {required this.pickup,
-      required this.destination,
-      required this.price,
-      required this.time,
-      required this.name});
+  Ride({
+    required this.price,
+    required this.time,
+    required this.name,
+    required this.availableSeats,
+    required this.vehicleName,
+    required this.pickupLocation,
+    required this.destinationLocation,
+  });
 
-  factory Ride.fromJson(Map<String, dynamic> json) {
+  factory Ride.fromJson(Map<String,dynamic> json) {
     return Ride(
       name: json['driverName'] ?? 'No Name',
-      pickup: json['pickupLocationName'] ?? '',
-      destination: json['destinationLocationName'] ?? '',
-      price: json['price'] ?? 0.0,
+      price: json['price'] ?? 0,
       time: json['selectedTime'] ?? '',
+      availableSeats: json['selectedCapacity'] ?? 0,
+      vehicleName: json['vehicleName'] ?? '',
+      destinationLocation: LocationData.fromJson(json['destinationLocation']),
+      pickupLocation: LocationData.fromJson(json['pickupLocation']),
+    );
+  }
+}
+
+class LocationData {
+  final String placeName;
+  final double latitude;
+  final double longitude;
+
+  LocationData({
+    required this.placeName,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory LocationData.fromJson(Map<String, dynamic> json) {
+    return LocationData(
+      placeName: json['placeName'] ?? '',
+      latitude: json['latitude'] ?? 0.0,
+      longitude: json['longitude'] ?? 0.0,
     );
   }
 }

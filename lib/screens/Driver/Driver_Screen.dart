@@ -130,8 +130,13 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
     final authService = ref.read(authProvider);
     String? uid = authService.getCurrentUser()?.uid;
+
+    // Calculate responsive button sizes
+    final buttonWidth = screenSize.width * 0.7;
+    final buttonHeight = screenSize.width * 0.14;
 
     Future<void> _publishRide() async {
       setState(() {
@@ -161,7 +166,6 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
             selectedDate.toIso8601String(), // Convert DateTime to String
         'selectedTime': selectedTime.format(context),
         'price': price,
-        'userRole': 'driver',
       };
 
       final isRidePublished = await ApiService.publishRide(rideData);
@@ -171,7 +175,6 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
 
       if (isRidePublished) {
         // Ride published successfully
-        print('Ride published successfully');
 
         Navigator.push(
           context,
@@ -190,17 +193,19 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
         elevation: 1,
         iconTheme: const IconThemeData(color: Apptheme.noir),
         title: const Text(
-          'Driver',
+          'Publish Your Ride',
           style: TextStyle(
               color: Apptheme.noir, fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
+      
       backgroundColor: Apptheme.mist,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(32.0),
+        padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.08),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 25,),
             PickupLocationInput(
               pickupLocation: widget.pickupLocation,
               pickupLocationController: pickupLocationController,
@@ -312,13 +317,14 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
             Container(
               width: double.infinity,
               alignment: Alignment.bottomCenter,
-              padding: const EdgeInsets.only(bottom: 30.0),
+              padding: EdgeInsets.only(bottom: screenSize.width * 0.09),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
+                  minimumSize: Size(buttonWidth, buttonHeight),
                   backgroundColor: Apptheme.noir,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
+                    borderRadius:
+                        BorderRadius.circular(screenSize.width * 0.04),
                   ),
                 ),
                 onPressed: isRidePublishing

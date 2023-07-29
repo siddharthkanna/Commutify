@@ -14,23 +14,31 @@ class DestinationLocationInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final textFieldHeight = screenHeight * 0.07;
+    final fontSize = mediaQuery.textScaleFactor * 14.0;
+    final borderRadius = BorderRadius.circular(screenHeight * 0.02);
+    final padding = EdgeInsets.symmetric(
+        vertical: screenHeight * 0.015, horizontal: screenHeight * 0.02);
+
     return SizedBox(
-      height: 55,
+      height: textFieldHeight,
       child: TextFormField(
         readOnly: true,
         controller: destinationLocationController,
-        style: const TextStyle(
-          fontSize: 14.0,
+        style: TextStyle(
+          fontSize: fontSize,
           fontWeight: FontWeight.normal,
         ),
         decoration: InputDecoration(
           filled: true,
           fillColor: Apptheme.ivory,
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15.0),
+            borderRadius: borderRadius,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15.0),
+            borderRadius:borderRadius,
           ),
           labelText: 'Destination',
         ),
