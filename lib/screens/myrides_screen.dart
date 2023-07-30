@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:mlritpool/common/error.dart';
 import '../models/ride_modal.dart';
 import 'ride_card.dart';
 import '../services/api_service.dart';
@@ -13,17 +14,17 @@ class MyRides extends StatefulWidget {
 
 class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
   final List<Ride> bookedRides = [];
-
   List<Ride> publishedRides = [];
+
+  bool isLoading = false; 
 
   @override
   void initState() {
     super.initState();
 
     _tabController = TabController(length: 2, vsync: this);
-    fetchPublishedRide();
+    _fetchPublishedRides();
   }
 
   @override
@@ -32,17 +33,37 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  fetchPublishedRide() async {
-    List<Ride> rides = await ApiService.fetchPublishedRides();
-
+  Future<void> _fetchPublishedRides() async {
     setState(() {
-      publishedRides = rides;
-      print(publishedRides);
+      isLoading = true;
     });
+
+    try {
+      List<Ride> rides = await ApiService.fetchPublishedRides();
+
+      setState(() {
+        publishedRides = rides;
+        isLoading = false;
+      });
+    } catch (e) {
+      Snackbar.showSnackbar(context, "Oops! Something went wrong");
+      setState(() {
+        publishedRides = [];
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _refreshData() async {
-    await fetchPublishedRide();
+    try {
+      await _fetchPublishedRides();
+    } catch (e) {
+      Snackbar.showSnackbar(context, "Oops! Something went wrong");
+
+      setState(() {
+        publishedRides = [];
+      });
+    }
   }
 
   @override
@@ -75,28 +96,61 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
           ],
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildRidesList(bookedRides),
-            _buildRidesList(publishedRides),
-          ],
-        ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildRidesList(bookedRides, "You haven't booked any rides!"),
+          _buildRidesList(publishedRides, "Oops An error has occurred!"),
+        ],
       ),
     );
   }
 
-  Widget _buildRidesList(List<Ride> rides) {
-    return ListView.separated(
-      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-      itemCount: rides.length,
-      separatorBuilder: (context, index) =>
-          SizedBox(height: MediaQuery.of(context).size.width * 0.04),
-      itemBuilder: (context, index) {
-        return RideCard(ride: rides[index]);
-      },
+  Future<void> fetchPublishedRides() async {
+    setState(() {
+      isLoading = true; // Set loading to true while fetching data
+    });
+
+    try {
+      List<Ride> rides = await ApiService.fetchPublishedRides();
+
+      setState(() {
+        publishedRides = rides;
+        isLoading = false; // Set loading to false after fetching data
+      });
+    } catch (e) {
+      // Handle the error and display an error message
+      setState(() {
+        publishedRides = [];
+        isLoading = false; // Set loading to false after handling the error
+      });
+    }
+  }
+
+  Widget _buildRidesList(List<Ride> rides, String emptyMessage) {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (rides.isEmpty) {
+      return Center(
+        child: Text(emptyMessage),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: ListView.separated(
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+        itemCount: rides.length,
+        separatorBuilder: (context, index) =>
+            SizedBox(height: MediaQuery.of(context).size.width * 0.04),
+        itemBuilder: (context, index) {
+          return RideCard(ride: rides[index]);
+        },
+      ),
     );
   }
 }

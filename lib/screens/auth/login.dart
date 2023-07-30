@@ -10,6 +10,7 @@ class Login extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authProvider);
     final loading = auth.loading;
+    final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: Apptheme.navy,
@@ -17,9 +18,9 @@ class Login extends ConsumerWidget {
         children: [
           Center(
             child: Padding(
-              padding: const EdgeInsets.all(18.0),
+              padding: EdgeInsets.all(screenSize.width * 0.04),
               child: Padding(
-                padding: const EdgeInsets.only(top: 60.0),
+                padding: EdgeInsets.only(top: screenSize.height * 0.08),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -31,25 +32,26 @@ class Login extends ConsumerWidget {
                         color: Apptheme.ivory,
                       ),
                     ),
-                    const SizedBox(height: 50.0),
+                    SizedBox(height: screenSize.height * 0.08),
                     CarouselWidget(),
-                    const SizedBox(height: 50.0),
+                    SizedBox(height: screenSize.height * 0.08),
                     SizedBox(
-                      width: 280,
+                      width: screenSize.width * 0.7,
                       child: ElevatedButton(
                         onPressed: () async {
                           await auth.signInWithGoogle(context);
                         },
                         style: ElevatedButton.styleFrom(
-                          textStyle: const TextStyle(
+                          textStyle: TextStyle(
                             fontWeight: FontWeight.w300,
-                            fontSize: 16.0,
+                            fontSize: screenSize.width * 0.04,
                           ),
-                          minimumSize: const Size.fromHeight(
-                              50), // Adjust the height as needed
+                          minimumSize: Size.fromHeight(screenSize.height *
+                              0.06), // Adjust the height as needed
                           backgroundColor: Apptheme.ivory,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
+                            borderRadius:
+                                BorderRadius.circular(screenSize.width * 0.1),
                           ),
                         ),
                         child: Row(
@@ -57,12 +59,14 @@ class Login extends ConsumerWidget {
                           children: [
                             Image.asset(
                               'assets/GoogleLogo.png',
-                              width: 24.0, // Adjust the width as needed
-                              height: 24.0, // Adjust the height as needed
+                              width: screenSize.width *
+                                  0.06, // Adjust the width as needed
+                              height: screenSize.width *
+                                  0.06, // Adjust the height as needed
                             ),
-                            const SizedBox(
-                                width:
-                                    10.0), // Add spacing between the image and text
+                            SizedBox(
+                                width: screenSize.width *
+                                    0.02), // Add spacing between the image and text
                             const Text(
                               'Sign in with Google',
                               style: TextStyle(
@@ -72,7 +76,6 @@ class Login extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20.0),
                   ],
                 ),
               ),

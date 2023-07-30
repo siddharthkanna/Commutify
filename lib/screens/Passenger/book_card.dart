@@ -37,7 +37,7 @@ class RideCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '${ride.pickupLocation.placeName}  \u2192  ${ride.destinationLocation.placeName}',
+                    '${_getShortPlaceName(ride.pickupLocation.placeName)}  \u2192  ${_getShortPlaceName(ride.destinationLocation.placeName)}',
                     style: TextStyle(
                       fontSize: fontSize16,
                       fontWeight: FontWeight.bold,
@@ -138,4 +138,10 @@ class RideCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _getShortPlaceName(String placeName) {
+  // Split the place name by a delimiter (e.g., comma) and take the first part
+  List<String> parts = placeName.split(',');
+  return parts[0].trim();
 }

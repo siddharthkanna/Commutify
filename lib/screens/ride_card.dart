@@ -11,12 +11,10 @@ class RideCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
-    // Calculate responsive font sizes based on screen width
     final double fontSize16 = screenSize.width * 0.04;
     final double fontSize14 = screenSize.width * 0.035;
     final double fontSize12 = screenSize.width * 0.03;
 
-    // Calculate responsive paddings based on screen width
     final double padding18 = screenSize.width * 0.045;
     final double padding14 = screenSize.width * 0.035;
 
@@ -45,7 +43,7 @@ class RideCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                '${ride.pickupLocation.placeName.length > 15 ? ride.pickupLocation.placeName.substring(0, 15) : ride.pickupLocation.placeName}',
+                '${_getShortPlaceName(ride.pickupLocation.placeName)}',
                 style: TextStyle(
                   fontSize: fontSize16,
                   fontWeight: FontWeight.bold,
@@ -58,7 +56,7 @@ class RideCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                '${ride.destinationLocation.placeName.length > 15 ? ride.destinationLocation.placeName.substring(0, 15) : ride.destinationLocation.placeName}',
+                '${_getShortPlaceName(ride.destinationLocation.placeName)}',
                 style: TextStyle(
                   fontSize: fontSize16,
                   fontWeight: FontWeight.bold,
@@ -124,4 +122,10 @@ class RideCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _getShortPlaceName(String placeName) {
+  // Split the place name by a delimiter (e.g., comma) and take the first part
+  List<String> parts = placeName.split(',');
+  return parts[0].trim();
 }

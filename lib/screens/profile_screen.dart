@@ -12,216 +12,170 @@ class ProfileScreen extends ConsumerWidget {
     final authService = ref.watch(authProvider);
     final user = authService.getCurrentUser();
     String image = user?.photoURL ?? '';
+    String name = user?.displayName ?? '';
+
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
+      backgroundColor: Apptheme.mist,
       appBar: AppBar(
-        title: const Text('Profile Screen'),
+        elevation: 0.5,
+        backgroundColor: Apptheme.mist,
+        title: const Text(
+          'My Profile',
+          style: TextStyle(color: Apptheme.noir, fontWeight: FontWeight.bold),
+        ),
       ),
-      body: Container(
-        color: Apptheme.mist,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 80.0,
-                backgroundImage: NetworkImage(image),
-              ),
-              const SizedBox(height: 24.0),
-              Text(
-                'User Name: ${user?.displayName ?? "N/A"}',
-                style:
-                    const TextStyle(fontSize: 18, color: Apptheme.noir),
-              ),
-              const SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: () {
-                  // Navigate to the edit profile screen
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => EditProfileScreen()));
-                },
-                child: const Text('Edit Profile'),
-              ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () {
-                  // Navigate to the vehicles screen
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => VehiclesScreen()));
-                },
-                child: const Text('Your Vehicles'),
-              ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () {
-                  // Navigate to the ride statistics screen
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RideStatisticsScreen()));
-                },
-                child: const Text('Ride Statistics'),
-              ),
-              const SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: () {
-                  authService.signOut();
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => Login()),
-                  );
-                },
-                child: const Text('Logout'),
-              ),
-            ],
+      body: Center(
+        child: Padding(
+          // Add padding to move content a little bit to the top
+          padding: const EdgeInsets.only(bottom: 80),
+          // Wrap the SingleChildScrollView with Center
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment:
+                  MainAxisAlignment.center, // Center the content vertically
+              children: [
+                // Profile Picture
+                CircleAvatar(
+                  radius: screenSize.width *
+                      0.2, // Adjust the radius based on screen width
+                  backgroundImage: NetworkImage(image),
+                ),
+                SizedBox(
+                    height: screenSize.width *
+                        0.03), // Adjust the height based on screen width
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: screenSize.width *
+                        0.065, // Adjust the font size based on screen width
+                  ),
+                ),
+                SizedBox(
+                    height: screenSize.width *
+                        0.12), // Adjust the height based on screen width
+
+                // Personal Info Section
+                buildSectionButton(
+                  screenSize: screenSize,
+                  icon: Icons.person,
+                  title: 'Personal Info',
+                  onPressed: () {
+                    // Handle Personal Info section tap
+                  },
+                ),
+                SizedBox(
+                    height: screenSize.width *
+                        0.05), // Adjust the height based on screen width
+
+                // Vehicle Details Section
+                buildSectionButton(
+                  screenSize: screenSize,
+                  icon: Icons.directions_car,
+                  title: 'Vehicle Details',
+                  onPressed: () {
+                    // Handle Vehicle Details section tap
+                  },
+                ),
+                SizedBox(
+                    height: screenSize.width *
+                        0.05), // Adjust the height based on screen width
+
+                // Rides Section
+                buildSectionButton(
+                  screenSize: screenSize,
+                  icon: Icons.car_rental,
+                  title: 'Rides',
+                  onPressed: () {
+                    // Handle Rides section tap
+                  },
+                ),
+                SizedBox(
+                    height: screenSize.width *
+                        0.05), // Adjust the height based on screen width
+
+                // Logout Section
+                buildSectionButton(
+                  screenSize: screenSize,
+                  icon: Icons.logout,
+                  title: 'Logout',
+                  onPressed: () async {
+                    authService.signOut();
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => Login()),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-}
 
-class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({Key? key}) : super(key: key);
-
-  @override
-  _EditProfileScreenState createState() => _EditProfileScreenState();
-}
-
-class _EditProfileScreenState extends State<EditProfileScreen> {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _phoneNumberController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _phoneNumberController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget buildSectionButton({
+    required Size screenSize,
+    required IconData icon,
+    required String title,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: screenSize.width * 0.85, // Adjust the width based on screen width
+      height:
+          screenSize.width * 0.18, // Adjust the height based on screen width
+      child: TextButton(
+        onPressed: onPressed,
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Apptheme.ivory),
+          side: MaterialStateBorderSide.resolveWith(
+            (states) => BorderSide(
+              color: Apptheme.noir,
+              width: 1,
+              style: states.contains(MaterialState.disabled)
+                  ? BorderStyle.none
+                  : BorderStyle.solid,
+            ),
+          ),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+        ),
+        child: Row(
           children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Icon(
+                icon,
+                size: screenSize.width *
+                    0.06, // Adjust the icon size based on screen width
+                color: Apptheme.noir,
+              ),
             ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: _phoneNumberController,
-              decoration: const InputDecoration(labelText: 'Phone Number'),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: screenSize.width *
+                      0.055, // Adjust the font size based on screen width
+                  color: title == 'Logout' ? Colors.red : Apptheme.noir,
+                ),
+              ),
             ),
-            const SizedBox(height: 24.0),
-            ElevatedButton(
-              onPressed: () {
-                // Save the edited profile details
-                final name = _nameController.text;
-                final phoneNumber = _phoneNumberController.text;
-                // Implement the logic to update the user's profile
-                Navigator.pop(context); // Go back to the profile screen
-              },
-              child: const Text('Save'),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Icon(
+                Icons.arrow_forward_ios,
+                size: screenSize.width *
+                    0.065, // Adjust the icon size based on screen width
+                color: Apptheme.noir,
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class VehiclesScreen extends StatefulWidget {
-  const VehiclesScreen({Key? key}) : super(key: key);
-
-  @override
-  _VehiclesScreenState createState() => _VehiclesScreenState();
-}
-
-class _VehiclesScreenState extends State<VehiclesScreen> {
-  List<String> vehicles = [];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Vehicles'),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: vehicles.length,
-              itemBuilder: (context, index) {
-                final vehicle = vehicles[index];
-                return ListTile(
-                  title: Text(vehicle),
-                );
-              },
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  String newVehicle = '';
-                  return AlertDialog(
-                    title: const Text('Add Vehicle'),
-                    content: TextField(
-                      onChanged: (value) {
-                        newVehicle = value;
-                      },
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            vehicles.add(newVehicle);
-                          });
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Add'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            child: const Text('Add Vehicle'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class RideStatisticsScreen extends StatelessWidget {
-  const RideStatisticsScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final int ridesAsDriver = 10; // Replace with actual ride statistics
-    final int ridesAsPassenger = 20; // Replace with actual ride statistics
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ride Statistics'),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Rides as Driver: $ridesAsDriver'),
-          Text('Rides as Passenger: $ridesAsPassenger'),
-        ],
       ),
     );
   }

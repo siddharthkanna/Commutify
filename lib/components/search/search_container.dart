@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mlritpool/common/error.dart';
 import 'package:mlritpool/components/search/search_screen.dart';
 import 'package:mlritpool/models/map_box_place.dart';
 import 'package:mlritpool/screens/Driver/driver_screen.dart';
@@ -280,8 +281,19 @@ class _SearchContainerState extends State<SearchContainer> {
                   Size(screenSize.width * 0.25, screenSize.width * 0.1),
             ),
             onPressed: () {
-              // Handle button press
-              showDriverPassengerPopup();
+              if (_pickupController.text.isEmpty) {
+                ErrorDialog.showErrorDialog(
+                    context, 'Please Enter your Pickup location!');
+              } else if (_destinationController.text.isEmpty) {
+                ErrorDialog.showErrorDialog(
+                    context, 'Please Enter your Destination location!');
+              } else if (_pickupController.text ==
+                  _destinationController.text) {
+                ErrorDialog.showErrorDialog(
+                    context, 'Pickup and destination cant be same!');
+              } else {
+                showDriverPassengerPopup();
+              }
             },
             child: Text('Confirm'),
           ),

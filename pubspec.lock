@@ -464,22 +464,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  mapbox_flutter:
-    dependency: "direct main"
-    description:
-      name: mapbox_flutter
-      sha256: cbc3fade1343a09ee6218434ab4f2cff4bc132725605f957c17c55fef848a4da
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0-dev.1.1"
-  mapbox_gl_dart:
-    dependency: transitive
-    description:
-      name: mapbox_gl_dart
-      sha256: de6d03718e5eb05c9eb1ddaae7f0383b28acb5afa16405e1deed7ff04dd34f3d
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
   matcher:
     dependency: transitive
     description:

@@ -22,6 +22,7 @@ class DetailsPage extends ConsumerWidget {
     final loading = auth.loading;
     final user = auth.getCurrentUser();
     name = user?.displayName;
+    final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: Apptheme.navy,
@@ -38,7 +39,7 @@ class DetailsPage extends ConsumerWidget {
         children: [
           Center(
             child: Padding(
-              padding: const EdgeInsets.all(52.0),
+              padding: EdgeInsets.all(screenSize.width * 0.1),
               child: Form(
                 key: formKey,
                 child: ListView(
@@ -51,20 +52,22 @@ class DetailsPage extends ConsumerWidget {
                             ),
                         inputDecorationTheme: InputDecorationTheme(
                           isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 18.0,
-                            horizontal: 18.0,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: screenSize.width * 0.06,
+                            horizontal: screenSize.width * 0.06,
                           ),
                           labelStyle: const TextStyle(
                             color: Apptheme.ivory,
                             fontWeight: FontWeight.normal,
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(22.0),
+                            borderRadius:
+                                BorderRadius.circular(screenSize.width * 0.1),
                             borderSide: const BorderSide(color: Apptheme.ivory),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(22.0),
+                            borderRadius:
+                                BorderRadius.circular(screenSize.width * 0.1),
                             borderSide: const BorderSide(color: Apptheme.ivory),
                           ),
                         ),
@@ -84,7 +87,7 @@ class DetailsPage extends ConsumerWidget {
                               name = value;
                             },
                           ),
-                          const SizedBox(height: 32.0),
+                          SizedBox(height: screenSize.width * 0.08),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Mobile Number'),
@@ -98,7 +101,7 @@ class DetailsPage extends ConsumerWidget {
                               mobileNumber = value;
                             },
                           ),
-                          const SizedBox(height: 32.0),
+                          SizedBox(height: screenSize.width * 0.08),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Vehicle Number'),
@@ -112,7 +115,7 @@ class DetailsPage extends ConsumerWidget {
                               vehicleNumber = value;
                             },
                           ),
-                          const SizedBox(height: 32.0),
+                          SizedBox(height: screenSize.width * 0.08),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Vehicle Name'),
@@ -126,7 +129,7 @@ class DetailsPage extends ConsumerWidget {
                               vehicleName = value;
                             },
                           ),
-                          const SizedBox(height: 32.0),
+                          SizedBox(height: screenSize.width * 0.08),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Vehicle Type'),
@@ -143,7 +146,7 @@ class DetailsPage extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 32.0),
+                    SizedBox(height: screenSize.width * 0.08),
                     ElevatedButton(
                       onPressed: () async {
                         if (formKey.currentState?.validate() ?? false) {
@@ -193,19 +196,21 @@ class DetailsPage extends ConsumerWidget {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        textStyle: const TextStyle(
+                        textStyle: TextStyle(
                           color: Apptheme.noir,
                           fontFamily: 'Outfit',
                           fontWeight: FontWeight.normal,
-                          fontSize: 18.0,
+                          fontSize: screenSize.width * 0.05,
                         ),
-                        minimumSize: const Size(300, 50),
+                        minimumSize: Size(
+                            screenSize.width * 0.6, screenSize.width * 0.15),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(22.0),
+                          borderRadius:
+                              BorderRadius.circular(screenSize.width * 0.1),
                         ),
                         backgroundColor: Apptheme.ivory,
                       ),
-                      child: const Text('Save'),
+                      child: const Text('Save',style: TextStyle(color: Apptheme.noir),),
                     ),
                   ],
                 ),
