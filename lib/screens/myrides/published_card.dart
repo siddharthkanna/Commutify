@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
-import '../models/ride_modal.dart';
+import '../../models/ride_modal.dart';
 
-class RideCard extends StatelessWidget {
+class PublishedCard extends StatelessWidget {
   final Ride ride;
 
-  const RideCard({Key? key, required this.ride}) : super(key: key);
+  const PublishedCard({Key? key, required this.ride}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,7 @@ class RideCard extends StatelessWidget {
           ),
           const SizedBox(height: 5.0),
           Text(
-            '\Rs.${ride.price.toStringAsFixed(2)}',
+            'Rs.${ride.price.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: fontSize14,
               fontWeight: FontWeight.w300,
@@ -112,7 +112,7 @@ class RideCard extends StatelessWidget {
               ),
               const SizedBox(width: 4.0),
               Text(
-                '2',
+                ride.availableSeats.toString(),
                 style: TextStyle(fontSize: fontSize12, color: Colors.black54),
               ),
             ],

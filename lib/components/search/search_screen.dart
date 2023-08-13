@@ -6,7 +6,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  const SearchScreen({Key? key});
+
   @override
   State<SearchScreen> createState() => _SearchScreenState();
 }
@@ -21,7 +22,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onTextChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
     });
   }
@@ -78,12 +79,25 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isPortrait = screenSize.height > screenSize.width;
+
     return Scaffold(
       backgroundColor: Apptheme.ivory,
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 60.0, left: 8.0),
+            padding: EdgeInsets.only(
+              top: isPortrait
+                  ? screenSize.height * 0.06
+                  : screenSize.width * 0.03,
+              left: isPortrait
+                  ? screenSize.width * 0.02
+                  : screenSize.width * 0.04,
+              right: isPortrait
+                  ? screenSize.width * 0.02
+                  : screenSize.width * 0.04,
+            ),
             child: Row(
               children: [
                 IconButton(
@@ -122,7 +136,11 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: isPortrait
+                    ? screenSize.width * 0.02
+                    : screenSize.width * 0.04,
+              ),
               itemCount: _suggestions.length,
               separatorBuilder: (context, index) => const Divider(
                 thickness: 1.5,
@@ -132,8 +150,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 return ListTile(
                   title: Text(
                     suggestion.placeName,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.normal),
+                    style: TextStyle(
+                        fontSize: isPortrait
+                            ? screenSize.width * 0.04
+                            : screenSize.width * 0.025,
+                        fontWeight: FontWeight.normal),
                   ),
                   onTap: () {
                     Navigator.pop(context, [suggestion]);

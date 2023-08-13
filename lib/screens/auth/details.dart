@@ -6,18 +6,23 @@ import 'package:mlritpool/components/pageview.dart';
 import 'package:mlritpool/providers/auth_provider.dart';
 import '../../services/api_service.dart';
 
-class DetailsPage extends ConsumerWidget {
+class DetailsPage extends ConsumerStatefulWidget {
   const DetailsPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final formKey = GlobalKey<FormState>();
-    String? vehicleNumber;
-    String? mobileNumber;
-    String? vehicleName;
-    String? vehicleType;
-    String? name;
+  ConsumerState<DetailsPage> createState() => DetailsPageState();
+}
 
+class DetailsPageState extends ConsumerState<DetailsPage> {
+  final formKey = GlobalKey<FormState>();
+  String? vehicleNumber;
+  String? mobileNumber;
+  String? vehicleName;
+  String? vehicleType;
+  String? name;
+
+  @override
+  Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
     final loading = auth.loading;
     final user = auth.getCurrentUser();
@@ -53,8 +58,8 @@ class DetailsPage extends ConsumerWidget {
                         inputDecorationTheme: InputDecorationTheme(
                           isDense: true,
                           contentPadding: EdgeInsets.symmetric(
-                            vertical: screenSize.width * 0.06,
-                            horizontal: screenSize.width * 0.06,
+                            vertical: screenSize.width * 0.055,
+                            horizontal: screenSize.width * 0.055,
                           ),
                           labelStyle: const TextStyle(
                             color: Apptheme.ivory,
@@ -62,12 +67,12 @@ class DetailsPage extends ConsumerWidget {
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius:
-                                BorderRadius.circular(screenSize.width * 0.1),
+                                BorderRadius.circular(screenSize.width * 0.15),
                             borderSide: const BorderSide(color: Apptheme.ivory),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius:
-                                BorderRadius.circular(screenSize.width * 0.1),
+                                BorderRadius.circular(screenSize.width * 0.15),
                             borderSide: const BorderSide(color: Apptheme.ivory),
                           ),
                         ),
@@ -157,7 +162,7 @@ class DetailsPage extends ConsumerWidget {
                                 ref.read(authProvider).getCurrentUser();
                             final uid = user?.uid;
                             final email = user?.email;
-                            final image = user?.photoURL;
+                            final photoUrl = user?.photoURL;
                             //final name  = user?.displayName;
                             if (name != null) {
                               await user?.updateDisplayName(name);
@@ -168,6 +173,7 @@ class DetailsPage extends ConsumerWidget {
                               'email': email,
                               'name': name,
                               'mobileNumber': mobileNumber,
+                              'photoUrl': photoUrl,
                               'vehicles': [
                                 {
                                   'vehicleNumber': vehicleNumber,
@@ -210,7 +216,10 @@ class DetailsPage extends ConsumerWidget {
                         ),
                         backgroundColor: Apptheme.ivory,
                       ),
-                      child: const Text('Save',style: TextStyle(color: Apptheme.noir),),
+                      child: const Text(
+                        'Save',
+                        style: TextStyle(color: Apptheme.noir),
+                      ),
                     ),
                   ],
                 ),

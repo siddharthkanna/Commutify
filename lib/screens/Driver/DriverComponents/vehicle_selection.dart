@@ -3,10 +3,11 @@ import 'package:http/http.dart' as http;
 import 'package:mlritpool/Themes/app_theme.dart';
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mlritpool/models/vehicle_modal.dart';
 
 class VehicleSelection extends ConsumerStatefulWidget {
-  String selectedVehicle;
-  final Function(String) updateSelectedVehicle;
+  Vehicle selectedVehicle;
+  final Function(Vehicle) updateSelectedVehicle;
   String? uid;
 
   VehicleSelection({
@@ -21,7 +22,7 @@ class VehicleSelection extends ConsumerStatefulWidget {
 }
 
 class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
-  List<String> vehicleList = [];
+  List<Vehicle> vehicleList = [];
   bool isLoading = true;
 
   @override
@@ -33,12 +34,16 @@ class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
   Future<void> fetchVehicles() async {
     try {
       final response = await http.get(Uri.parse(
-          'https://ridesharing-backend-node.onrender.com/auth/vehicles/${widget.uid}'));
+          'http://192.168.0.104:3000/auth/vehicles/${widget.uid}'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final vehicleNames = data['vehicleNames'];
+        final vehicleDataList = data['vehicles'] as List<dynamic>;
+
         setState(() {
-          vehicleList = List<String>.from(vehicleNames);
+          vehicleList = vehicleDataList
+              .map((vehicleData) =>
+                  Vehicle.fromJson(vehicleData as Map<String, dynamic>))
+              .toList();
           widget.selectedVehicle = vehicleList.first;
           isLoading = false;
         });
@@ -94,23 +99,30 @@ class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
             ],
           ),
           child: isLoading
-              ? const CircularProgressIndicator()
-              : DropdownButton<String>(
+              ? Transform.scale(
+                  scale: 0.6,
+                  child: const CircularProgressIndicator(
+                    color: Apptheme.noir,
+                    strokeWidth: 3,
+                  ),
+                )
+              : DropdownButton<Vehicle>(
                   value: widget.selectedVehicle,
-                  onChanged: (String? newValue) {
+                  onChanged: (Vehicle? newValue) {
                     widget.updateSelectedVehicle(newValue!);
                   },
-                  items:
-                      vehicleList.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
+                  items: vehicleList
+                      .map<DropdownMenuItem<Vehicle>>((Vehicle vehicle) {
+                    return DropdownMenuItem<Vehicle>(
+                      value: vehicle,
                       child: Padding(
                         padding: const EdgeInsets.only(
                           left: 12.0,
                           right: 50.0,
                         ),
                         child: Text(
-                          value,
+                          vehicle
+                              .vehicleName, // Adjust this to use the vehicle name
                           style: const TextStyle(
                             fontSize: 14.0,
                             fontWeight: FontWeight.normal,

@@ -19,8 +19,7 @@ class PickupLocationInput extends StatelessWidget {
     final textFieldHeight = screenHeight * 0.07;
     final fontSize = mediaQuery.textScaleFactor * 14.0;
     final borderRadius = BorderRadius.circular(screenHeight * 0.02);
-    final padding = EdgeInsets.symmetric(
-        vertical: screenHeight * 0.015, horizontal: screenHeight * 0.02);
+
 
     return SizedBox(
       height: textFieldHeight,

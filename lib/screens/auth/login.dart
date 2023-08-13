@@ -81,7 +81,7 @@ class Login extends ConsumerWidget {
               ),
             ),
           ),
-          if (loading) const Loader(),
+          if (loading) const LoaderAnimated(),
         ],
       ),
     );

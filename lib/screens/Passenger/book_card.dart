@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:mlritpool/common/loading.dart';
+import 'package:mlritpool/screens/Passenger/ride_booked.dart';
+import 'package:mlritpool/services/api_service.dart';
 import '../../models/ride_modal.dart';
 
-class RideCard extends StatelessWidget {
+class RideCard extends StatefulWidget {
   final Ride ride;
 
   const RideCard({required this.ride});
+
+  @override
+  _RideCardState createState() => _RideCardState();
+}
+
+class _RideCardState extends State<RideCard> {
+  bool isBooking = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +47,7 @@ class RideCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '${_getShortPlaceName(ride.pickupLocation.placeName)}  \u2192  ${_getShortPlaceName(ride.destinationLocation.placeName)}',
+                    '${_getShortPlaceName(widget.ride.pickupLocation.placeName)}  \u2192  ${_getShortPlaceName(widget.ride.destinationLocation.placeName)}',
                     style: TextStyle(
                       fontSize: fontSize16,
                       fontWeight: FontWeight.bold,
@@ -45,7 +55,7 @@ class RideCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '\Rs.${ride.price.toStringAsFixed(2)}',
+                  'Rs.${widget.ride.price.toStringAsFixed(2)}',
                   style: TextStyle(
                     fontSize: fontSize16,
                     fontWeight: FontWeight.bold,
@@ -60,14 +70,14 @@ class RideCard extends StatelessWidget {
                     size: 16.0, color: Colors.black54),
                 SizedBox(width: padding4),
                 Text(
-                  ride.time,
+                  widget.ride.time,
                   style: TextStyle(fontSize: fontSize14, color: Colors.black54),
                 ),
-                Spacer(),
+                const Spacer(),
                 const Icon(Icons.event_seat, size: 16.0, color: Colors.black54),
                 SizedBox(width: padding4),
                 Text(
-                  '${ride.availableSeats}',
+                  '${widget.ride.availableSeats}',
                   style: TextStyle(fontSize: fontSize14, color: Colors.black54),
                 ),
               ],
@@ -77,8 +87,8 @@ class RideCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: padding20,
-                  backgroundImage: NetworkImage(
-                      'https://pbs.twimg.com/profile_images/1485050791488483328/UNJ05AV8_400x400.jpg'), // Add the driver's image path here
+                  backgroundImage: NetworkImage(widget
+                      .ride.driverPhotoUrl), // Add the driver's image path here
                 ),
                 SizedBox(width: padding8),
                 Expanded(
@@ -88,7 +98,7 @@ class RideCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            ride.name,
+                            widget.ride.name,
                             style: TextStyle(
                                 fontSize: fontSize16, color: Colors.black),
                           ),
@@ -97,7 +107,7 @@ class RideCard extends StatelessWidget {
                               size: 16.0, color: Colors.black),
                           SizedBox(width: padding4),
                           Text(
-                            ride.vehicleName,
+                            widget.ride.vehicle.vehicleName,
                             style: TextStyle(
                                 fontSize: fontSize14, color: Colors.black),
                           ),
@@ -111,27 +121,55 @@ class RideCard extends StatelessWidget {
             SizedBox(height: padding10),
             Align(
               alignment: Alignment.center,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Implement the booking functionality here
-                  // For example, you can show a confirmation dialog or navigate to a booking screen.
-                  // For simplicity, I'm just printing a message to the console.
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Apptheme.navy,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(padding12),
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: padding16, vertical: padding12),
-                  child: Text(
-                    'Book Ride',
-                    style: TextStyle(color: Colors.white, fontSize: fontSize14),
-                  ),
-                ),
-              ),
+              child: isBooking
+                  ? const SizedBox(width: 24, height: 24, child: Loader())
+                  : ElevatedButton(
+                      onPressed: () async {
+                        setState(() {
+                          isBooking = true;
+                        });
+
+                        final bool success =
+                            await ApiService.bookRide(widget.ride.id);
+
+                        setState(() {
+                          isBooking = false;
+                        });
+
+                        if (success) {
+                          print('Ride booking success!');
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Ridebooked()),
+                          );
+                        } else {
+                          print('Ride booking failed!');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Failed to book the ride. Please try again later.'),
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Apptheme.navy,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(padding12),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: padding16, vertical: padding12),
+                        child: Text(
+                          'Book Ride',
+                          style: TextStyle(
+                              color: Colors.white, fontSize: fontSize14),
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),

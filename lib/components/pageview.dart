@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/components/navbar.dart';
 import 'package:mlritpool/screens/home_screen.dart';
-import 'package:mlritpool/screens/myrides_screen.dart';
+import 'package:mlritpool/screens/myrides/myrides_screen.dart';
 import 'package:mlritpool/screens/profile_screen.dart';
 
 class PageViewScreen extends StatefulWidget {
@@ -76,12 +76,10 @@ class _PageViewScreenState extends State<PageViewScreen>
                   child: PageView(
                     controller: _pageController,
                     onPageChanged: _onPageChanged,
-                    children:  [
+                    children: const [
                       KeepAlivePage(child: HomeScreen()),
                       KeepAlivePage(child: MyRides()),
-                      KeepAlivePage(
-                          child:
-                              ProfileScreen()), // Wrap ProfileScreen with KeepAlivePage
+                      KeepAlivePage(child: ProfileScreen()), //
                     ],
                   ),
                 ),
@@ -115,8 +113,7 @@ class KeepAlivePage extends StatefulWidget {
 class _KeepAlivePageState extends State<KeepAlivePage>
     with AutomaticKeepAliveClientMixin<KeepAlivePage> {
   @override
-  bool get wantKeepAlive =>
-      true; // Return true to indicate that the page should be kept alive
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {

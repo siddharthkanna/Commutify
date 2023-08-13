@@ -90,74 +90,86 @@ class _SearchContainerState extends State<SearchContainer> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          title: const Text(
-            'Select Your Role!',
-          ),
+              borderRadius: BorderRadius.circular(15.0),
+              side: const BorderSide(width: 1)),
           backgroundColor: Apptheme.ivory,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Apptheme.navy,
-                  textStyle: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontFamily: 'Outfit',
-                    fontSize: MediaQuery.of(context).size.width * 0.04,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Select Your Role!',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  minimumSize: Size(MediaQuery.of(context).size.width * 0.25,
-                      MediaQuery.of(context).size.width * 0.1),
                 ),
-                onPressed: () {
-                  // Handle driver button press
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DriverScreen(
-                        pickupLocation: selectedPickupLocation,
-                        destinationLocation: selectedDestinationLocation,
-                      ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Apptheme.navy,
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontFamily: 'Outfit',
+                      fontSize: 16,
                     ),
-                  );
-                },
-                child: const Text('Driver'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Apptheme.navy,
-                  textStyle: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontFamily: 'Outfit',
-                    fontSize: MediaQuery.of(context).size.width * 0.04,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    minimumSize: Size(
+                      MediaQuery.of(context).size.width * 0.25,
+                      MediaQuery.of(context).size.width * 0.1,
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  minimumSize: Size(MediaQuery.of(context).size.width * 0.25,
-                      MediaQuery.of(context).size.width * 0.1),
+                  onPressed: () {
+                    // Handle driver button press
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DriverScreen(
+                          pickupLocation: selectedPickupLocation,
+                          destinationLocation: selectedDestinationLocation,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Driver'),
                 ),
-                onPressed: () {
-                  // Handle passenger button press
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PassengerScreen(
-                        pickupLocation: selectedPickupLocation,
-                        destinationLocation: selectedDestinationLocation,
-                      ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Apptheme.navy,
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontFamily: 'Outfit',
+                      fontSize: 16,
                     ),
-                  );
-                },
-                child: const Text('Passenger'),
-              ),
-            ],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    minimumSize: Size(
+                      MediaQuery.of(context).size.width * 0.25,
+                      MediaQuery.of(context).size.width * 0.1,
+                    ),
+                  ),
+                  onPressed: () {
+                    // Handle passenger button press
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PassengerScreen(
+                          pickupLocation: selectedPickupLocation,
+                          destinationLocation: selectedDestinationLocation,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Passenger'),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -295,7 +307,7 @@ class _SearchContainerState extends State<SearchContainer> {
                 showDriverPassengerPopup();
               }
             },
-            child: Text('Confirm'),
+            child: const Text('Confirm'),
           ),
         ],
       ),

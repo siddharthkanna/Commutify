@@ -7,4 +7,5 @@ class Apptheme {
   static const Color almond = Color(0xffedeae4);
   static const Color ivory = Color(0xfff9f8f7);
   static const Color backgroundblue = Color(0xffCFEBF9);
+  static const Color backgroundorange = Color(0xffe8bb63);
 }

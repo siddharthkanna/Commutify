@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:mlritpool/common/error.dart';
 import 'package:mlritpool/common/loading.dart';
 import 'package:mlritpool/models/map_box_place.dart';
-import 'package:mlritpool/screens/Driver/Ride_Publish.dart';
+import 'package:mlritpool/screens/Driver/ride_publish.dart';
 import 'package:mlritpool/screens/Driver/DriverComponents/destination_location_input.dart';
 import 'package:mlritpool/screens/Driver/DriverComponents/pickup_location_input.dart';
 import 'package:mlritpool/screens/Driver/DriverComponents/mode_switch.dart';
@@ -12,6 +13,7 @@ import 'package:mlritpool/screens/Driver/DriverComponents/seating_capacity_selec
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
+import '../../models/vehicle_modal.dart';
 
 class DriverScreen extends ConsumerStatefulWidget {
   MapBoxPlace? pickupLocation;
@@ -30,7 +32,9 @@ class DriverScreen extends ConsumerStatefulWidget {
 class _DriverScreenState extends ConsumerState<DriverScreen> {
   bool immediateMode = true;
   bool scheduledMode = false;
-  late String selectedVehicle = '';
+  late Vehicle selectedVehicle =
+      Vehicle(vehicleName: '', vehicleNumber: '', vehicleType: '');
+
   int selectedCapacity = 1;
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
@@ -116,7 +120,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
     });
   }
 
-  void updateSelectedVehicle(String newValue) {
+  void updateSelectedVehicle(Vehicle newValue) {
     setState(() {
       selectedVehicle = newValue;
     });
@@ -138,7 +142,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
     final buttonWidth = screenSize.width * 0.7;
     final buttonHeight = screenSize.width * 0.14;
 
-    Future<void> _publishRide() async {
+    Future<void> publishRide() async {
       setState(() {
         isRidePublishing = true;
       });
@@ -160,7 +164,11 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
         ],
         'immediateMode': immediateMode,
         'scheduledMode': scheduledMode,
-        'selectedVehicle': selectedVehicle,
+        'selectedVehicle': {
+          'vehicleName': selectedVehicle.vehicleName,
+          'vehicleNumber': selectedVehicle.vehicleNumber,
+          'vehicleType': selectedVehicle.vehicleType
+        },
         'selectedCapacity': selectedCapacity,
         'selectedDate':
             selectedDate.toIso8601String(), // Convert DateTime to String
@@ -174,16 +182,13 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
       });
 
       if (isRidePublished) {
-        // Ride published successfully
-
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const RidePublished()),
         );
-        print(rideData);
       } else {
-        // Handle error case
-        print('Failed to publish ride');
+        Snackbar.showSnackbar(
+            context, 'Error while publishing the ride! Please try again.');
       }
     }
 
@@ -198,14 +203,15 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
               color: Apptheme.noir, fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
-      
       backgroundColor: Apptheme.mist,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.08),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 25,),
+            const SizedBox(
+              height: 25,
+            ),
             PickupLocationInput(
               pickupLocation: widget.pickupLocation,
               pickupLocationController: pickupLocationController,
@@ -233,7 +239,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                       ),
                     ),
                     Positioned(
-                      left: -9, // Adjust the left offset as needed
+                      left: -9,
                       top: -9,
                       child: IconButton(
                         icon: const Icon(Icons.swap_vert),
@@ -327,12 +333,9 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                         BorderRadius.circular(screenSize.width * 0.04),
                   ),
                 ),
-                onPressed: isRidePublishing
-                    ? null // Disable button while publishing
-                    : _publishRide,
-                // ... (existing code)
+                onPressed: isRidePublishing ? null : publishRide,
                 child: isRidePublishing
-                    ? const Loader() // Show progress indicator while publishing
+                    ? const Loader()
                     : const Text(
                         'Proceed',
                         style: TextStyle(fontSize: 18),

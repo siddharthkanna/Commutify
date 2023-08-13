@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/ride_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
+import '../config/config.dart';
 
 final uidProvider = Provider<String?>((ref) {
   final authService = ref.watch(authProvider);
@@ -10,11 +11,12 @@ final uidProvider = Provider<String?>((ref) {
   return user?.uid;
 });
 
+final String? passengerId = ProviderContainer().read(uidProvider);
+
 class ApiService {
   static Future<bool> createUser(Map<String, dynamic> userData) async {
     try {
-      final url =
-          Uri.parse('https://ridesharing-backend-node.onrender.com/auth/');
+      final url = Uri.parse(createUserUrl);
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -36,8 +38,7 @@ class ApiService {
 
   static Future<List<String>> fetchVehicles(String uid) async {
     try {
-      final response = await http.get(Uri.parse(
-          'https://ridesharing-backend-node.onrender.com/auth/vehicles/$uid'));
+      final response = await http.get(Uri.parse('$fetchVehiclesUrl/$uid'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final vehicleNames = data['vehicleNames'];
@@ -51,21 +52,16 @@ class ApiService {
   }
 
   static Future<bool> publishRide(Map<String, dynamic> rideData) async {
-    const String url =
-        'https://ridesharing-backend-node.onrender.com/ride/publishride'; // Replace this with your backend API URL
-
     try {
       final response = await http.post(
-        Uri.parse(url),
+        Uri.parse(publishRideUrl),
         body: jsonEncode(rideData),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 201) {
-        // Ride published successfully
         return true;
       } else {
-        // Handle error case
         return false;
       }
     } catch (e) {
@@ -77,26 +73,179 @@ class ApiService {
   static Future<List<Ride>> fetchPublishedRides() async {
     try {
       final String? uid = ProviderContainer().read(uidProvider);
+
+      if (uid == null) {
+        throw Exception('UID not available. User not authenticated.');
+      }
+      final response =
+          await http.get(Uri.parse('$fetchPublishedRidesUrl?driverId=$uid'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        return data.map((item) => Ride.fromJson(item)).toList();
+      } else {
+        print(
+            'Failed to fetch published rides. Status code: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching published rides: $e');
+      return [];
+    }
+  }
+
+  static Future<List<Ride>> fetchBookedRides() async {
+    try {
+      final String? uid = ProviderContainer().read(uidProvider);
+
+      if (uid == null) {
+        throw Exception('UID not available. User not authenticated.');
+      }
+      final response =
+          await http.get(Uri.parse('$fetchBookedRidesUrl?passengerId=$uid'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        return data.map((item) => Ride.fromJson(item)).toList();
+      } else {
+        print(
+            'Failed to fetch Booked rides. Status code: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching published rides: $e');
+      return [];
+    }
+  }
+
+  static Future<List<Ride>> fetchAvailableRides() async {
+    try {
+      final String? uid = ProviderContainer().read(uidProvider);
       print(uid);
 
       if (uid == null) {
         throw Exception('UID not available. User not authenticated.');
       }
-      final response = await http.get(Uri.parse(
-          'http://192.168.0.103:3000/ride/fetchPublishedRides?driverId=$uid'));
+      final response =
+          await http.get(Uri.parse('$fetchAvailableRidesUrl?driverId=$uid'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        
+
         return data.map((item) => Ride.fromJson(item)).toList();
       } else {
         print(
             'Failed to fetch published rides. Status code: ${response.statusCode}');
-        return []; 
+        return [];
       }
     } catch (e) {
       print('Error fetching published rides: $e');
-      return []; 
+      return [];
+    }
+  }
+
+  static Future<bool> bookRide(String rideId) async {
+    final String? passengerId = ProviderContainer().read(uidProvider);
+
+    try {
+      final Map<String, dynamic> requestData = {
+        'rideId': rideId,
+        'passengerId': passengerId,
+      };
+
+      final response = await http.post(
+        Uri.parse(bookRideUrl),
+        body: jsonEncode(requestData),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // Ride booked successfully
+        return true;
+      } else {
+        // Handle error case
+        return false;
+      }
+    } catch (e) {
+      print('Error while booking ride: $e');
+      return false;
+    }
+  }
+
+  static Future<bool> completeRide(String rideId) async {
+    try {
+      final Map<String, dynamic> requestData = {
+        'rideId': rideId,
+      };
+
+      final response = await http.post(
+        Uri.parse('$completeRideUrl/$rideId'),
+        body: jsonEncode(requestData),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // Ride completed successfully
+        return true;
+      } else {
+        // Handle error case
+        return false;
+      }
+    } catch (e) {
+      print('Error while completing ride: $e');
+      return false;
+    }
+  }
+
+  static Future<bool> cancelRideDriver(String rideId) async {
+    try {
+      final Map<String, dynamic> requestData = {
+        'rideId': rideId,
+      };
+
+      final response = await http.post(
+        Uri.parse('$cancelRideDriverUrl/$rideId'),
+        body: jsonEncode(requestData),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // Ride completed successfully
+        return true;
+      } else {
+        // Handle error case
+        return false;
+      }
+    } catch (e) {
+      print('Error while completing ride: $e');
+      return false;
+    }
+  }
+
+  static Future<bool> cancelRidePassenger(String rideId) async {
+    try {
+      final Map<String, dynamic> requestData = {
+        'rideId': rideId,
+      };
+
+      final response = await http.post(
+        Uri.parse('$cancelRidePassengerUrl/$rideId?passengerId=$passengerId'),
+        body: jsonEncode(requestData),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // Ride completed successfully
+        return true;
+      } else {
+        // Handle error case
+        return false;
+      }
+    } catch (e) {
+      print('Error while completing ride: $e');
+      return false;
     }
   }
 }

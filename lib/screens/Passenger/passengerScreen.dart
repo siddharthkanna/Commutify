@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:mlritpool/common/loading.dart';
 import '../../models/ride_modal.dart';
 import '../../models/map_box_place.dart';
 import './book_card.dart';
@@ -31,7 +32,7 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> {
 
   Future<void> fetchRidesFromBackend() async {
     try {
-      final List<Ride> fetchedRides = await ApiService.fetchPublishedRides();
+      final List<Ride> fetchedRides = await ApiService.fetchAvailableRides();
 
       // Filter the rides to keep only the ones with the same destination as the passenger
       final List<Ride> filteredRides = fetchedRides.where((ride) {
@@ -74,9 +75,9 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> {
           children: [
             // Show the circular progress indicator while loading
             isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: Loader())
                 : rides.isEmpty
-                    ? Center(
+                    ? const Center(
                         child: Text(
                           'No rides available!',
                           style: TextStyle(

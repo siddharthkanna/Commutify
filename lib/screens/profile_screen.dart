@@ -23,41 +23,32 @@ class ProfileScreen extends ConsumerWidget {
         backgroundColor: Apptheme.mist,
         title: const Text(
           'My Profile',
-          style: TextStyle(color: Apptheme.noir, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Apptheme.noir, fontWeight: FontWeight.bold, fontSize: 22),
         ),
       ),
       body: Center(
         child: Padding(
-          // Add padding to move content a little bit to the top
           padding: const EdgeInsets.only(bottom: 80),
-          // Wrap the SingleChildScrollView with Center
           child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment:
-                  MainAxisAlignment.center, // Center the content vertically
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Profile Picture
                 CircleAvatar(
-                  radius: screenSize.width *
-                      0.2, // Adjust the radius based on screen width
+                  radius: screenSize.width * 0.2,
                   backgroundImage: NetworkImage(image),
                 ),
-                SizedBox(
-                    height: screenSize.width *
-                        0.03), // Adjust the height based on screen width
+                SizedBox(height: screenSize.width * 0.03),
                 Text(
                   name,
                   style: TextStyle(
-                    fontSize: screenSize.width *
-                        0.065, // Adjust the font size based on screen width
-                  ),
+                      fontSize: screenSize.width * 0.055,
+                      fontWeight: FontWeight.w400),
                 ),
-                SizedBox(
-                    height: screenSize.width *
-                        0.12), // Adjust the height based on screen width
+                SizedBox(height: screenSize.width * 0.12),
 
-                // Personal Info Section
-                buildSectionButton(
+                sectionButton(
                   screenSize: screenSize,
                   icon: Icons.person,
                   title: 'Personal Info',
@@ -65,38 +56,27 @@ class ProfileScreen extends ConsumerWidget {
                     // Handle Personal Info section tap
                   },
                 ),
-                SizedBox(
-                    height: screenSize.width *
-                        0.05), // Adjust the height based on screen width
+                SizedBox(height: screenSize.width * 0.05),
 
-                // Vehicle Details Section
-                buildSectionButton(
+                sectionButton(
                   screenSize: screenSize,
                   icon: Icons.directions_car,
                   title: 'Vehicle Details',
-                  onPressed: () {
-                    // Handle Vehicle Details section tap
-                  },
+                  onPressed: () {},
                 ),
-                SizedBox(
-                    height: screenSize.width *
-                        0.05), // Adjust the height based on screen width
+                SizedBox(height: screenSize.width * 0.05),
 
                 // Rides Section
-                buildSectionButton(
+                sectionButton(
                   screenSize: screenSize,
                   icon: Icons.car_rental,
                   title: 'Rides',
-                  onPressed: () {
-                    // Handle Rides section tap
-                  },
+                  onPressed: () {},
                 ),
-                SizedBox(
-                    height: screenSize.width *
-                        0.05), // Adjust the height based on screen width
+                SizedBox(height: screenSize.width * 0.05),
 
                 // Logout Section
-                buildSectionButton(
+                sectionButton(
                   screenSize: screenSize,
                   icon: Icons.logout,
                   title: 'Logout',
@@ -115,16 +95,17 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget buildSectionButton({
+  Widget sectionButton({
     required Size screenSize,
     required IconData icon,
     required String title,
     required VoidCallback onPressed,
   }) {
+    final bool showArrowIcon = title != 'Logout';
+
     return SizedBox(
-      width: screenSize.width * 0.85, // Adjust the width based on screen width
-      height:
-          screenSize.width * 0.18, // Adjust the height based on screen width
+      width: screenSize.width * 0.85,
+      height: screenSize.width * 0.18,
       child: TextButton(
         onPressed: onPressed,
         style: ButtonStyle(
@@ -150,8 +131,7 @@ class ProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Icon(
                 icon,
-                size: screenSize.width *
-                    0.06, // Adjust the icon size based on screen width
+                size: screenSize.width * 0.055,
                 color: Apptheme.noir,
               ),
             ),
@@ -159,21 +139,20 @@ class ProfileScreen extends ConsumerWidget {
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: screenSize.width *
-                      0.055, // Adjust the font size based on screen width
+                  fontSize: screenSize.width * 0.042,
                   color: title == 'Logout' ? Colors.red : Apptheme.noir,
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Icon(
-                Icons.arrow_forward_ios,
-                size: screenSize.width *
-                    0.065, // Adjust the icon size based on screen width
-                color: Apptheme.noir,
+            if (showArrowIcon)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  size: screenSize.width * 0.055,
+                  color: Apptheme.noir,
+                ),
               ),
-            ),
           ],
         ),
       ),
