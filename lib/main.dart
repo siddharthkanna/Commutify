@@ -36,6 +36,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'RideRover',
       theme: ThemeData(fontFamily: 'Outfit'),
+      debugShowCheckedModeBanner: false,
       home: FutureBuilder<User?>(
         future: Future.value(authService.getCurrentUser()),
         builder: (context, snapshot) {
