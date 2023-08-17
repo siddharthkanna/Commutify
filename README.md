@@ -13,10 +13,13 @@ Commutify is a full-stack ride-sharing application built using Flutter, Node.js,
 
 ## Screenshots
 
-![Login](![c1](https://github.com/siddharthkanna/Commutify/assets/88847799/8fac0f31-8189-4486-b708-24f3ae193edd))
+<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/8fac0f31-8189-4486-b708-24f3ae193edd" alt="c1" width="200" height="450">
 
-![Mapview](![c6](https://github.com/siddharthkanna/Commutify/assets/88847799/4abce932-8f66-45d0-900b-33d07079db37))
+<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/4abce932-8f66-45d0-900b-33d07079db37" alt="c6" width="200" height="450">
 
-![Ride Details](![c4](https://github.com/siddharthkanna/Commutify/assets/88847799/e1c7c3f4-614f-405c-9161-ae9a5097c789))
+<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/e1c7c3f4-614f-405c-9161-ae9a5097c789" alt="c4" width="200" height="450">
 
-![search](![c5](https://github.com/siddharthkanna/Commutify/assets/88847799/36280eb5-a413-4a14-b67c-de0e5cb4880c))
+<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/36280eb5-a413-4a14-b67c-de0e5cb4880c" alt="c5" width="200" height="450">
+
+
+
