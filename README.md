@@ -4,7 +4,7 @@ Commutify is a full-stack ride-sharing application built using Flutter, Node.js,
 
 ## Features
 
-- **User Roles:** Users can choose between being drivers or passengers to accommodate their travel preferences.
+- **Choose your role:** Users can choose between being drivers or passengers to accommodate their travel preferences.
 - **Driver Role:** Drivers can publish their upcoming rides, specify vehicle details, and set prices for their rides.
 - **Passenger Role:** Passengers can search for rides based on their destination and view available options.
 - **Vehicle Management:** Users can create, update, or delete their vehicles, making it easy to manage their ride offerings.
