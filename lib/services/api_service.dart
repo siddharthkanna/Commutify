@@ -83,8 +83,7 @@ class ApiService {
   static Future<List<Vehicle>> fetchVehicles() async {
     List<Vehicle> vehicleList = [];
     try {
-      final response = await http
-          .get(Uri.parse('http://192.168.0.104:3000/auth/vehicles/$userId'));
+      final response = await http.get(Uri.parse('$fetchVehiclesUrl/$userId'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final vehicleDataList = data['vehicles'] as List<dynamic>;

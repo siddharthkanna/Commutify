@@ -9,7 +9,7 @@ final createUserUrl = "$authUrl/addUser";
 final updateUserUrl = "$authUrl/updateUserDetails";
 final getUserDetailsUrl = "$authUrl/getUserDetails";
 
-final fetchVehiclesUrl = "$authUrl/vehicles/";
+final fetchVehiclesUrl = "$authUrl/vehicles";
 final addVehicleUrl = "$authUrl/vehicles/addVehicle";
 final updateVehicleUrl = "$authUrl/vehicles/updateVehicle";
 final deleteVehicleUrl = "$authUrl/vehicles/deleteVehicle";
