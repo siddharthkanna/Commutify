@@ -1,4 +1,4 @@
-# Commutify -  Ride Sharing App
+# Commutify - Ride Sharing App
 
 Commutify is a full-stack ride-sharing application built using Flutter, Node.js, and MongoDB. It allows users to share rides with others who have similar travel routes. Users can choose their roles as drivers or passengers, and the app provides convenient features for creating, updating, or deleting vehicles, setting ride prices, and finding rides with matching destinations.
 
@@ -12,14 +12,11 @@ Commutify is a full-stack ride-sharing application built using Flutter, Node.js,
 - **Efficient Pricing:** Drivers have the flexibility to set prices for their rides, making the sharing process fair and convenient.
 
 ## Screenshots
-![Login](![c1](https://github.com/siddharthkanna/Commutify/assets/88847799/7b38357e-f277-481c-a2f8-ae5eeb61b41c))
 
-![Mapview](![c6](https://github.com/siddharthkanna/Commutify/assets/88847799/03345400-0b90-41bf-8125-eddea19eaae6)
-)
+![Login](<![c1](https://github.com/siddharthkanna/Commutify/assets/88847799/8fac0f31-8189-4486-b708-24f3ae193edd)>)
 
-![Ride Details](![c4](https://github.com/siddharthkanna/Commutify/assets/88847799/9733c4ae-3cd3-4cdf-9361-fdb63293bd53))
+![Mapview](<![c6](https://github.com/siddharthkanna/Commutify/assets/88847799/4abce932-8f66-45d0-900b-33d07079db37)>)
 
-![search](![c5](https://github.com/siddharthkanna/Commutify/assets/88847799/53451b17-6300-40bb-9721-62e1aa9aa6a1))
+![Ride Details](<![c4](https://github.com/siddharthkanna/Commutify/assets/88847799/e1c7c3f4-614f-405c-9161-ae9a5097c789)>)
 
-
-
+![search](<![c5](https://github.com/siddharthkanna/Commutify/assets/88847799/36280eb5-a413-4a14-b67c-de0e5cb4880c)>)
