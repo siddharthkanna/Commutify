@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:mlritpool/screens/Profile/personal_info.dart';
+import 'package:mlritpool/screens/Profile/ride_stats.dart';
+import 'package:mlritpool/screens/Profile/vehicle_details.dart';
 import 'package:mlritpool/screens/auth/login.dart';
 import '../providers/auth_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({Key? key});
+class ProfileScreen extends ConsumerStatefulWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authService = ref.watch(authProvider);
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final authService = ref.read(authProvider);
     final user = authService.getCurrentUser();
     String image = user?.photoURL ?? '';
     String name = user?.displayName ?? '';
@@ -34,7 +42,6 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Profile Picture
                 CircleAvatar(
                   radius: screenSize.width * 0.2,
                   backgroundImage: NetworkImage(image),
@@ -44,7 +51,7 @@ class ProfileScreen extends ConsumerWidget {
                   name,
                   style: TextStyle(
                       fontSize: screenSize.width * 0.055,
-                      fontWeight: FontWeight.w400),
+                      fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: screenSize.width * 0.12),
 
@@ -53,7 +60,12 @@ class ProfileScreen extends ConsumerWidget {
                   icon: Icons.person,
                   title: 'Personal Info',
                   onPressed: () {
-                    // Handle Personal Info section tap
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileEditScreen(),
+                      ),
+                    );
                   },
                 ),
                 SizedBox(height: screenSize.width * 0.05),
@@ -62,7 +74,14 @@ class ProfileScreen extends ConsumerWidget {
                   screenSize: screenSize,
                   icon: Icons.directions_car,
                   title: 'Vehicle Details',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const VehicleDetails(),
+                      ),
+                    );
+                  },
                 ),
                 SizedBox(height: screenSize.width * 0.05),
 
@@ -70,8 +89,15 @@ class ProfileScreen extends ConsumerWidget {
                 sectionButton(
                   screenSize: screenSize,
                   icon: Icons.car_rental,
-                  title: 'Rides',
-                  onPressed: () {},
+                  title: 'Ride Stats',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RideStatsScreen(),
+                      ),
+                    );
+                  },
                 ),
                 SizedBox(height: screenSize.width * 0.05),
 

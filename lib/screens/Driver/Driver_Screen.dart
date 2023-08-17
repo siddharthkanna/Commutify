@@ -272,7 +272,6 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
             VehicleSelection(
               selectedVehicle: selectedVehicle,
               updateSelectedVehicle: updateSelectedVehicle,
-              uid: uid,
             ),
             SeatingCapacitySelection(
               selectedCapacity: selectedCapacity,

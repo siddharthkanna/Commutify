@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:mlritpool/Themes/app_theme.dart';
-import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mlritpool/models/vehicle_modal.dart';
+import 'package:mlritpool/services/api_service.dart';
 
 class VehicleSelection extends ConsumerStatefulWidget {
   Vehicle selectedVehicle;
   final Function(Vehicle) updateSelectedVehicle;
-  String? uid;
 
   VehicleSelection({
     Key? key,
     required this.selectedVehicle,
     required this.updateSelectedVehicle,
-    required this.uid,
   }) : super(key: key);
 
   @override
@@ -24,6 +21,7 @@ class VehicleSelection extends ConsumerStatefulWidget {
 class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
   List<Vehicle> vehicleList = [];
   bool isLoading = true;
+  bool hasInitialSelection = false;
 
   @override
   void initState() {
@@ -31,41 +29,16 @@ class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
     fetchVehicles();
   }
 
-  Future<void> fetchVehicles() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'http://192.168.0.104:3000/auth/vehicles/${widget.uid}'));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final vehicleDataList = data['vehicles'] as List<dynamic>;
+  Future fetchVehicles() async {
+    vehicleList = await ApiService.fetchVehicles();
 
-        setState(() {
-          vehicleList = vehicleDataList
-              .map((vehicleData) =>
-                  Vehicle.fromJson(vehicleData as Map<String, dynamic>))
-              .toList();
-          widget.selectedVehicle = vehicleList.first;
-          isLoading = false;
-        });
-        print(vehicleList);
-      } else if (response.statusCode == 404) {
-        // Handle the case where the user is not found
-        print('User not found');
-        setState(() {
-          isLoading = false;
-        });
-      } else {
-        print('Error: ${response.statusCode}');
-        setState(() {
-          isLoading = false;
-        });
+    setState(() {
+      if (!hasInitialSelection && vehicleList.isNotEmpty) {
+        widget.updateSelectedVehicle(vehicleList[0]);
+        hasInitialSelection = true;
       }
-    } catch (error) {
-      print('Error: $error');
-      setState(() {
-        isLoading = false;
-      });
-    }
+      isLoading = false;
+    });
   }
 
   @override

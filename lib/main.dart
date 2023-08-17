@@ -34,7 +34,7 @@ class MyApp extends ConsumerWidget {
     final authService = ref.read(authProvider);
 
     return MaterialApp(
-      title: 'RideRover',
+      title: 'Commutify',
       theme: ThemeData(fontFamily: 'Outfit'),
       debugShowCheckedModeBanner: false,
       home: FutureBuilder<User?>(

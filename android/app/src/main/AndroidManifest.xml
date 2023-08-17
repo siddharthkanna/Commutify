@@ -5,7 +5,7 @@
 <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
-        android:label="rideRover"
+        android:label="Commutify"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

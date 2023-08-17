@@ -25,7 +25,7 @@ class Login extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'RideRover',
+                      'Commutify',
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 42.0,
@@ -46,8 +46,8 @@ class Login extends ConsumerWidget {
                             fontWeight: FontWeight.w300,
                             fontSize: screenSize.width * 0.04,
                           ),
-                          minimumSize: Size.fromHeight(screenSize.height *
-                              0.06), // Adjust the height as needed
+                          minimumSize:
+                              Size.fromHeight(screenSize.height * 0.06),
                           backgroundColor: Apptheme.ivory,
                           shape: RoundedRectangleBorder(
                             borderRadius:
@@ -59,14 +59,10 @@ class Login extends ConsumerWidget {
                           children: [
                             Image.asset(
                               'assets/GoogleLogo.png',
-                              width: screenSize.width *
-                                  0.06, // Adjust the width as needed
-                              height: screenSize.width *
-                                  0.06, // Adjust the height as needed
+                              width: screenSize.width * 0.06,
+                              height: screenSize.width * 0.06,
                             ),
-                            SizedBox(
-                                width: screenSize.width *
-                                    0.02), // Add spacing between the image and text
+                            SizedBox(width: screenSize.width * 0.02),
                             const Text(
                               'Sign in with Google',
                               style: TextStyle(

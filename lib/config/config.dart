@@ -6,7 +6,14 @@ final rideUrl = "$apiUrl/ride";
 final authUrl = "$apiUrl/auth";
 
 final createUserUrl = "$authUrl/addUser";
+final updateUserUrl = "$authUrl/updateUserDetails";
+final getUserDetailsUrl = "$authUrl/getUserDetails";
+
 final fetchVehiclesUrl = "$authUrl/vehicles/";
+final addVehicleUrl = "$authUrl/vehicles/addVehicle";
+final updateVehicleUrl = "$authUrl/vehicles/updateVehicle";
+final deleteVehicleUrl = "$authUrl/vehicles/deleteVehicle";
+
 final publishRideUrl = "$rideUrl/publishRide";
 final fetchPublishedRidesUrl = "$rideUrl/fetchPublishedRides";
 final fetchBookedRidesUrl = "$rideUrl/fetchBookedRides";
