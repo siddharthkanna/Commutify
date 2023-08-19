@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
 import 'package:mlritpool/common/error.dart';
 import 'package:mlritpool/providers/auth_provider.dart';
-import 'package:mlritpool/services/api_service.dart';
+import 'package:mlritpool/services/user_api.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
   @override
@@ -23,7 +23,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   Future<void> fetchUserDetails() async {
-    final userData = await ApiService.getUserDetails();
+    final userData = await UserApi.getUserDetails();
     _nameController.text = userData['name'];
     _phoneNumberController.text = userData['mobileNumber'];
     _emailController.text = userData['email'];
@@ -41,7 +41,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     final user = auth.getCurrentUser();
     user?.updateDisplayName(newName);
 
-    bool isSuccess = await ApiService.updateUserInfo(
+    bool isSuccess = await UserApi.updateUserInfo(
       newName: newName,
       newPhoneNumber: newPhoneNumber,
     );

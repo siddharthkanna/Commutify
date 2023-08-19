@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
 import 'package:mlritpool/common/loading.dart';
-import 'package:mlritpool/services/api_service.dart';
+import 'package:mlritpool/services/user_api.dart';
 
 class RideStatsScreen extends StatefulWidget {
   @override
@@ -22,7 +22,7 @@ class _RideStatsScreenState extends State<RideStatsScreen> {
   Future<void> fetchRideCounts() async {
     try {
       final userData =
-          await ApiService.getUserDetails(); // Replace with your API call
+          await UserApi.getUserDetails(); 
       final passengerRides = userData['ridesAsPasssenger'] ?? 0;
       final driverRides = userData['ridesAsDriver'] ?? 0;
 

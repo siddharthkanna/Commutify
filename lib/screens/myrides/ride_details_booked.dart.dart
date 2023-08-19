@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
-import 'package:mlritpool/services/api_service.dart';
+import 'package:mlritpool/services/ride_api.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import '../../models/ride_modal.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -56,7 +56,7 @@ class _RideDetailsBookedState extends ConsumerState<RideDetailsBooked> {
         isLoading = true;
       });
 
-      bool isSuccess = await ApiService.cancelRideDriver(widget.ride.id);
+      bool isSuccess = await RideApi.cancelRideDriver(widget.ride.id);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

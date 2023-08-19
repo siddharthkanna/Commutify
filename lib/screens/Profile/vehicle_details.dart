@@ -4,7 +4,8 @@ import 'package:mlritpool/common/error.dart';
 import 'package:mlritpool/common/loading.dart';
 import 'package:mlritpool/screens/Profile/add_vehicle.dart';
 import 'package:mlritpool/screens/Profile/edit_vehicle.dart';
-import 'package:mlritpool/services/api_service.dart';
+import 'package:mlritpool/services/user_api.dart';
+import 'package:mlritpool/services/vehicle_api.dart';
 import '../../models/vehicle_modal.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,7 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
       isLoading = true;
     });
 
-    final fetchedVehicles = await ApiService.fetchVehicles();
+    final fetchedVehicles = await VehicleApi.fetchVehicles();
 
     setState(() {
       vehicles = fetchedVehicles;
@@ -47,7 +48,7 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
     );
 
     if (newVehicle != null) {
-      final isSuccess = await ApiService.createVehicle(
+      final isSuccess = await VehicleApi.createVehicle(
         newVehicle.vehicleName,
         newVehicle.vehicleNumber,
         newVehicle.vehicleType,
@@ -75,7 +76,7 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
         vehicles[index] = updatedVehicle;
       });
 
-      await ApiService.updateVehicle(
+      await VehicleApi.updateVehicle(
         updatedVehicle.id!,
         updatedVehicle.vehicleName,
         updatedVehicle.vehicleNumber,
@@ -99,7 +100,7 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
             onPressed: () async {
               Navigator.pop(context);
 
-              final isSuccess = await ApiService.deleteVehicle(vehicleId);
+              final isSuccess = await VehicleApi.deleteVehicle(vehicleId);
 
               if (isSuccess) {
                 setState(() {

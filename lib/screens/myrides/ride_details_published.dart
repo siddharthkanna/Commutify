@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
 import 'package:mlritpool/screens/myrides/ride_details_booked.dart.dart';
-import 'package:mlritpool/services/api_service.dart';
+import 'package:mlritpool/services/ride_api.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import '../../models/ride_modal.dart';
 
@@ -52,7 +52,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
     Future<void> completeRide() async {
       setState(() => isLoading = true);
 
-      bool isSuccess = await ApiService.completeRide(widget.ride.id);
+      bool isSuccess = await RideApi.completeRide(widget.ride.id);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -64,17 +64,13 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
       setState(() => isLoading = false);
     }
 
-    // Function to handle the "Cancel Ride" button press
     Future<void> cancelRide() async {
       setState(() {
         isLoading = true;
       });
 
-      // Your API call or logic for cancelling the ride here
-      bool isSuccess = await ApiService.cancelRideDriver(widget.ride.id);
+      bool isSuccess = await RideApi.cancelRideDriver(widget.ride.id);
 
-      // Simulate an asynchronous operation using Future.delayed
-      await Future.delayed(const Duration(seconds: 2));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(isSuccess
@@ -82,7 +78,6 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
                 : 'Failed to Cancel the ride. Please try again.')),
       );
 
-      // After cancellation, set _isLoading to false to remove the loading indicator
       setState(() {
         isLoading = false;
       });

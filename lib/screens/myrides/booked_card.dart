@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
-import 'package:mlritpool/services/api_service.dart';
+import 'package:mlritpool/services/user_api.dart';
 import '../../models/ride_modal.dart';
 
 class BookedCard extends StatelessWidget {

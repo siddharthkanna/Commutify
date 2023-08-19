@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
 import 'package:mlritpool/common/loading.dart';
 import 'package:mlritpool/screens/Passenger/ride_booked.dart';
-import 'package:mlritpool/services/api_service.dart';
+import 'package:mlritpool/services/user_api.dart';
+import 'package:mlritpool/services/ride_api.dart';
 import '../../models/ride_modal.dart';
 
 class RideCard extends StatefulWidget {
@@ -130,21 +131,19 @@ class _RideCardState extends State<RideCard> {
                         });
 
                         final bool success =
-                            await ApiService.bookRide(widget.ride.id);
+                            await RideApi.bookRide(widget.ride.id);
 
                         setState(() {
                           isBooking = false;
                         });
 
                         if (success) {
-                          print('Ride booking success!');
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => Ridebooked()),
                           );
                         } else {
-                          print('Ride booking failed!');
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(

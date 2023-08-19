@@ -11,8 +11,8 @@ import 'package:mlritpool/screens/Driver/DriverComponents/scheduled_mode_section
 import 'package:mlritpool/screens/Driver/DriverComponents/vehicle_selection.dart';
 import 'package:mlritpool/screens/Driver/DriverComponents/seating_capacity_selection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mlritpool/services/ride_api.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/api_service.dart';
 import '../../models/vehicle_modal.dart';
 
 class DriverScreen extends ConsumerStatefulWidget {
@@ -176,7 +176,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
         'price': price,
       };
 
-      final isRidePublished = await ApiService.publishRide(rideData);
+      final isRidePublished = await RideApi.publishRide(rideData);
       setState(() {
         isRidePublishing = false;
       });

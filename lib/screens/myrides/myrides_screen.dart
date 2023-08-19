@@ -5,9 +5,10 @@ import 'package:mlritpool/common/loading.dart';
 import 'package:mlritpool/screens/myrides/booked_card.dart';
 import 'package:mlritpool/screens/myrides/ride_details_booked.dart.dart';
 import 'package:mlritpool/screens/myrides/ride_details_published.dart';
+import 'package:mlritpool/services/ride_api.dart';
 import '../../models/ride_modal.dart';
 import 'published_card.dart';
-import '../../services/api_service.dart';
+import '../../services/user_api.dart';
 import 'dart:io';
 
 class MyRides extends StatefulWidget {
@@ -44,7 +45,7 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
     });
 
     try {
-      List<Ride> rides = await ApiService.fetchPublishedRides();
+      List<Ride> rides = await RideApi.fetchPublishedRides();
 
       setState(() {
         publishedRides = rides;
@@ -64,7 +65,7 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
     });
 
     try {
-      List<Ride> rides = await ApiService.fetchBookedRides();
+      List<Ride> rides = await RideApi.fetchBookedRides();
 
       setState(() {
         bookedRides = rides;
@@ -148,7 +149,7 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
     });
 
     try {
-      List<Ride> rides = await ApiService.fetchPublishedRides();
+      List<Ride> rides = await RideApi.fetchPublishedRides();
 
       setState(() {
         publishedRides = rides;

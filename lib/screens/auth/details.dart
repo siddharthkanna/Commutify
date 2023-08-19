@@ -4,7 +4,7 @@ import 'package:mlritpool/Themes/app_theme.dart';
 import 'package:mlritpool/common/loading.dart';
 import 'package:mlritpool/components/pageview.dart';
 import 'package:mlritpool/providers/auth_provider.dart';
-import '../../services/api_service.dart';
+import '../../services/user_api.dart';
 
 class DetailsPage extends ConsumerStatefulWidget {
   const DetailsPage({Key? key}) : super(key: key);
@@ -184,7 +184,7 @@ class DetailsPageState extends ConsumerState<DetailsPage> {
                             };
 
                             final success =
-                                await ApiService.createUser(userData);
+                                await UserApi.createUser(userData);
 
                             if (success) {
                               Navigator.pushReplacement(

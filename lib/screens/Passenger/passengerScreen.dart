@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mlritpool/Themes/app_theme.dart';
 import 'package:mlritpool/common/loading.dart';
+import 'package:mlritpool/services/ride_api.dart';
 import '../../models/ride_modal.dart';
 import '../../models/map_box_place.dart';
 import './book_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../services/api_service.dart';
 
 class PassengerScreen extends ConsumerStatefulWidget {
   final MapBoxPlace? pickupLocation;
@@ -32,7 +32,7 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> {
 
   Future<void> fetchRidesFromBackend() async {
     try {
-      final List<Ride> fetchedRides = await ApiService.fetchAvailableRides();
+      final List<Ride> fetchedRides = await RideApi.fetchAvailableRides();
 
       // Filter the rides to keep only the ones with the same destination as the passenger
       final List<Ride> filteredRides = fetchedRides.where((ride) {
