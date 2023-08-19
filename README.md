@@ -13,13 +13,15 @@ Commutify is a full-stack ride-sharing application built using Flutter, Node.js,
 
 ## Screenshots
 
-<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/8fac0f31-8189-4486-b708-24f3ae193edd" alt="c1" width="200" height="450">
 
-<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/4abce932-8f66-45d0-900b-33d07079db37" alt="c6" width="200" height="450">
 
-<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/e1c7c3f4-614f-405c-9161-ae9a5097c789" alt="c4" width="200" height="450">
+<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/10c363a2-6932-40e2-bb67-b73cde6a6baf" alt="c1" width="200" height="450">
 
-<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/36280eb5-a413-4a14-b67c-de0e5cb4880c" alt="c5" width="200" height="450">
+<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/c0fd4c15-b825-40b1-90db-c8ce7a85a341" alt="c6" width="200" height="450">
+
+<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/a9242791-c3e5-467f-a6dd-a54fb8ec60d6" alt="c4" width="200" height="450">
+
+<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/3bed9018-3b20-4798-b7b8-173c5d180f27" alt="c5" width="200" height="450">
 
 
 
