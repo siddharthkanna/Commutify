@@ -21,7 +21,7 @@ Commutify is a full-stack ride-sharing application built using Flutter, Node.js,
 
 <img src="https://github.com/siddharthkanna/Commutify/assets/88847799/a9242791-c3e5-467f-a6dd-a54fb8ec60d6" alt="c4" width="200" height="450">
 
-<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/3bed9018-3b20-4798-b7b8-173c5d180f27" alt="c5" width="200" height="450">
+<img src="https://github.com/siddharthkanna/Commutify/assets/88847799/ecf3632c-efbb-482c-bcf6-803da41235ea" alt="c2" width="200" height="450">
 
 
 
