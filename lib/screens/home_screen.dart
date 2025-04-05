@@ -6,6 +6,9 @@ import 'package:commutify/components/search/search_container.dart';
 import 'package:commutify/models/map_box_place.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -28,47 +31,120 @@ class _HomeScreenState extends State<HomeScreen> {
     getCurrentLocation();
   }
 
+  Future<String> getAddressFromCoordinates(double latitude, double longitude) async {
+    try {
+      // Use fallback token if needed
+      final mapBoxAccessToken = dotenv.env['accessToken'] ?? 'pk.eyJ1Ijoic2lkZGhhcnRoa2FubmEiLCJhIjoiY201aWN3amljMHJqdTJsc2czMmowN2NwOCJ9.9G2HoNPdQYrW1NuXX5CWDA';
+      final url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/$longitude,$latitude.json?access_token=$mapBoxAccessToken';
+      
+      print("Making geocoding request to: $url");
+      final response = await http.get(Uri.parse(url));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['features'] != null && data['features'].length > 0) {
+          return data['features'][0]['place_name'];
+        } else {
+          print("No features returned from geocoding API");
+          return 'Unknown Location';
+        }
+      } else {
+        print("Geocoding API error: ${response.statusCode} - ${response.body}");
+        return 'Error fetching address';
+      }
+    } catch (e) {
+      print("Exception in getAddressFromCoordinates: $e");
+      return 'Error fetching address';
+    }
+  }
+
   void getCurrentLocation() async {
+    print("Getting current location...");
     setState(() {
       isLoading = true;
     });
     
-    LatLng? currentLatLng = await LocationService.getCurrentLocation();
-    if (currentLatLng != null) {
-      String address = await getAddressFromCoordinates(
-        currentLatLng.latitude,
-        currentLatLng.longitude,
-      );
+    try {
+      LatLng? currentLatLng = await LocationService.getCurrentLocation();
+      print("Location service returned: $currentLatLng");
+      
+      if (currentLatLng != null) {
+        print("Getting address for coordinates: $currentLatLng");
+        String address;
+        try {
+          address = await getAddressFromCoordinates(
+            currentLatLng.latitude,
+            currentLatLng.longitude,
+          );
+          print("Got address: $address");
+        } catch (e) {
+          print("Error getting address: $e");
+          address = "Current Location";
+        }
 
-      setState(() {
-        pickupLocation = currentLatLng;
-        currentLocation = MapBoxPlace(
-          latitude: currentLatLng.latitude,
-          longitude: currentLatLng.longitude,
-          placeName: address,
+        setState(() {
+          pickupLocation = currentLatLng;
+          currentLocation = MapBoxPlace(
+            latitude: currentLatLng.latitude,
+            longitude: currentLatLng.longitude,
+            placeName: address,
+          );
+          isLoading = false;
+        });
+
+        print("Setting pickup location...");
+        setPickupLocation(currentLocation!);
+        print("Pickup location set");
+      } else {
+        print("Failed to get current location");
+        setState(() {
+          isLoading = false;
+        });
+        
+        // Show a snackbar with an error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not access your location. Please check your device settings.'),
+            duration: Duration(seconds: 3),
+            backgroundColor: Apptheme.error,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
-        isLoading = false;
-      });
-
-      setPickupLocation(currentLocation!);
-    } else {
+      }
+    } catch (e) {
+      print("Error in getCurrentLocation: $e");
       setState(() {
         isLoading = false;
       });
+      
+      // Show a snackbar with an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error getting location: $e'),
+          duration: Duration(seconds: 3),
+          backgroundColor: Apptheme.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
   void setPickupLocation(MapBoxPlace location) {
+    print("Setting pickup location: ${location.placeName} at ${location.latitude}, ${location.longitude}");
+    // Use the scheduler to ensure setState is called after the frame is built
     SchedulerBinding.instance.addPostFrameCallback((_) {
       setState(() {
         pickupLocation = LatLng(location.latitude, location.longitude);
+        print("Pickup location set to: $pickupLocation");
       });
     });
   }
 
   void setDestinationLocation(MapBoxPlace location) {
+    print("Setting destination location: ${location.placeName}");
     setState(() {
       destinationLocation = LatLng(location.latitude, location.longitude);
+      print("Destination location set to: $destinationLocation");
     });
   }
 
@@ -78,6 +154,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // Add padding for navigation bar
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final navbarHeight = 70.0 + 20.0; // Height of navbar (70) plus vertical margin (20)
+    
+    // Debug print for locations
+    print("Build HomeScreen - pickupLocation: $pickupLocation, destinationLocation: $destinationLocation");
     
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -125,14 +204,13 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-          // Map layer
-          if ((pickupLocation != null && destinationLocation == null) ||
-              (pickupLocation != null && destinationLocation != null))
-            MapWidget(
-              pickupLocation: pickupLocation,
-              destinationLocation: destinationLocation,
-              isCurrentLocation: true,
-            ),
+          // Map layer - always show map for debugging
+          MapWidget(
+            key: ValueKey('map-${pickupLocation?.latitude}-${pickupLocation?.longitude}-${destinationLocation?.latitude}-${destinationLocation?.longitude}'),
+            pickupLocation: pickupLocation,
+            destinationLocation: destinationLocation,
+            isCurrentLocation: true,
+          ),
             
           // Loading indicator
           if (isLoading)

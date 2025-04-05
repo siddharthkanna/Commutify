@@ -6,9 +6,40 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:commutify/Themes/app_theme.dart';
 
-final mapBoxAccessToken = dotenv.env['accessToken']!;
-final mapBoxStyleId = dotenv.env['styleId']!;
+// Default Mapbox token in case .env fails - you should replace this with your own valid token
+const String FALLBACK_MAPBOX_TOKEN = 'pk.eyJ1Ijoic2lkZGhhcnRoa2FubmEiLCJhIjoiY201aWN3amljMHJqdTJsc2czMmowN2NwOCJ9.9G2HoNPdQYrW1NuXX5CWDA';
+
+// Using direct values instead of env variables for debugging
+final mapBoxAccessToken = dotenv.env['accessToken'] ?? FALLBACK_MAPBOX_TOKEN;
+final mapBoxStyleId = dotenv.env['styleId']?.replaceAll('mapbox://', '') ?? 'cli6i055s00pt01qua5srcxrl';
 const myLocation = LatLng(0, 0);
+
+// Print debug information
+void printMapBoxDebugInfo() {
+  print('MapBox Debug Info:');
+  print('Access Token: $mapBoxAccessToken');
+  print('Style ID: $mapBoxStyleId');
+  
+  // Test token validity with a direct API call
+  testMapboxToken();
+}
+
+Future<void> testMapboxToken() async {
+  print('Testing MapBox token validity...');
+  try {
+    final response = await http.get(
+      Uri.parse('https://api.mapbox.com/geocoding/v5/mapbox.places/New York.json?access_token=$mapBoxAccessToken')
+    );
+    print('MapBox API Test Response Status: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      print('MapBox token is valid!');
+    } else {
+      print('MapBox token test failed: ${response.body}');
+    }
+  } catch (e) {
+    print('Error testing MapBox token: $e');
+  }
+}
 
 Future<String> getAddressFromCoordinates(
     double latitude, double longitude) async {
@@ -53,8 +84,43 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   late MapController mapController;
   List<LatLng> routeCoordinates = [];
   bool isRouteLoading = false;
+  bool hasMapLoadError = false;
+  String? mapErrorMessage;
+  // Default location - San Francisco
+  final LatLng defaultLocation = LatLng(37.7749, -122.4194);
 
   _MapWidgetState() : mapController = MapController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Debug MapBox configuration
+    printMapBoxDebugInfo();
+    
+    // Initialize with delayed to ensure we catch any map loading errors
+    Future.delayed(Duration.zero, () {
+      try {
+        if (mapBoxAccessToken.isEmpty) {
+          setState(() {
+            hasMapLoadError = true;
+            mapErrorMessage = "MapBox access token is empty - trying OpenStreetMap as fallback";
+          });
+          print("WARNING: MapBox access token is empty or invalid - using OpenStreetMap fallback");
+        }
+        
+        // Move to location - use default if none provided
+        LatLng center = widget.pickupLocation ?? defaultLocation;
+        print("Moving map to center: $center");
+        mapController.move(center, 13.0);
+      } catch (e) {
+        setState(() {
+          hasMapLoadError = true;
+          mapErrorMessage = "Error initializing map: $e";
+        });
+        print("ERROR initializing map: $e");
+      }
+    });
+  }
 
   @override
   void didUpdateWidget(MapWidget oldWidget) {
@@ -153,63 +219,138 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // Use direct hardcoded values for debugging
+    // Try Mapbox raster tiles instead of vector tiles
+    final String urlTemplate = "https://api.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}@2x.png?access_token={accessToken}";
+    final Map<String, String> additionalOptions = {
+      'accessToken': mapBoxAccessToken,
+    };
+    
+    print("DEBUG: URL Template: $urlTemplate");
+    print("DEBUG: Additional Options: $additionalOptions");
+    // Debug direct URL testing
+    print("DEBUG: Testing direct raster URL construction:");
+    print("https://api.mapbox.com/v4/mapbox.streets/0/0/0@2x.png?access_token=$mapBoxAccessToken");
+    
     return Stack(
       children: [
-        FlutterMap(
-          mapController: mapController,
-          options: MapOptions(
-            minZoom: 5,
-            maxZoom: 18,
-            zoom: 13,
-            center: widget.pickupLocation ?? myLocation,
-            interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
-            // Disable rotation
-          ),
-          children: [
-            TileLayer(
-              urlTemplate:
-                  "https://api.mapbox.com/styles/v1/siddharthkanna/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
-              additionalOptions: {
-                'mapStyleId': mapBoxStyleId,
-                'accessToken': mapBoxAccessToken,
-              },
-            ),
-            // Route polyline
-            if (routeCoordinates.isNotEmpty)
-              PolylineLayer(
-                polylines: [
-                  Polyline(
-                    points: routeCoordinates,
-                    strokeWidth: 4.0,
-                    color: Apptheme.primary.withOpacity(0.8),
-                    borderStrokeWidth: 2.0,
-                    borderColor: Apptheme.surface.withOpacity(0.7),
+        // Display error message if map fails to load
+        if (hasMapLoadError)
+          Container(
+            color: Apptheme.background,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.map_outlined, size: 60, color: Apptheme.error),
+                  SizedBox(height: 20),
+                  Text(
+                    'Unable to load map',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Apptheme.text,
+                    ),
                   ),
-                ],
-              ),
-            // Pickup location marker
-            if (widget.pickupLocation != null)
-              MarkerLayer(
-                markers: [
-                  // Only show pickup marker
-                  Marker(
-                    width: 50.0,
-                    height: 50.0,
-                    point: widget.pickupLocation!,
-                    builder: (context) => _buildPickupMarker(),
-                  ),
-                  // Show destination marker if available
-                  if (widget.destinationLocation != null)
-                    Marker(
-                      width: 50.0,
-                      height: 50.0,
-                      point: widget.destinationLocation!,
-                      builder: (context) => _buildDestinationMarker(),
+                  SizedBox(height: 10),
+                  if (mapErrorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Text(
+                        mapErrorMessage!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Apptheme.textSecondary,
+                        ),
+                      ),
                     ),
                 ],
               ),
-          ],
-        ),
+            ),
+          ),
+        
+        // Regular map content
+        if (!hasMapLoadError)
+          Builder(
+            builder: (context) {
+              try {
+                return FlutterMap(
+                  mapController: mapController,
+                  options: MapOptions(
+                    minZoom: 5,
+                    maxZoom: 18,
+                    zoom: 13,
+                    center: widget.pickupLocation ?? defaultLocation,
+                    interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+                    // Disable rotation
+                  ),
+                  children: [
+                    // Try MapBox first
+                    TileLayer(
+                      urlTemplate: urlTemplate,
+                      additionalOptions: additionalOptions,
+                      // Add a fallback to OpenStreetMap if MapBox fails
+                      fallbackUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      // Credit to OpenStreetMap
+                      tileProvider: NetworkTileProvider(),
+                      tileBuilder: (context, child, tile) {
+                        // Debug the tile loading
+                        print("Loading tile: $tile");
+                        return child;
+                      },
+                    ),
+                    // Route polyline
+                    if (routeCoordinates.isNotEmpty)
+                      PolylineLayer(
+                        polylines: [
+                          Polyline(
+                            points: routeCoordinates,
+                            strokeWidth: 4.0,
+                            color: Apptheme.primary.withOpacity(0.8),
+                            borderStrokeWidth: 2.0,
+                            borderColor: Apptheme.surface.withOpacity(0.7),
+                          ),
+                        ],
+                      ),
+                    // Pickup location marker
+                    if (widget.pickupLocation != null)
+                      MarkerLayer(
+                        markers: [
+                          // Only show pickup marker
+                          Marker(
+                            width: 50.0,
+                            height: 50.0,
+                            point: widget.pickupLocation!,
+                            builder: (context) => _buildPickupMarker(),
+                          ),
+                          // Show destination marker if available
+                          if (widget.destinationLocation != null)
+                            Marker(
+                              width: 50.0,
+                              height: 50.0,
+                              point: widget.destinationLocation!,
+                              builder: (context) => _buildDestinationMarker(),
+                            ),
+                        ],
+                      ),
+                  ],
+                );
+              } catch (e, stackTrace) {
+                print("ERROR in FlutterMap: $e");
+                print("Stack trace: $stackTrace");
+                return Container(
+                  color: Apptheme.background,
+                  child: Center(
+                    child: Text(
+                      'Error loading map: $e',
+                      style: TextStyle(color: Apptheme.error),
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
         // Loading indicator for route
         if (isRouteLoading)
           Positioned(

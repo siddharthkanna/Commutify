@@ -38,11 +38,11 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
     
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
     );
     
-    _fadeAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutQuart),
     );
     
     _animationController.forward();
@@ -86,6 +86,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
       MaterialPageRoute(builder: (context) => const SearchScreen()),
     );
     if (selectedResults != null && selectedResults.isNotEmpty) {
+      HapticFeedback.selectionClick();
       final selectedResult = selectedResults[0];
       controller.text = selectedResult.placeName;
       setLocation(selectedResult);
@@ -247,18 +248,20 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
     
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutQuint,
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withOpacity(0.15),
               spreadRadius: 1,
-              blurRadius: 12,
-              offset: const Offset(0, 3),
+              blurRadius: 25,
+              offset: const Offset(0, 5),
             ),
           ],
           color: Apptheme.surface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
         ),
         constraints: BoxConstraints(
             minHeight: screenSize.width * 0.55,
@@ -266,12 +269,20 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
         padding: EdgeInsets.all(screenSize.width * 0.05),
         child: Column(
           children: [
+            // Header
             Row(
               children: [
-                Icon(
-                  Icons.search_rounded,
-                  color: Apptheme.primary,
-                  size: screenSize.width * 0.06,
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Apptheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    Icons.search_rounded,
+                    color: Apptheme.primary,
+                    size: screenSize.width * 0.06,
+                  ),
                 ),
                 SizedBox(width: screenSize.width * 0.03),
                 Text(
@@ -284,54 +295,83 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
                 ),
               ],
             ),
-            SizedBox(height: screenSize.width * 0.04),
+            SizedBox(height: screenSize.width * 0.05),
             
-            // Pickup field
-            _buildInputField(
-              controller: _pickupController,
-              label: 'Pickup',
-              icon: Icons.circle_outlined,
-              iconColor: Colors.green,
-              onTap: () => openSearchScreen(_pickupController, widget.setPickupLocation),
-              context: context,
-            ),
-            
-            // Connector line
-            Padding(
-              padding: EdgeInsets.only(left: screenSize.width * 0.056),
-              child: Row(
+            // Locations container
+            Container(
+              decoration: BoxDecoration(
+                color: Apptheme.background.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.2),
+                  width: 1.5,
+                ),
+              ),
+              padding: EdgeInsets.all(screenSize.width * 0.03),
+              child: Column(
                 children: [
-                  Container(
-                    width: 2,
-                    height: screenSize.width * 0.04,
-                    color: Colors.grey.withOpacity(0.5),
+                  // Pickup field
+                  _buildInputField(
+                    controller: _pickupController,
+                    label: 'Pickup',
+                    icon: Icons.circle_outlined,
+                    iconColor: Apptheme.success,
+                    onTap: () => openSearchScreen(_pickupController, widget.setPickupLocation),
+                    context: context,
+                    isFirst: true,
+                  ),
+                  
+                  // Connector line
+                  Padding(
+                    padding: EdgeInsets.only(left: screenSize.width * 0.056),
+                    child: Row(
+                      children: [
+                        Column(
+                          children: List.generate(
+                            3,
+                            (index) => Container(
+                              width: 2,
+                              height: 4,
+                              margin: const EdgeInsets.symmetric(vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Apptheme.primary.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(1),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Destination field
+                  _buildInputField(
+                    controller: _destinationController,
+                    label: 'Destination',
+                    icon: Icons.location_on,
+                    iconColor: Apptheme.error,
+                    onTap: () => openSearchScreen(_destinationController, widget.setDestinationLocation),
+                    context: context,
+                    isFirst: false,
                   ),
                 ],
               ),
             ),
             
-            // Destination field
-            _buildInputField(
-              controller: _destinationController,
-              label: 'Destination',
-              icon: Icons.location_on,
-              iconColor: Colors.red,
-              onTap: () => openSearchScreen(_destinationController, widget.setDestinationLocation),
-              context: context,
-            ),
-            
-            SizedBox(height: screenSize.width * 0.04),
+            SizedBox(height: screenSize.width * 0.05),
             
             // Confirm button
             SizedBox(
               width: double.infinity,
-              height: screenSize.width * 0.12,
+              height: screenSize.width * 0.13,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Apptheme.primary,
+                  foregroundColor: Apptheme.surface,
                   elevation: 0,
+                  shadowColor: Apptheme.primary.withOpacity(0.4),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
                 onPressed: () {
@@ -382,26 +422,40 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
     required Color iconColor,
     required Function onTap,
     required BuildContext context,
+    required bool isFirst,
   }) {
     final screenSize = MediaQuery.of(context).size;
     
     return GestureDetector(
       onTap: () => onTap(),
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: screenSize.width * 0.02),
+        margin: EdgeInsets.symmetric(vertical: screenSize.width * 0.01),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenSize.width * 0.02,
+          vertical: screenSize.width * 0.02,
+        ),
         decoration: BoxDecoration(
-          color: Apptheme.surface.withOpacity(0.5),
+          color: controller.text.isNotEmpty ? Apptheme.surface : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
+          border: controller.text.isNotEmpty
+              ? Border.all(color: iconColor.withOpacity(0.2), width: 1.5)
+              : null,
         ),
         child: Row(
           children: [
-            SizedBox(width: screenSize.width * 0.03),
-            Icon(
-              icon,
-              size: 20,
-              color: iconColor,
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 18,
+                color: iconColor,
+              ),
             ),
-            SizedBox(width: screenSize.width * 0.02),
+            SizedBox(width: screenSize.width * 0.03),
             Expanded(
               child: AbsorbPointer(
                 child: TextField(
@@ -418,13 +472,25 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
                       fontSize: screenSize.width * 0.04,
                       fontWeight: FontWeight.w400,
                     ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: screenSize.width * 0.04,
-                    ),
+                    contentPadding: EdgeInsets.zero,
+                    isDense: true,
                   ),
                 ),
               ),
             ),
+            if (controller.text.isNotEmpty && !isFirst)
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Apptheme.error.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.chevron_right,
+                  size: 16,
+                  color: Apptheme.textSecondary,
+                ),
+              ),
           ],
         ),
       ),

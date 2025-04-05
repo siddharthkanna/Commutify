@@ -4,6 +4,7 @@ import 'package:commutify/components/map_widget.dart';
 import 'package:commutify/models/map_box_place.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/services.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -17,6 +18,9 @@ class _SearchScreenState extends State<SearchScreen> {
   final FocusNode _searchFocusNode = FocusNode();
   bool _showClearButton = false;
   List<MapBoxPlace> _suggestions = [];
+  List<MapBoxPlace> _recentSearches = [];
+  bool _isLoading = false;
+  String _errorMessage = '';
 
   @override
   void initState() {
@@ -24,6 +28,31 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
+    });
+    _loadRecentSearches();
+  }
+
+  void _loadRecentSearches() {
+    // In a real app, you would load these from local storage
+    // For now, we'll use dummy data
+    setState(() {
+      _recentSearches = [
+        MapBoxPlace(
+          placeName: 'Home - 123 Main Street, Bengaluru',
+          longitude: 77.5946,
+          latitude: 12.9716,
+        ),
+        MapBoxPlace(
+          placeName: 'Work - Tech Park, Bengaluru',
+          longitude: 77.6196,
+          latitude: 12.9312,
+        ),
+        MapBoxPlace(
+          placeName: 'MG Road, Bengaluru',
+          longitude: 77.6101,
+          latitude: 12.9749,
+        ),
+      ];
     });
   }
 
@@ -35,15 +64,26 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _onTextChanged() {
+    final query = _searchController.text;
     setState(() {
-      _showClearButton = _searchController.text.isNotEmpty;
+      _showClearButton = query.isNotEmpty;
     });
+    
+    if (query.length > 2) {
+      updateSuggestions(query);
+    } else if (query.isEmpty) {
+      setState(() {
+        _suggestions = [];
+      });
+    }
   }
 
   void _clearText() {
+    HapticFeedback.lightImpact();
     setState(() {
       _searchController.clear();
       _showClearButton = false;
+      _suggestions = [];
     });
   }
 
@@ -71,10 +111,28 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> updateSuggestions(String query) async {
-    final results = await fetchLocationSuggestions(query);
     setState(() {
-      _suggestions = results;
+      _isLoading = true;
+      _errorMessage = '';
     });
+    
+    try {
+      final results = await fetchLocationSuggestions(query);
+      setState(() {
+        _suggestions = results;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Could not load suggestions. Please try again.';
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _selectLocation(MapBoxPlace place) {
+    HapticFeedback.selectionClick();
+    Navigator.pop(context, [place]);
   }
 
   @override
@@ -84,86 +142,247 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       backgroundColor: Apptheme.surface,
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-              top: isPortrait
-                  ? screenSize.height * 0.06
-                  : screenSize.width * 0.03,
-              left: isPortrait
-                  ? screenSize.width * 0.02
-                  : screenSize.width * 0.04,
-              right: isPortrait
-                  ? screenSize.width * 0.02
-                  : screenSize.width * 0.04,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Search bar
+            Container(
+              margin: EdgeInsets.only(
+                top: isPortrait ? 8 : 4,
+                left: 16,
+                right: 16,
+                bottom: 8,
+              ),
+              decoration: BoxDecoration(
+                color: Apptheme.background,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Apptheme.primary.withOpacity(0.05),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: Apptheme.primary,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
+                        color: Apptheme.text,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Search for a location',
+                        hintStyle: TextStyle(
+                          color: Apptheme.textSecondary,
+                          fontSize: 16.0,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                        suffixIcon: _showClearButton
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: _clearText,
+                                color: Apptheme.textSecondary,
+                              )
+                            : null,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
+            
+            // Loading indicator
+            if (_isLoading)
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: const LinearProgressIndicator(
+                  backgroundColor: Colors.transparent,
+                  color: Apptheme.primary,
+                ),
+              ),
+              
+            // Error message
+            if (_errorMessage.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  _errorMessage,
+                  style: TextStyle(
+                    color: Apptheme.error,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              
+            // Results section
+            Expanded(
+              child: _searchController.text.isEmpty
+                  ? _buildRecentSearches()
+                  : _buildSearchResults(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildRecentSearches() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+          child: Text(
+            'Recent Searches',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Apptheme.text,
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: _recentSearches.length,
+            itemBuilder: (context, index) {
+              final place = _recentSearches[index];
+              return _buildPlaceItem(
+                place: place,
+                icon: Icons.history,
+                iconColor: Apptheme.textSecondary,
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildSearchResults() {
+    if (_suggestions.isEmpty && !_isLoading) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 48,
+              color: Apptheme.textSecondary.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No results found',
+              style: TextStyle(
+                color: Apptheme.textSecondary,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: _suggestions.length,
+      itemBuilder: (context, index) {
+        final suggestion = _suggestions[index];
+        return _buildPlaceItem(
+          place: suggestion,
+          icon: Icons.location_on,
+          iconColor: Apptheme.primary,
+        );
+      },
+    );
+  }
+  
+  Widget _buildPlaceItem({
+    required MapBoxPlace place,
+    required IconData icon,
+    required Color iconColor,
+  }) {
+    final hasSecondaryText = place.placeName.contains(' - ');
+    String primaryText = place.placeName;
+    String secondaryText = '';
+    
+    if (hasSecondaryText) {
+      final parts = place.placeName.split(' - ');
+      primaryText = parts.first;
+      secondaryText = parts.last;
+    }
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Material(
+        borderRadius: BorderRadius.circular(12),
+        color: Apptheme.surface,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _selectLocation(place),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: 20,
+                  ),
                 ),
-                const SizedBox(width: 4.0),
+                const SizedBox(width: 16),
                 Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    focusNode: _searchFocusNode,
-                    onChanged: (query) => updateSuggestions(query),
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: _searchController.text.isEmpty
-                          ? 'Search Location'
-                          : '',
-                      border: InputBorder.none,
-                      suffixIcon: _showClearButton
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: _clearText,
-                              color: Colors.grey,
-                            )
-                          : null,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        primaryText,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Apptheme.text,
+                        ),
+                      ),
+                      if (hasSecondaryText) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          secondaryText,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Apptheme.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          Expanded(
-            child: ListView.separated(
-              padding: EdgeInsets.symmetric(
-                horizontal: isPortrait
-                    ? screenSize.width * 0.02
-                    : screenSize.width * 0.04,
-              ),
-              itemCount: _suggestions.length,
-              separatorBuilder: (context, index) => const Divider(
-                thickness: 1.5,
-              ), // Add a Divider between items
-              itemBuilder: (context, index) {
-                final suggestion = _suggestions[index];
-                return ListTile(
-                  title: Text(
-                    suggestion.placeName,
-                    style: TextStyle(
-                        fontSize: isPortrait
-                            ? screenSize.width * 0.04
-                            : screenSize.width * 0.025,
-                        fontWeight: FontWeight.normal),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context, [suggestion]);
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
