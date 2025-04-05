@@ -6,6 +6,8 @@ import 'package:commutify/providers/auth_provider.dart';
 import 'package:commutify/services/user_api.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
+  const ProfileEditScreen({super.key});
+
   @override
   _ProfileEditScreenState createState() => _ProfileEditScreenState();
 }
@@ -15,6 +17,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   bool _isChangesMade = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -23,177 +26,295 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   Future<void> fetchUserDetails() async {
-    final userData = await UserApi.getUserDetails();
-    _nameController.text = userData['name'];
-    _phoneNumberController.text = userData['mobileNumber'];
-    _emailController.text = userData['email'];
+    setState(() => _isLoading = true);
+    try {
+      final userData = await UserApi.getUserDetails();
+      _nameController.text = userData['name'];
+      _phoneNumberController.text = userData['mobileNumber'];
+      _emailController.text = userData['email'];
 
-    setState(() {
-      _isChangesMade = false;
-    });
+      setState(() {
+        _isChangesMade = false;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      Snackbar.showSnackbar(context, 'Failed to load user details. Please try again.');
+    }
   }
 
   void saveChanges() async {
+    setState(() => _isLoading = true);
+    
     String newName = _nameController.text;
     String newPhoneNumber = _phoneNumberController.text;
 
     final auth = ref.watch(authProvider);
     final user = auth.getCurrentUser();
-    user?.updateDisplayName(newName);
 
-    bool isSuccess = await UserApi.updateUserInfo(
-      newName: newName,
-      newPhoneNumber: newPhoneNumber,
-    );
+    try {
+      bool isSuccess = await UserApi.updateUserInfo(
+        newName: newName,
+        newPhoneNumber: newPhoneNumber,
+      );
 
-    if (isSuccess) {
-      Snackbar.showSnackbar(context, 'Details updated successfully!');
-
-      setState(() {
-        _isChangesMade = false;
-      });
-    } else {
+      if (isSuccess) {
+        Snackbar.showSnackbar(context, 'Details updated successfully!');
+        setState(() {
+          _isChangesMade = false;
+        });
+      } else {
+        Snackbar.showSnackbar(
+            context, 'Failed to update details. Please try again.');
+      }
+    } catch (e) {
       Snackbar.showSnackbar(
-          context, 'Failed to update details. Please try again.');
+          context, 'An error occurred. Please try again later.');
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
+    final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: Apptheme.ivory,
       appBar: AppBar(
-        elevation: 0.5,
-        backgroundColor: Apptheme.mist,
-        iconTheme: const IconThemeData(color: Apptheme.noir),
+        elevation: 0,
+        backgroundColor: Apptheme.navy,
+        iconTheme: const IconThemeData(color: Apptheme.ivory),
+        title: const Text(
+          'Personal Information',
+          style: TextStyle(
+            color: Apptheme.ivory,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        actions: [
+          // Save icon button in app bar
+          _isChangesMade
+              ? IconButton(
+                  icon: const Icon(Icons.check, color: Apptheme.ivory),
+                  onPressed: _isLoading ? null : saveChanges,
+                  tooltip: 'Save changes',
+                )
+              : const SizedBox.shrink(),
+        ],
       ),
-      body: Container(
-        color: Apptheme.mist,
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 20.0),
-          children: [
-            const Text(
-              'Edit Profile',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
-            ),
-            SizedBox(height: screenHeight * 0.06),
-            _buildTextField(
-              controller: _nameController,
-              labelText: 'Name',
-            ),
-            SizedBox(height: screenHeight * 0.04),
-            _buildTextField(
-              controller: _phoneNumberController,
-              labelText: 'Phone Number',
-            ),
-            SizedBox(height: screenHeight * 0.04),
-            emailField(
-              labelText: 'Email',
-              controller: _emailController,
-            ),
-            SizedBox(height: screenHeight * 0.08),
-            Center(
-              child: ElevatedButton(
-                onPressed: _isChangesMade ? saveChanges : null,
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  backgroundColor: _isChangesMade ? Apptheme.navy : Colors.grey,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: Apptheme.navy))
+          : SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.width * 0.06,
+                  vertical: screenSize.width * 0.08,
                 ),
-                child: const Text(
-                  'Save Changes',
-                  style: TextStyle(fontSize: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Profile picture section
+                    Center(
+                      child: Column(
+                        children: [
+                          // User avatar (can be enhanced later with image uploading)
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Apptheme.navy,
+                                width: 3,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: screenSize.width * 0.15,
+                              backgroundColor: Apptheme.mist.withOpacity(0.5),
+                              child: Icon(
+                                Icons.person,
+                                size: screenSize.width * 0.15,
+                                color: Apptheme.navy,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: screenSize.width * 0.04),
+                          
+                          // Future feature note
+                          Text(
+                            'Profile picture management coming soon',
+                            style: TextStyle(
+                              fontSize: screenSize.width * 0.035,
+                              color: Apptheme.noir.withOpacity(0.6),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    SizedBox(height: screenSize.width * 0.1),
+                    
+                    // Form fields section
+                    Text(
+                      'Your Details',
+                      style: TextStyle(
+                        fontSize: screenSize.width * 0.05,
+                        fontWeight: FontWeight.w600,
+                        color: Apptheme.noir,
+                      ),
+                    ),
+                    SizedBox(height: screenSize.width * 0.05),
+                    
+                    // Name field
+                    _buildInputField(
+                      label: 'Name',
+                      controller: _nameController,
+                      icon: Icons.person_outline,
+                      onChanged: (value) {
+                        setState(() {
+                          _isChangesMade = true;
+                        });
+                      },
+                    ),
+                    
+                    SizedBox(height: screenSize.width * 0.06),
+                    
+                    // Phone number field
+                    _buildInputField(
+                      label: 'Phone Number',
+                      controller: _phoneNumberController,
+                      icon: Icons.phone_outlined,
+                      keyboardType: TextInputType.phone,
+                      onChanged: (value) {
+                        setState(() {
+                          _isChangesMade = true;
+                        });
+                      },
+                    ),
+                    
+                    SizedBox(height: screenSize.width * 0.06),
+                    
+                    // Email field (readonly)
+                    _buildInputField(
+                      label: 'Email Address',
+                      controller: _emailController,
+                      icon: Icons.email_outlined,
+                      readOnly: true,
+                      helperText: 'Email cannot be changed',
+                    ),
+                    
+                    SizedBox(height: screenSize.width * 0.1),
+                    
+                    // Save button
+                    Center(
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isChangesMade && !_isLoading ? saveChanges : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Apptheme.navy,
+                            foregroundColor: Apptheme.ivory,
+                            padding: EdgeInsets.symmetric(vertical: screenSize.width * 0.04),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            elevation: 0,
+                            disabledBackgroundColor: Apptheme.mist,
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Apptheme.ivory,
+                                  ),
+                                )
+                              : Text(
+                                  'Save Changes',
+                                  style: TextStyle(
+                                    fontSize: screenSize.width * 0.045,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _buildTextField({
+  Widget _buildInputField({
+    required String label,
     required TextEditingController controller,
-    required String labelText,
+    required IconData icon,
+    bool readOnly = false,
+    String? helperText,
+    TextInputType? keyboardType,
+    Function(String)? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          labelText,
+          label,
           style: const TextStyle(
-            color: Apptheme.navy,
             fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Apptheme.navy,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         TextFormField(
           controller: controller,
+          readOnly: readOnly,
+          keyboardType: keyboardType,
+          onChanged: onChanged,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15.0),
-              borderSide: const BorderSide(
-                color: Apptheme.navy,
+            prefixIcon: Icon(
+              icon,
+              color: Apptheme.navy.withOpacity(0.7),
+              size: 22,
+            ),
+            helperText: helperText,
+            helperStyle: TextStyle(
+              fontSize: 12,
+              color: Apptheme.noir.withOpacity(0.5),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Apptheme.mist.withOpacity(0.8),
+                width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15.0),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: Apptheme.navy.withOpacity(0.5),
+                color: Apptheme.mist.withOpacity(0.8),
+                width: 1,
               ),
             ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Apptheme.navy,
+                width: 1.5,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
-          onChanged: (value) {
-            setState(() {
-              _isChangesMade = true;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget emailField({
-    required String labelText,
-    required TextEditingController controller,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          labelText,
           style: const TextStyle(
-            color: Apptheme.navy,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: controller,
-          readOnly: true,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15.0),
-              borderSide: const BorderSide(
-                color: Apptheme.navy,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15.0),
-              borderSide: BorderSide(
-                color: Apptheme.navy.withOpacity(0.5),
-              ),
-            ),
+            fontSize: 16,
+            color: Apptheme.noir,
           ),
         ),
       ],

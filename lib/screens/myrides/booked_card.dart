@@ -11,183 +11,256 @@ class BookedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final double fontSize16 = screenSize.width * 0.04;
-    final double fontSize14 = screenSize.width * 0.035;
-    final double fontSize12 = screenSize.width * 0.03;
-    final double padding18 = screenSize.width * 0.045;
-    final double padding14 = screenSize.width * 0.035;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Apptheme.ivory,
-        borderRadius: BorderRadius.circular(padding14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.12),
-            spreadRadius: 3,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(
-          color: Colors.black,
-          width: 0.8,
+    
+    // Get shorter location names for better display
+    final String pickupLocationShort = _getShortPlaceName(ride.pickupLocation.placeName);
+    final String destinationLocationShort = _getShortPlaceName(ride.destinationLocation.placeName);
+    
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+        side: BorderSide(
+          color: Apptheme.mist.withOpacity(0.5),
+          width: 1,
         ),
       ),
-      padding: EdgeInsets.all(padding18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 8.0),
-          Row(
+      color: Colors.white,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        child: Padding(
+          padding: EdgeInsets.all(screenSize.width * 0.04),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${getShortPlaceName(ride.pickupLocation.placeName)}',
-                style: TextStyle(
-                  fontSize: fontSize16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 6),
-              const Icon(
-                Icons.arrow_forward,
-                size: 16.0,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '${getShortPlaceName(ride.destinationLocation.placeName)}',
-                style: TextStyle(
-                  fontSize: fontSize16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 5.0),
-          Text(
-            'Rs.${ride.price.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: fontSize14,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          Row(
-            children: [
-              const Icon(
-                Icons.calendar_today,
-                size: 16.0,
-                color: Colors.black54,
-              ),
-              const SizedBox(width: 4.0),
-              Text(
-                '12th October',
-                style: TextStyle(fontSize: fontSize12, color: Colors.black54),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4.0),
-          Row(
-            children: [
-              const Icon(
-                Icons.access_time,
-                size: 16.0,
-                color: Colors.black54,
-              ),
-              const SizedBox(width: 4.0),
-              Text(
-                ride.time,
-                style: TextStyle(fontSize: fontSize12, color: Colors.black54),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4.0),
-          Row(
-            children: [
-              const Icon(
-                Icons.people,
-                size: 16.0,
-                color: Colors.black54,
-              ),
-              const SizedBox(width: 4.0),
-              Text(
-                ride.availableSeats.toString(),
-                style: TextStyle(fontSize: fontSize12, color: Colors.black54),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16.0),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundImage: NetworkImage(
-                  ride.driverPhotoUrl,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      ride.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ),
+              // Status indicator and price
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Status badge
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.width * 0.03,
+                      vertical: screenSize.width * 0.015,
                     ),
-                    Row(
+                    decoration: BoxDecoration(
+                      color: getStatusColor(ride.passengerStatus).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        statusIndicator(ride.passengerStatus),
-                        const SizedBox(
-                            width:
-                                8), // Add a small gap between the indicator and text
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: getStatusColor(ride.passengerStatus),
+                          ),
+                        ),
+                        SizedBox(width: 6),
                         Text(
                           ride.passengerStatus,
-                          style: TextStyle(fontSize: fontSize14),
+                          style: TextStyle(
+                            fontSize: screenSize.width * 0.03,
+                            fontWeight: FontWeight.w600,
+                            color: getStatusColor(ride.passengerStatus),
+                          ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              )
+                  ),
+                  
+                  // Price
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenSize.width * 0.03,
+                      vertical: screenSize.width * 0.015,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Apptheme.navy.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "₹${ride.price}",
+                      style: TextStyle(
+                        fontSize: screenSize.width * 0.035,
+                        fontWeight: FontWeight.bold,
+                        color: Apptheme.navy,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              SizedBox(height: screenSize.width * 0.04),
+              
+              // Route information
+              Row(
+                children: [
+                  // Route icons and line
+                  Column(
+                    children: [
+                      Icon(
+                        Icons.circle_outlined,
+                        size: 16,
+                        color: Colors.green,
+                      ),
+                      Container(
+                        height: 25,
+                        width: 1,
+                        color: Colors.grey.withOpacity(0.5),
+                      ),
+                      Icon(
+                        Icons.location_on,
+                        size: 16,
+                        color: Colors.red,
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 12),
+                  // Locations
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pickupLocationShort,
+                          style: TextStyle(
+                            fontSize: screenSize.width * 0.04,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          destinationLocationShort,
+                          style: TextStyle(
+                            fontSize: screenSize.width * 0.04,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              
+              SizedBox(height: screenSize.width * 0.04),
+              
+              // Divider
+              Divider(color: Colors.grey.withOpacity(0.3), height: 1),
+              
+              SizedBox(height: screenSize.width * 0.03),
+              
+              // Time and date, vehicle info
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Time and date
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 16,
+                        color: Colors.grey.shade700,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        ride.time,
+                        style: TextStyle(
+                          fontSize: screenSize.width * 0.035,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  // Vehicle info
+                  Text(
+                    "${ride.vehicle.vehicleType} • ${ride.vehicle.vehicleName}",
+                    style: TextStyle(
+                      fontSize: screenSize.width * 0.035,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+              
+              SizedBox(height: screenSize.width * 0.03),
+              
+              // Driver info
+              Row(
+                children: [
+                  // Driver avatar
+                  CircleAvatar(
+                    radius: screenSize.width * 0.04,
+                    backgroundImage: NetworkImage(ride.driverPhotoUrl),
+                    backgroundColor: Apptheme.mist.withOpacity(0.5),
+                    child: ride.driverPhotoUrl.isEmpty
+                        ? Icon(
+                            Icons.person,
+                            size: screenSize.width * 0.04,
+                            color: Apptheme.navy,
+                          )
+                        : null,
+                  ),
+                  SizedBox(width: 8),
+                  
+                  // Driver name
+                  Expanded(
+                    child: Text(
+                      "Driver: ${ride.name}",
+                      style: TextStyle(
+                        fontSize: screenSize.width * 0.035,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  
+                  // Call icon
+                  Container(
+                    padding: EdgeInsets.all(screenSize.width * 0.02),
+                    decoration: BoxDecoration(
+                      color: Apptheme.navy.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.phone,
+                      size: screenSize.width * 0.04,
+                      color: Apptheme.navy,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget statusIndicator(String status) {
-    Color indicatorColor;
+  Color getStatusColor(String status) {
     switch (status) {
       case 'Upcoming':
-        indicatorColor = Colors.yellow;
-        break;
+        return Colors.amber.shade700;
       case 'Completed':
-        indicatorColor = Colors.green;
-        break;
+        return Colors.green.shade700;
       case 'Cancelled':
-        indicatorColor = Colors.red;
-        break;
+        return Colors.red.shade700;
       default:
-        indicatorColor = Colors.transparent;
+        return Colors.grey;
     }
-
-    return Container(
-      width: 12,
-      height: 12,
-      margin: const EdgeInsets.only(top: 4),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: indicatorColor,
-      ),
-    );
   }
+}
 
-  String getShortPlaceName(String placeName) {
-    List<String> parts = placeName.split(',');
-    return parts[0].trim();
-  }
+String _getShortPlaceName(String placeName) {
+  // Split the place name by a delimiter (e.g., comma) and take the first part
+  List<String> parts = placeName.split(',');
+  return parts[0].trim();
 }

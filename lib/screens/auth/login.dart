@@ -6,10 +6,13 @@ import '../../Themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
 
 class Login extends ConsumerWidget {
+  const Login({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authProvider);
     final loading = auth.loading;
+    final error = auth.error;
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -38,7 +41,7 @@ class Login extends ConsumerWidget {
                     SizedBox(
                       width: screenSize.width * 0.7,
                       child: ElevatedButton(
-                        onPressed: () async {
+                        onPressed: loading ? null : () async {
                           await auth.signInWithGoogle(context);
                         },
                         style: ElevatedButton.styleFrom(
@@ -72,6 +75,25 @@ class Login extends ConsumerWidget {
                         ),
                       ),
                     ),
+                    if (error.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(top: screenSize.height * 0.02),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            error,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

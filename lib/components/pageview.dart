@@ -3,6 +3,7 @@ import 'package:commutify/components/navbar.dart';
 import 'package:commutify/screens/home_screen.dart';
 import 'package:commutify/screens/myrides/myrides_screen.dart';
 import 'package:commutify/screens/profile_screen.dart';
+import 'package:commutify/Themes/app_theme.dart';
 
 class PageViewScreen extends StatefulWidget {
   final int initialPage;
@@ -14,8 +15,9 @@ class PageViewScreen extends StatefulWidget {
 
 class _PageViewScreenState extends State<PageViewScreen>
     with AutomaticKeepAliveClientMixin<PageViewScreen> {
-  PageController _pageController = PageController();
+  late PageController _pageController;
   int _currentPage = 0;
+  
   @override
   void initState() {
     super.initState();
@@ -39,62 +41,41 @@ class _PageViewScreenState extends State<PageViewScreen>
   }
 
   void _onNavItemTapped(int index) {
-    setState(() {
-      _currentPage = index;
-      _pageController.animateToPage(
-        index,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    });
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return ScaffoldMessenger(
-      child: Scaffold(
-        resizeToAvoidBottomInset:
-            false, // Disable automatic resizing to avoid the screen moving up with the keyboard
-        body: Stack(
-          children: [
-            NotificationListener<ScrollNotification>(
-              onNotification: (notification) {
-                if (notification is ScrollStartNotification &&
-                    notification.metrics.axis == Axis.vertical) {
-                  // Disable scrolling when the keyboard is open
-                  return true;
-                }
-                return false;
-              },
-              child: SingleChildScrollView(
-                // Wrap PageView with SingleChildScrollView
-                child: SizedBox(
-                  height: MediaQuery.of(context)
-                      .size
-                      .height, // Set container height
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: _onPageChanged,
-                    children: const [
-                      KeepAlivePage(child: HomeScreen()),
-                      KeepAlivePage(child: MyRides()),
-                      KeepAlivePage(child: ProfileScreen()), //
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 12,
-              right: 12,
-              bottom: 8,
-              child: NavBar(
-                selectedIndex: _currentPage,
-                onTabChanged: _onNavItemTapped,
-              ),
-            ),
-          ],
+    
+    // Get the bottom safe area padding for devices with notches
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
+    return Scaffold(
+      // Use the background color of your screens (usually ivory or white)
+      backgroundColor: Apptheme.ivory,
+      resizeToAvoidBottomInset: false,
+      extendBody: true,
+      extendBodyBehindAppBar: true,
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        physics: const ClampingScrollPhysics(),
+        children: const [
+          HomeScreen(),
+          MyRides(),
+          ProfileScreen(),
+        ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: bottomPadding > 0 ? 0.0 : 0.0),
+        child: NavBar(
+          selectedIndex: _currentPage,
+          onTabChanged: _onNavItemTapped,
         ),
       ),
     );

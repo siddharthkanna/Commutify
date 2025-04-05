@@ -8,7 +8,6 @@ import 'package:commutify/screens/myrides/ride_details_published.dart';
 import 'package:commutify/services/ride_api.dart';
 import '../../models/ride_modal.dart';
 import 'published_card.dart';
-import '../../services/user_api.dart';
 import 'dart:io';
 
 class MyRides extends StatefulWidget {
@@ -55,7 +54,9 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
       setState(() {
         isLoading = false;
       });
-      Snackbar.showSnackbar(context, "Oops! Something went wrong");
+      if (mounted) {
+        Snackbar.showSnackbar(context, "Oops! Something went wrong");
+      }
     }
   }
 
@@ -72,12 +73,14 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
         isLoading = false;
       });
     } catch (e) {
-      // Check if the error is due to a connection issue (SocketException)
-      if (e is SocketException) {
-        Snackbar.showSnackbar(
-            context, "Connection error. Please try again later.");
-      } else {
-        Snackbar.showSnackbar(context, "Oops! Something went wrong");
+      if (mounted) {
+        // Check if the error is due to a connection issue (SocketException)
+        if (e is SocketException) {
+          Snackbar.showSnackbar(
+              context, "Connection error. Please try again later.");
+        } else {
+          Snackbar.showSnackbar(context, "Oops! Something went wrong");
+        }
       }
 
       setState(() {
@@ -92,7 +95,9 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
       await _bookedRides();
       await _publishedRides();
     } catch (e) {
-      Snackbar.showSnackbar(context, "Oops! Something went wrong");
+      if (mounted) {
+        Snackbar.showSnackbar(context, "Oops! Something went wrong");
+      }
 
       setState(() {
         publishedRides = [];
@@ -106,28 +111,38 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Apptheme.mist,
+      backgroundColor: Apptheme.ivory,
       appBar: AppBar(
-        title: Padding(
-          padding: EdgeInsets.only(
-              left: screenSize.width * 0.04, top: screenSize.width * 0.04),
-          child: const Text(
-            'My Rides',
-            style: TextStyle(
-                color: Apptheme.noir,
-                fontWeight: FontWeight.bold,
-                fontSize: 24),
+        elevation: 0,
+        backgroundColor: Apptheme.navy,
+        iconTheme: const IconThemeData(color: Apptheme.ivory),
+        title: Text(
+          'My Rides',
+          style: TextStyle(
+            color: Apptheme.ivory,
+            fontWeight: FontWeight.w600,
+            fontSize: screenSize.width * 0.06,
           ),
         ),
-        backgroundColor: Apptheme.mist,
-        elevation: 0.5,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Colors.black,
-          indicatorColor: Apptheme.noir,
+          indicatorColor: Apptheme.ivory,
+          indicatorWeight: 3,
+          labelColor: Apptheme.ivory,
+          unselectedLabelColor: Apptheme.ivory.withOpacity(0.7),
+          labelStyle: TextStyle(
+            fontSize: screenSize.width * 0.04,
+            fontWeight: FontWeight.w600,
+          ),
           tabs: const [
-            Tab(text: 'Booked'),
-            Tab(text: 'Published'),
+            Tab(
+              text: 'Booked', 
+              icon: Icon(Icons.airline_seat_recline_normal),
+            ),
+            Tab(
+              text: 'Published',
+              icon: Icon(Icons.drive_eta),
+            ),
           ],
         ),
       ),
@@ -143,76 +158,90 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
     );
   }
 
-  Future<void> fetchPublishedRides() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      List<Ride> rides = await RideApi.fetchPublishedRides();
-
-      setState(() {
-        publishedRides = rides;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        publishedRides = [];
-        isLoading = false;
-      });
-    }
-  }
-
   Widget _buildRidesList(List<Ride> rides, String emptyMessage,
       {required bool isPublished}) {
+    final screenSize = MediaQuery.of(context).size;
+    
     if (isLoading) {
       return const Center(
-        child: Loader(),
+        child: CircularProgressIndicator(color: Apptheme.navy),
       );
     }
 
     if (rides.isEmpty) {
       return Center(
-        child: Text(emptyMessage),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isPublished ? Icons.drive_eta_outlined : Icons.airline_seat_recline_normal_outlined,
+              size: screenSize.width * 0.2,
+              color: Apptheme.mist.withOpacity(0.8),
+            ),
+            SizedBox(height: screenSize.width * 0.04),
+            Text(
+              emptyMessage,
+              style: TextStyle(
+                fontSize: screenSize.width * 0.045,
+                fontWeight: FontWeight.w600,
+                color: Apptheme.noir,
+              ),
+            ),
+            SizedBox(height: screenSize.width * 0.02),
+            Text(
+              isPublished 
+                ? "Publish a ride to see it here"
+                : "Book a ride to see it here",
+              style: TextStyle(
+                fontSize: screenSize.width * 0.035,
+                color: Apptheme.noir.withOpacity(0.6),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       );
     }
 
     return RefreshIndicator(
       onRefresh: _refreshData,
+      color: Apptheme.navy,
       child: ListView.separated(
-          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-          itemCount: rides.length,
-          separatorBuilder: (context, index) =>
-              SizedBox(height: MediaQuery.of(context).size.width * 0.04),
-          itemBuilder: (context, index) {
-            if (isPublished) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          RideDetailsPublished(ride: rides[index]),
-                    ),
-                  );
-                },
-                child: PublishedCard(ride: rides[index]),
-              );
-            } else {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          RideDetailsBooked(ride: rides[index]),
-                    ),
-                  );
-                },
-                child: BookedCard(ride: rides[index]),
-              );
-            }
-          }),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.all(screenSize.width * 0.04),
+        itemCount: rides.length,
+        separatorBuilder: (context, index) =>
+            SizedBox(height: screenSize.width * 0.03),
+        itemBuilder: (context, index) {
+          if (isPublished) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        RideDetailsPublished(ride: rides[index]),
+                  ),
+                ).then((_) => _refreshData());
+              },
+              child: PublishedCard(ride: rides[index]),
+            );
+          } else {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        RideDetailsBooked(ride: rides[index]),
+                  ),
+                ).then((_) => _refreshData());
+              },
+              child: BookedCard(ride: rides[index]),
+            );
+          }
+        }
+      ),
     );
   }
 }

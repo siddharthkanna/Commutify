@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class RideDetailsBooked extends ConsumerStatefulWidget {
   final Ride ride;
-  const RideDetailsBooked({required this.ride});
+  const RideDetailsBooked({super.key, required this.ride});
 
   @override
   _RideDetailsBookedState createState() => _RideDetailsBookedState();
@@ -71,11 +71,18 @@ class _RideDetailsBookedState extends ConsumerState<RideDetailsBooked> {
     }
 
     return Scaffold(
-      backgroundColor: Apptheme.mist,
+      backgroundColor: Apptheme.ivory,
       appBar: AppBar(
-        backgroundColor: Apptheme.mist,
-        elevation: 0.5,
-        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 0,
+        backgroundColor: Apptheme.navy,
+        iconTheme: const IconThemeData(color: Apptheme.ivory),
+        title: const Text(
+          'Booked Ride Details',
+          style: TextStyle(
+            color: Apptheme.ivory,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Center(

@@ -26,7 +26,7 @@ class DetailsPageState extends ConsumerState<DetailsPage> {
     final auth = ref.watch(authProvider);
     final loading = auth.loading;
     final user = auth.getCurrentUser();
-    name = user?.displayName;
+    name = user?.userMetadata?['full_name'] as String?;
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -160,13 +160,11 @@ class DetailsPageState extends ConsumerState<DetailsPage> {
                           try {
                             final user =
                                 ref.read(authProvider).getCurrentUser();
-                            final uid = user?.uid;
+                            final uid = user?.id;
                             final email = user?.email;
-                            final photoUrl = user?.photoURL;
-                            //final name  = user?.displayName;
-                            if (name != null) {
-                              await user?.updateDisplayName(name);
-                            }
+                            final photoUrl = user?.userMetadata?['avatar_url'];
+                            
+                            // Supabase doesn't have updateDisplayName like Firebase
 
                             final userData = {
                               'uid': uid,

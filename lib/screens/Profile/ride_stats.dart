@@ -4,6 +4,8 @@ import 'package:commutify/common/loading.dart';
 import 'package:commutify/services/user_api.dart';
 
 class RideStatsScreen extends StatefulWidget {
+  const RideStatsScreen({super.key});
+
   @override
   _RideStatsScreenState createState() => _RideStatsScreenState();
 }

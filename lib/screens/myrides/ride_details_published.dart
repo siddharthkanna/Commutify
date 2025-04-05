@@ -8,7 +8,7 @@ import '../../models/ride_modal.dart';
 
 class RideDetailsPublished extends ConsumerStatefulWidget {
   final Ride ride;
-  const RideDetailsPublished({required this.ride});
+  const RideDetailsPublished({super.key, required this.ride});
 
   @override
   _RideDetailsPublishedState createState() => _RideDetailsPublishedState();
@@ -84,11 +84,18 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
     }
 
     return Scaffold(
-        backgroundColor: Apptheme.mist,
+        backgroundColor: Apptheme.ivory,
         appBar: AppBar(
-          backgroundColor: Apptheme.mist,
-          elevation: 0.5,
-          iconTheme: const IconThemeData(color: Colors.black),
+          elevation: 0,
+          backgroundColor: Apptheme.navy,
+          iconTheme: const IconThemeData(color: Apptheme.ivory),
+          title: const Text(
+            'Ride Details',
+            style: TextStyle(
+              color: Apptheme.ivory,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
         body: SingleChildScrollView(
             child: Center(
@@ -343,7 +350,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
                                       ),
                                     ),
                                   ),
-                                  Divider(thickness: 1),
+                                  const Divider(thickness: 1),
                                 ],
                               ),
                             ),

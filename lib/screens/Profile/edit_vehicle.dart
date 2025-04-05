@@ -5,7 +5,7 @@ import '../../models/vehicle_modal.dart';
 class EditVehicleDialog extends StatefulWidget {
   final Vehicle vehicle;
 
-  EditVehicleDialog({required this.vehicle});
+  const EditVehicleDialog({super.key, required this.vehicle});
 
   @override
   _EditVehicleDialogState createState() => _EditVehicleDialogState();

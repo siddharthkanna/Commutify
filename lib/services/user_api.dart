@@ -7,7 +7,7 @@ import '../config/config.dart';
 final uidProvider = Provider<String?>((ref) {
   final authService = ref.watch(authProvider);
   final user = authService.getCurrentUser();
-  return user?.uid;
+  return user?.id;
 });
 
 final String? userId = ProviderContainer().read(uidProvider);

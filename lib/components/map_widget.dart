@@ -51,6 +51,7 @@ class MapWidget extends StatefulWidget {
 class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   late MapController mapController;
   List<LatLng> routeCoordinates = [];
+  bool isRouteLoading = false;
 
   _MapWidgetState() : mapController = MapController();
 
@@ -87,20 +88,35 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
   Future<void> getRouteCoordinates() async {
     if (widget.pickupLocation != null && widget.destinationLocation != null) {
-      final response = await http.get(
-        Uri.parse(
-          "https://api.mapbox.com/directions/v5/mapbox/driving/${widget.pickupLocation!.longitude},${widget.pickupLocation!.latitude};${widget.destinationLocation!.longitude},${widget.destinationLocation!.latitude}?geometries=geojson&access_token=$mapBoxAccessToken",
-        ),
-      );
+      setState(() {
+        isRouteLoading = true;
+      });
+      
+      try {
+        final response = await http.get(
+          Uri.parse(
+            "https://api.mapbox.com/directions/v5/mapbox/driving/${widget.pickupLocation!.longitude},${widget.pickupLocation!.latitude};${widget.destinationLocation!.longitude},${widget.destinationLocation!.latitude}?geometries=geojson&access_token=$mapBoxAccessToken",
+          ),
+        );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List<dynamic> coordinates =
-            data['routes'][0]['geometry']['coordinates'];
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          final List<dynamic> coordinates =
+              data['routes'][0]['geometry']['coordinates'];
+          setState(() {
+            routeCoordinates =
+                coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
+            adjustMapZoom();
+            isRouteLoading = false;
+          });
+        } else {
+          setState(() {
+            isRouteLoading = false;
+          });
+        }
+      } catch (e) {
         setState(() {
-          routeCoordinates =
-              coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
-          adjustMapZoom();
+          isRouteLoading = false;
         });
       }
     }
@@ -136,55 +152,187 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterMap(
-      mapController: mapController,
-      options: MapOptions(
-        minZoom: 5,
-        maxZoom: 18,
-        zoom: 13,
-        center: widget.pickupLocation ?? myLocation,
-        interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
-        // Disable rotation
-      ),
+    return Stack(
       children: [
-        TileLayer(
-          urlTemplate:
-              "https://api.mapbox.com/styles/v1/siddharthkanna/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
-          additionalOptions: {
-            'mapStyleId': mapBoxStyleId,
-            'accessToken': mapBoxAccessToken,
-          },
-        ),
-        PolylineLayer(
-          polylines: [
-            Polyline(
-              points: routeCoordinates,
-              strokeWidth: 4.0,
-              color: Colors.black54,
+        FlutterMap(
+          mapController: mapController,
+          options: MapOptions(
+            minZoom: 5,
+            maxZoom: 18,
+            zoom: 13,
+            center: widget.pickupLocation ?? myLocation,
+            interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+            // Disable rotation
+          ),
+          children: [
+            TileLayer(
+              urlTemplate:
+                  "https://api.mapbox.com/styles/v1/siddharthkanna/{mapStyleId}/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
+              additionalOptions: {
+                'mapStyleId': mapBoxStyleId,
+                'accessToken': mapBoxAccessToken,
+              },
             ),
+            // Route polyline
+            if (routeCoordinates.isNotEmpty)
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: routeCoordinates,
+                    strokeWidth: 4.0,
+                    color: Colors.blue.shade800.withOpacity(0.7),
+                    borderStrokeWidth: 2.0,
+                    borderColor: Colors.white.withOpacity(0.7),
+                  ),
+                ],
+              ),
+            // Pickup location marker
+            if (widget.pickupLocation != null)
+              MarkerLayer(
+                markers: [
+                  // Only show pickup marker
+                  Marker(
+                    width: 50.0,
+                    height: 50.0,
+                    point: widget.pickupLocation!,
+                    builder: (context) => _buildPickupMarker(),
+                  ),
+                  // Show destination marker if available
+                  if (widget.destinationLocation != null)
+                    Marker(
+                      width: 50.0,
+                      height: 50.0,
+                      point: widget.destinationLocation!,
+                      builder: (context) => _buildDestinationMarker(),
+                    ),
+                ],
+              ),
           ],
         ),
-        MarkerLayer(
-          markers: [
-            Marker(
-              width: 250.0,
-              height: 250.0,
-              point: widget.pickupLocation!,
-              builder: (context) => const Icon(
-                Icons.location_on,
-                color: Colors.blue,
+        // Loading indicator for route
+        if (isRouteLoading)
+          Positioned(
+            top: 60,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Calculating route...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            Marker(
-              width: 200.0,
-              height: 200.0,
-              point: widget.destinationLocation ?? myLocation,
-              builder: (context) => const Icon(
-                Icons.location_on,
-                color: Colors.red,
+          ),
+      ],
+    );
+  }
+  
+  Widget _buildPickupMarker() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.25),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
+            ],
+          ),
+          child: Container(
+            width: 18,
+            height: 18,
+            decoration: const BoxDecoration(
+              color: Colors.green,
+              shape: BoxShape.circle,
             ),
-          ],
+            child: const Icon(
+              Icons.circle,
+              color: Colors.white,
+              size: 10,
+            ),
+          ),
+        ),
+        Container(
+          width: 2,
+          height: 10,
+          color: Colors.green,
+        ),
+        Container(
+          width: 10,
+          height: 10,
+          decoration: const BoxDecoration(
+            color: Colors.green,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildDestinationMarker() {
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.25),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.location_on,
+              color: Colors.white,
+              size: 14,
+            ),
+          ),
+        ),
+        Transform.translate(
+          offset: const Offset(0, -5),
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: const BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+            ),
+          ),
         ),
       ],
     );

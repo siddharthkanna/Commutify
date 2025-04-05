@@ -9,7 +9,7 @@ import '../../models/ride_modal.dart';
 class RideCard extends StatefulWidget {
   final Ride ride;
 
-  const RideCard({required this.ride});
+  const RideCard({super.key, required this.ride});
 
   @override
   _RideCardState createState() => _RideCardState();
@@ -141,7 +141,7 @@ class _RideCardState extends State<RideCard> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => Ridebooked()),
+                                builder: (context) => const Ridebooked()),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(

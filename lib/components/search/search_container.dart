@@ -5,6 +5,7 @@ import 'package:commutify/models/map_box_place.dart';
 import 'package:commutify/screens/Driver/Driver_Screen.dart';
 import 'package:commutify/screens/Passenger/passengerScreen.dart';
 import 'package:commutify/Themes/app_theme.dart';
+import 'package:flutter/services.dart';
 
 class SearchContainer extends StatefulWidget {
   final Function(MapBoxPlace) setPickupLocation;
@@ -22,16 +23,29 @@ class SearchContainer extends StatefulWidget {
   State<SearchContainer> createState() => _SearchContainerState();
 }
 
-class _SearchContainerState extends State<SearchContainer> {
+class _SearchContainerState extends State<SearchContainer> with SingleTickerProviderStateMixin {
   final TextEditingController _pickupController = TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
   MapBoxPlace? selectedPickupLocation;
   MapBoxPlace? selectedDestinationLocation;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
     _setInitialPickupLocation();
+    
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    
+    _fadeAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+    
+    _animationController.forward();
   }
 
   @override
@@ -48,6 +62,7 @@ class _SearchContainerState extends State<SearchContainer> {
   void dispose() {
     _pickupController.dispose();
     _destinationController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -65,6 +80,7 @@ class _SearchContainerState extends State<SearchContainer> {
     TextEditingController controller,
     Function(MapBoxPlace) setLocation,
   ) async {
+    HapticFeedback.lightImpact();
     final selectedResults = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const SearchScreen()),
@@ -87,86 +103,80 @@ class _SearchContainerState extends State<SearchContainer> {
   }
 
   void showDriverPassengerPopup() {
+    HapticFeedback.mediumImpact();
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final screenSize = MediaQuery.of(context).size;
+        
         return Dialog(
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-              side: const BorderSide(width: 1)),
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          elevation: 8,
           backgroundColor: Apptheme.ivory,
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Select Your Role!',
+                Text(
+                  'Select Your Role',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: screenSize.width * 0.06,
+                    color: Apptheme.navy,
                   ),
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Apptheme.navy,
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontFamily: 'Outfit',
-                      fontSize: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    minimumSize: Size(
-                      MediaQuery.of(context).size.width * 0.25,
-                      MediaQuery.of(context).size.width * 0.1,
-                    ),
+                const SizedBox(height: 8),
+                Text(
+                  'Are you driving or looking for a ride?',
+                  style: TextStyle(
+                    fontSize: screenSize.width * 0.035,
+                    color: Apptheme.noir.withOpacity(0.7),
                   ),
-                  onPressed: () {
-                    // Handle driver button press
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DriverScreen(
-                          pickupLocation: selectedPickupLocation,
-                          destinationLocation: selectedDestinationLocation,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Driver'),
+                  textAlign: TextAlign.center,
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Apptheme.navy,
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontFamily: 'Outfit',
-                      fontSize: 16,
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildRoleButton(
+                      context: context,
+                      icon: Icons.drive_eta,
+                      label: 'Driver',
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DriverScreen(
+                              pickupLocation: selectedPickupLocation,
+                              destinationLocation: selectedDestinationLocation,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                    _buildRoleButton(
+                      context: context,
+                      icon: Icons.airline_seat_recline_normal,
+                      label: 'Passenger',
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PassengerScreen(
+                              pickupLocation: selectedPickupLocation,
+                              destinationLocation: selectedDestinationLocation,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    minimumSize: Size(
-                      MediaQuery.of(context).size.width * 0.25,
-                      MediaQuery.of(context).size.width * 0.1,
-                    ),
-                  ),
-                  onPressed: () {
-                    // Handle passenger button press
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PassengerScreen(
-                          pickupLocation: selectedPickupLocation,
-                          destinationLocation: selectedDestinationLocation,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Passenger'),
+                  ],
                 ),
               ],
             ),
@@ -176,140 +186,247 @@ class _SearchContainerState extends State<SearchContainer> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildRoleButton({
+    required BuildContext context, 
+    required IconData icon, 
+    required String label, 
+    required VoidCallback onPressed
+  }) {
     final screenSize = MediaQuery.of(context).size;
-
-    // Calculate responsive font size and button size based on screen width
-    final double fontSize22 = screenSize.width * 0.065;
-    final double fontSize14 = screenSize.width * 0.04;
-
+    
     return Container(
+      width: screenSize.width * 0.3,
+      height: screenSize.width * 0.32,
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: screenSize.width * 0.015,
-            blurRadius: screenSize.width * 0.02,
-            offset: const Offset(0, 3),
+            color: Apptheme.navy.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
-        color: Apptheme.mist,
-        borderRadius: BorderRadius.circular(screenSize.width * 0.04),
-        border: Border.all(
-          color: Colors.black,
-          width: screenSize.width * 0.0025,
+      ),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Apptheme.navy,
+          padding: EdgeInsets.symmetric(
+            vertical: screenSize.width * 0.03,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
+        ),
+        onPressed: onPressed,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: screenSize.width * 0.1,
+              color: Apptheme.ivory,
+            ),
+            SizedBox(height: screenSize.width * 0.02),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: screenSize.width * 0.04,
+                fontWeight: FontWeight.w600,
+                color: Apptheme.ivory,
+              ),
+            ),
+          ],
         ),
       ),
-      constraints: BoxConstraints(
-          minHeight: screenSize.width * 0.55,
-          minWidth: screenSize.width * 0.91),
-      padding: EdgeInsets.all(screenSize.width * 0.04),
-      child: Column(
-        children: [
-          Text(
-            'Where to?',
-            style: TextStyle(
-              fontSize: fontSize22,
-              fontWeight: FontWeight.bold,
-              color: Apptheme.noir,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 12,
+              offset: const Offset(0, 3),
             ),
-          ),
-          SizedBox(height: screenSize.width * 0.035),
-          SizedBox(
-            width: screenSize.width * 0.84,
-            height: screenSize.width * 0.16,
-            child: GestureDetector(
-              onTap: () =>
-                  openSearchScreen(_pickupController, widget.setPickupLocation),
-              child: AbsorbPointer(
-                child: TextFormField(
-                  controller: _pickupController,
+          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        constraints: BoxConstraints(
+            minHeight: screenSize.width * 0.55,
+            minWidth: screenSize.width * 0.91),
+        padding: EdgeInsets.all(screenSize.width * 0.05),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.search_rounded,
+                  color: Apptheme.navy,
+                  size: screenSize.width * 0.06,
+                ),
+                SizedBox(width: screenSize.width * 0.03),
+                Text(
+                  'Where to?',
                   style: TextStyle(
-                    fontSize: fontSize14,
-                    fontWeight: FontWeight.normal,
+                    fontSize: screenSize.width * 0.06,
+                    fontWeight: FontWeight.bold,
+                    color: Apptheme.navy,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: screenSize.width * 0.04),
+            
+            // Pickup field
+            _buildInputField(
+              controller: _pickupController,
+              label: 'Pickup',
+              icon: Icons.circle_outlined,
+              iconColor: Colors.green,
+              onTap: () => openSearchScreen(_pickupController, widget.setPickupLocation),
+              context: context,
+            ),
+            
+            // Connector line
+            Padding(
+              padding: EdgeInsets.only(left: screenSize.width * 0.056),
+              child: Row(
+                children: [
+                  Container(
+                    width: 2,
+                    height: screenSize.width * 0.04,
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Destination field
+            _buildInputField(
+              controller: _destinationController,
+              label: 'Destination',
+              icon: Icons.location_on,
+              iconColor: Colors.red,
+              onTap: () => openSearchScreen(_destinationController, widget.setDestinationLocation),
+              context: context,
+            ),
+            
+            SizedBox(height: screenSize.width * 0.04),
+            
+            // Confirm button
+            SizedBox(
+              width: double.infinity,
+              height: screenSize.width * 0.12,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Apptheme.navy,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                onPressed: () {
+                  if (_pickupController.text.isEmpty) {
+                    ErrorDialog.showErrorDialog(
+                        context, 'Please enter your pickup location');
+                  } else if (_destinationController.text.isEmpty) {
+                    ErrorDialog.showErrorDialog(
+                        context, 'Please enter your destination location');
+                  } else if (_pickupController.text ==
+                      _destinationController.text) {
+                    ErrorDialog.showErrorDialog(
+                        context, 'Pickup and destination cannot be the same');
+                  } else {
+                    showDriverPassengerPopup();
+                  }
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.directions_car_outlined,
+                      color: Apptheme.ivory,
+                    ),
+                    SizedBox(width: screenSize.width * 0.02),
+                    Text(
+                      'Find Ride',
+                      style: TextStyle(
+                        fontSize: screenSize.width * 0.045,
+                        fontWeight: FontWeight.w600,
+                        color: Apptheme.ivory,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required Color iconColor,
+    required Function onTap,
+    required BuildContext context,
+  }) {
+    final screenSize = MediaQuery.of(context).size;
+    
+    return GestureDetector(
+      onTap: () => onTap(),
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: screenSize.width * 0.02),
+        decoration: BoxDecoration(
+          color: Apptheme.ivory.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            SizedBox(width: screenSize.width * 0.03),
+            Icon(
+              icon,
+              size: 20,
+              color: iconColor,
+            ),
+            SizedBox(width: screenSize.width * 0.02),
+            Expanded(
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: controller,
+                  style: TextStyle(
+                    fontSize: screenSize.width * 0.04,
+                    color: Apptheme.noir,
                   ),
                   decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Apptheme.ivory,
-                    labelText: 'Pickup',
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(screenSize.width * 0.04),
+                    border: InputBorder.none,
+                    hintText: label,
+                    hintStyle: TextStyle(
+                      color: Colors.grey,
+                      fontSize: screenSize.width * 0.04,
+                      fontWeight: FontWeight.w400,
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(screenSize.width * 0.04),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: screenSize.width * 0.04,
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          SizedBox(height: screenSize.width * 0.03),
-          SizedBox(
-            width: screenSize.width * 0.84,
-            height: screenSize.width * 0.16,
-            child: GestureDetector(
-              onTap: () => openSearchScreen(
-                  _destinationController, widget.setDestinationLocation),
-              child: AbsorbPointer(
-                child: TextFormField(
-                  controller: _destinationController,
-                  style: TextStyle(
-                    fontSize: fontSize14,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: 'Destination',
-                    filled: true,
-                    fillColor: Apptheme.ivory,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(screenSize.width * 0.04),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(screenSize.width * 0.04),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: screenSize.width * 0.03),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Apptheme.navy,
-              textStyle: TextStyle(
-                fontWeight: FontWeight.normal,
-                fontFamily: 'Outfit',
-                fontSize: screenSize.width * 0.04,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(screenSize.width * 0.04),
-              ),
-              minimumSize:
-                  Size(screenSize.width * 0.25, screenSize.width * 0.1),
-            ),
-            onPressed: () {
-              if (_pickupController.text.isEmpty) {
-                ErrorDialog.showErrorDialog(
-                    context, 'Please Enter your Pickup location!');
-              } else if (_destinationController.text.isEmpty) {
-                ErrorDialog.showErrorDialog(
-                    context, 'Please Enter your Destination location!');
-              } else if (_pickupController.text ==
-                  _destinationController.text) {
-                ErrorDialog.showErrorDialog(
-                    context, 'Pickup and destination cant be same!');
-              } else {
-                showDriverPassengerPopup();
-              }
-            },
-            child: const Text('Confirm'),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -11,7 +11,7 @@ class PassengerScreen extends ConsumerStatefulWidget {
   final MapBoxPlace? pickupLocation;
   final MapBoxPlace? destinationLocation;
 
-  PassengerScreen({
+  const PassengerScreen({super.key, 
     required this.pickupLocation,
     required this.destinationLocation,
   });

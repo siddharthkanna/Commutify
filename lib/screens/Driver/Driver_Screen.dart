@@ -136,7 +136,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final authService = ref.read(authProvider);
-    String? uid = authService.getCurrentUser()?.uid;
+    String? uid = authService.getCurrentUser()?.id;
 
     // Calculate responsive button sizes
     final buttonWidth = screenSize.width * 0.7;
