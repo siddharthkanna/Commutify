@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:commutify/Themes/app_theme.dart';
 
 class NavBar extends StatelessWidget {
   final int selectedIndex;

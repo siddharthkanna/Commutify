@@ -1,4 +1,4 @@
-import 'package:mlritpool/models/vehicle_modal.dart';
+import 'package:commutify/models/vehicle_modal.dart';
 
 class Ride {
   final String id;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
-import 'package:mlritpool/components/pageview.dart';
+import 'package:commutify/Themes/app_theme.dart';
+import 'package:commutify/components/pageview.dart';
 
 class RidePublished extends StatelessWidget {
   const RidePublished({super.key});

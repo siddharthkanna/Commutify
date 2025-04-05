@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
-import 'package:mlritpool/models/map_box_place.dart';
+import 'package:commutify/Themes/app_theme.dart';
+import 'package:commutify/models/map_box_place.dart';
 
 class DestinationLocationInput extends StatelessWidget {
   final MapBoxPlace? destinationLocation;

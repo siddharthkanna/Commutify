@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
-import 'package:mlritpool/common/error.dart';
-import 'package:mlritpool/common/loading.dart';
-import 'package:mlritpool/screens/Profile/add_vehicle.dart';
-import 'package:mlritpool/screens/Profile/edit_vehicle.dart';
-import 'package:mlritpool/services/user_api.dart';
-import 'package:mlritpool/services/vehicle_api.dart';
+import 'package:commutify/Themes/app_theme.dart';
+import 'package:commutify/common/error.dart';
+import 'package:commutify/common/loading.dart';
+import 'package:commutify/screens/Profile/add_vehicle.dart';
+import 'package:commutify/screens/Profile/edit_vehicle.dart';
+import 'package:commutify/services/user_api.dart';
+import 'package:commutify/services/vehicle_api.dart';
 import '../../models/vehicle_modal.dart';
 import 'package:flutter/material.dart';
 

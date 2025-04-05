@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mlritpool/common/error.dart';
-import 'package:mlritpool/components/search/search_screen.dart';
-import 'package:mlritpool/models/map_box_place.dart';
-import 'package:mlritpool/screens/Driver/driver_screen.dart';
-import 'package:mlritpool/screens/Passenger/passengerScreen.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:commutify/common/error.dart';
+import 'package:commutify/components/search/search_screen.dart';
+import 'package:commutify/models/map_box_place.dart';
+import 'package:commutify/screens/Driver/Driver_Screen.dart';
+import 'package:commutify/screens/Passenger/passengerScreen.dart';
+import 'package:commutify/Themes/app_theme.dart';
 
 class SearchContainer extends StatefulWidget {
   final Function(MapBoxPlace) setPickupLocation;

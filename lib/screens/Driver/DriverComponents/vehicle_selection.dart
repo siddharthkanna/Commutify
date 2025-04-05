@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:commutify/Themes/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mlritpool/models/vehicle_modal.dart';
-import 'package:mlritpool/services/user_api.dart';
-import 'package:mlritpool/services/vehicle_api.dart';
+import 'package:commutify/models/vehicle_modal.dart';
+import 'package:commutify/services/user_api.dart';
+import 'package:commutify/services/vehicle_api.dart';
 
 class VehicleSelection extends ConsumerStatefulWidget {
   Vehicle selectedVehicle;

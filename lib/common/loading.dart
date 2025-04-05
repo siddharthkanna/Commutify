@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:commutify/Themes/app_theme.dart';
 
 class Loader extends StatelessWidget {
   const Loader({Key? key}) : super(key: key);

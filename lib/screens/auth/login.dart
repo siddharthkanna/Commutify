@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mlritpool/common/loading.dart';
-import '../../components/carousel.dart';
+import 'package:commutify/common/loading.dart';
+
 import '../../Themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
 
@@ -33,7 +33,7 @@ class Login extends ConsumerWidget {
                       ),
                     ),
                     SizedBox(height: screenSize.height * 0.08),
-                    CarouselWidget(),
+                    //CarouselWidget(),
                     SizedBox(height: screenSize.height * 0.08),
                     SizedBox(
                       width: screenSize.width * 0.7,

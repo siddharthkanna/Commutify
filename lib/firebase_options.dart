@@ -69,7 +69,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'node-practice-f048c.appspot.com',
     androidClientId: '1039881544081-jduacu25o1dlhe2kpn8ogjim7ip93h4a.apps.googleusercontent.com',
     iosClientId: '1039881544081-jbn2el1lf8bnn59kcjsc7vl36nti2o2u.apps.googleusercontent.com',
-    iosBundleId: 'com.example.mlritpool',
+    iosBundleId: 'com.example.commutify',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -80,6 +80,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'node-practice-f048c.appspot.com',
     androidClientId: '1039881544081-jduacu25o1dlhe2kpn8ogjim7ip93h4a.apps.googleusercontent.com',
     iosClientId: '1039881544081-vgjlphjriv5ir397ftbpi9ka1e8a7omu.apps.googleusercontent.com',
-    iosBundleId: 'com.example.mlritpool.RunnerTests',
+    iosBundleId: 'com.example.commutify.RunnerTests',
   );
 }

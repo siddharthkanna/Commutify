@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "mlritpool" "\0"
+            VALUE "FileDescription", "commutify" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "mlritpool" "\0"
+            VALUE "InternalName", "commutify" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "mlritpool.exe" "\0"
-            VALUE "ProductName", "mlritpool" "\0"
+            VALUE "OriginalFilename", "commutify.exe" "\0"
+            VALUE "ProductName", "commutify" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

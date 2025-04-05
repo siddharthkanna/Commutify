@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
-import 'package:mlritpool/components/map_widget.dart';
-import 'package:mlritpool/models/map_box_place.dart';
+import 'package:commutify/Themes/app_theme.dart';
+import 'package:commutify/components/map_widget.dart';
+import 'package:commutify/models/map_box_place.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

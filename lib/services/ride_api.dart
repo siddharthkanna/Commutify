@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:mlritpool/services/user_api.dart';
+import 'package:commutify/services/user_api.dart';
 import '../config/config.dart';
 import '../models/ride_modal.dart';
 

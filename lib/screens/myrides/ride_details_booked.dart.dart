@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
-import 'package:mlritpool/services/ride_api.dart';
+import 'package:commutify/Themes/app_theme.dart';
+import 'package:commutify/services/ride_api.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import '../../models/ride_modal.dart';
 import 'package:url_launcher/url_launcher.dart';

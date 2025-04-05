@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/location_service.dart';
-import 'package:mlritpool/components/map_widget.dart';
-import 'package:mlritpool/components/search/search_container.dart';
-import 'package:mlritpool/models/map_box_place.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:commutify/components/map_widget.dart';
+import 'package:commutify/components/search/search_container.dart';
+import 'package:commutify/models/map_box_place.dart';
+import 'package:commutify/Themes/app_theme.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 
 class HomeScreen extends StatefulWidget {

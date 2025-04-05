@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
+import 'package:commutify/Themes/app_theme.dart';
 
 class SeatingCapacitySelection extends StatelessWidget {
   final int selectedCapacity;

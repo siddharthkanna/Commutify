@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mlritpool/common/loading.dart';
+import 'package:commutify/common/loading.dart';
 import './providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import './screens/auth/login.dart';

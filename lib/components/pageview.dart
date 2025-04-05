@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mlritpool/components/navbar.dart';
-import 'package:mlritpool/screens/home_screen.dart';
-import 'package:mlritpool/screens/myrides/myrides_screen.dart';
-import 'package:mlritpool/screens/profile_screen.dart';
+import 'package:commutify/components/navbar.dart';
+import 'package:commutify/screens/home_screen.dart';
+import 'package:commutify/screens/myrides/myrides_screen.dart';
+import 'package:commutify/screens/profile_screen.dart';
 
 class PageViewScreen extends StatefulWidget {
   final int initialPage;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
-import 'package:mlritpool/screens/Profile/personal_info.dart';
-import 'package:mlritpool/screens/Profile/ride_stats.dart';
-import 'package:mlritpool/screens/Profile/vehicle_details.dart';
-import 'package:mlritpool/screens/auth/login.dart';
+import 'package:commutify/Themes/app_theme.dart';
+import 'package:commutify/screens/Profile/personal_info.dart';
+import 'package:commutify/screens/Profile/ride_stats.dart';
+import 'package:commutify/screens/Profile/vehicle_details.dart';
+import 'package:commutify/screens/auth/login.dart';
 import '../providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {

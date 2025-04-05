@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mlritpool/Themes/app_theme.dart';
-import 'package:mlritpool/common/error.dart';
-import 'package:mlritpool/providers/auth_provider.dart';
-import 'package:mlritpool/services/user_api.dart';
+import 'package:commutify/Themes/app_theme.dart';
+import 'package:commutify/common/error.dart';
+import 'package:commutify/providers/auth_provider.dart';
+import 'package:commutify/services/user_api.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
   @override
