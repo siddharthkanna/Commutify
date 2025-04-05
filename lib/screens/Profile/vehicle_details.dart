@@ -228,16 +228,33 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: isLoading ? null : addVehicle,
-        backgroundColor: Apptheme.primary,
-        icon: const Icon(Icons.add, color: Apptheme.surface),
-        label: const Text(
-          'Add Vehicle',
-          style: TextStyle(color: Apptheme.surface),
-        ),
-        elevation: 2,
-      ),
+      floatingActionButton: vehicles.isEmpty || isLoading
+          ? null
+          : Container(
+              margin: const EdgeInsets.only(bottom: 10, right: 10),
+              child: FloatingActionButton.extended(
+                onPressed: isLoading ? null : addVehicle,
+                backgroundColor: Apptheme.primary,
+                foregroundColor: Apptheme.surface,
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                icon: const Icon(
+                  Icons.add_circle_outline,
+                  color: Apptheme.surface,
+                  size: 22,
+                ),
+                label: const Text(
+                  'Add Vehicle',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Apptheme.surface,
+                  ),
+                ),
+              ),
+            ),
     );
   }
 
@@ -246,10 +263,17 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.directions_car_outlined,
-            size: screenSize.width * 0.2,
-            color: Apptheme.mist.withOpacity(0.8),
+          Container(
+            padding: EdgeInsets.all(screenSize.width * 0.06),
+            decoration: BoxDecoration(
+              color: Apptheme.primary.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.directions_car_outlined,
+              size: screenSize.width * 0.15,
+              color: Apptheme.primary,
+            ),
           ),
           SizedBox(height: screenSize.width * 0.04),
           Text(
@@ -261,17 +285,21 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
             ),
           ),
           SizedBox(height: screenSize.width * 0.02),
-          Text(
-            "Add a vehicle to start commuting",
-            style: TextStyle(
-              fontSize: screenSize.width * 0.035,
-              color: Apptheme.noir.withOpacity(0.6),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.1),
+            child: Text(
+              "Add your first vehicle to start commuting with others",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: screenSize.width * 0.035,
+                color: Apptheme.noir.withOpacity(0.6),
+              ),
             ),
           ),
           SizedBox(height: screenSize.width * 0.08),
           ElevatedButton.icon(
             onPressed: addVehicle,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add, size: 20),
             label: const Text('Add Your First Vehicle'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Apptheme.primary,
@@ -283,6 +311,7 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              elevation: 0,
             ),
           ),
         ],
@@ -301,16 +330,16 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
         final vehicle = vehicles[index];
         
         return Card(
-          elevation: 0,
+          elevation: 1,
           margin: EdgeInsets.symmetric(
-            vertical: screenSize.width * 0.02,
+            vertical: screenSize.width * 0.025,
             horizontal: screenSize.width * 0.02,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: Apptheme.mist.withOpacity(0.5),
-              width: 1,
+              color: Apptheme.mist.withOpacity(0.3),
+              width: 0.5,
             ),
           ),
           child: Padding(
@@ -321,15 +350,15 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Apptheme.mist.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
+                        color: Apptheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
                         _getVehicleIcon(vehicle.vehicleType),
                         color: Apptheme.primary,
-                        size: 28,
+                        size: 30,
                       ),
                     ),
                     SizedBox(width: screenSize.width * 0.04),
@@ -345,19 +374,27 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
                               color: Apptheme.noir,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            vehicle.vehicleNumber,
-                            style: TextStyle(
-                              fontSize: screenSize.width * 0.035,
-                              color: Apptheme.noir.withOpacity(0.7),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Apptheme.mist.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              vehicle.vehicleNumber,
+                              style: TextStyle(
+                                fontSize: screenSize.width * 0.035,
+                                color: Apptheme.noir.withOpacity(0.8),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 6),
                           Text(
                             vehicle.vehicleType,
                             style: TextStyle(
-                              fontSize: screenSize.width * 0.03,
+                              fontSize: screenSize.width * 0.035,
                               color: Apptheme.noir.withOpacity(0.5),
                             ),
                           ),
@@ -366,23 +403,44 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
                     ),
                     Column(
                       children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.edit_outlined,
-                            color: Apptheme.primary.withOpacity(0.7),
-                            size: 22,
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Apptheme.mist.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          onPressed: () => editVehicle(vehicle),
-                          tooltip: 'Edit',
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              color: Apptheme.primary,
+                              size: 20,
+                            ),
+                            onPressed: () => editVehicle(vehicle),
+                            tooltip: 'Edit',
+                            constraints: const BoxConstraints(
+                              minWidth: 36,
+                              minHeight: 36,
+                            ),
+                          ),
                         ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.redAccent,
-                            size: 22,
+                        const SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          onPressed: () => deleteVehicle(vehicle.id!),
-                          tooltip: 'Delete',
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.redAccent,
+                              size: 20,
+                            ),
+                            onPressed: () => deleteVehicle(vehicle.id!),
+                            tooltip: 'Delete',
+                            constraints: const BoxConstraints(
+                              minWidth: 36,
+                              minHeight: 36,
+                            ),
+                          ),
                         ),
                       ],
                     ),
