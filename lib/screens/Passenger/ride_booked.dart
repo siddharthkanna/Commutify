@@ -73,7 +73,7 @@ class Ridebooked extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     elevation: 15,
                     minimumSize: Size(buttonWidth, buttonHeight),
-                    backgroundColor: Apptheme.navy,
+                    backgroundColor: Apptheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),

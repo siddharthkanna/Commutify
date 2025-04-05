@@ -78,7 +78,7 @@ class BookedCard extends StatelessWidget {
                       vertical: screenSize.width * 0.015,
                     ),
                     decoration: BoxDecoration(
-                      color: Apptheme.navy.withOpacity(0.1),
+                      color: Apptheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -86,7 +86,7 @@ class BookedCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: screenSize.width * 0.035,
                         fontWeight: FontWeight.bold,
-                        color: Apptheme.navy,
+                        color: Apptheme.primary,
                       ),
                     ),
                   ),
@@ -204,7 +204,7 @@ class BookedCard extends StatelessWidget {
                         ? Icon(
                             Icons.person,
                             size: screenSize.width * 0.04,
-                            color: Apptheme.navy,
+                            color: Apptheme.primary,
                           )
                         : null,
                   ),
@@ -227,13 +227,13 @@ class BookedCard extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(screenSize.width * 0.02),
                     decoration: BoxDecoration(
-                      color: Apptheme.navy.withOpacity(0.1),
+                      color: Apptheme.primary.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.phone,
                       size: screenSize.width * 0.04,
-                      color: Apptheme.navy,
+                      color: Apptheme.primary,
                     ),
                   ),
                 ],

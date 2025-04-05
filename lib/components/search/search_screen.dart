@@ -83,7 +83,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final isPortrait = screenSize.height > screenSize.width;
 
     return Scaffold(
-      backgroundColor: Apptheme.ivory,
+      backgroundColor: Apptheme.surface,
       body: Column(
         children: [
           Padding(

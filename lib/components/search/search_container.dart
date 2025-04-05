@@ -115,7 +115,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
             borderRadius: BorderRadius.circular(20.0),
           ),
           elevation: 8,
-          backgroundColor: Apptheme.ivory,
+          backgroundColor: Apptheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -126,7 +126,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: screenSize.width * 0.06,
-                    color: Apptheme.navy,
+                    color: Apptheme.text,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -134,7 +134,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
                   'Are you driving or looking for a ride?',
                   style: TextStyle(
                     fontSize: screenSize.width * 0.035,
-                    color: Apptheme.noir.withOpacity(0.7),
+                    color: Apptheme.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -200,7 +200,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Apptheme.navy.withOpacity(0.1),
+            color: Apptheme.primary.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -208,7 +208,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
       ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Apptheme.navy,
+          backgroundColor: Apptheme.primary,
           padding: EdgeInsets.symmetric(
             vertical: screenSize.width * 0.03,
           ),
@@ -224,7 +224,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
             Icon(
               icon,
               size: screenSize.width * 0.1,
-              color: Apptheme.ivory,
+              color: Apptheme.surface,
             ),
             SizedBox(height: screenSize.width * 0.02),
             Text(
@@ -232,7 +232,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
               style: TextStyle(
                 fontSize: screenSize.width * 0.04,
                 fontWeight: FontWeight.w600,
-                color: Apptheme.ivory,
+                color: Apptheme.surface,
               ),
             ),
           ],
@@ -251,13 +251,13 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withOpacity(0.08),
               spreadRadius: 1,
               blurRadius: 12,
               offset: const Offset(0, 3),
             ),
           ],
-          color: Colors.white,
+          color: Apptheme.surface,
           borderRadius: BorderRadius.circular(20),
         ),
         constraints: BoxConstraints(
@@ -270,7 +270,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
               children: [
                 Icon(
                   Icons.search_rounded,
-                  color: Apptheme.navy,
+                  color: Apptheme.primary,
                   size: screenSize.width * 0.06,
                 ),
                 SizedBox(width: screenSize.width * 0.03),
@@ -279,7 +279,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
                   style: TextStyle(
                     fontSize: screenSize.width * 0.06,
                     fontWeight: FontWeight.bold,
-                    color: Apptheme.navy,
+                    color: Apptheme.text,
                   ),
                 ),
               ],
@@ -328,7 +328,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
               height: screenSize.width * 0.12,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Apptheme.navy,
+                  backgroundColor: Apptheme.primary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
@@ -354,7 +354,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
                   children: [
                     const Icon(
                       Icons.directions_car_outlined,
-                      color: Apptheme.ivory,
+                      color: Apptheme.surface,
                     ),
                     SizedBox(width: screenSize.width * 0.02),
                     Text(
@@ -362,7 +362,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
                       style: TextStyle(
                         fontSize: screenSize.width * 0.045,
                         fontWeight: FontWeight.w600,
-                        color: Apptheme.ivory,
+                        color: Apptheme.surface,
                       ),
                     ),
                   ],
@@ -390,7 +390,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
       child: Container(
         margin: EdgeInsets.symmetric(vertical: screenSize.width * 0.02),
         decoration: BoxDecoration(
-          color: Apptheme.ivory.withOpacity(0.5),
+          color: Apptheme.surface.withOpacity(0.5),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -408,13 +408,13 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
                   controller: controller,
                   style: TextStyle(
                     fontSize: screenSize.width * 0.04,
-                    color: Apptheme.noir,
+                    color: Apptheme.text,
                   ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: label,
                     hintStyle: TextStyle(
-                      color: Colors.grey,
+                      color: Apptheme.textSecondary,
                       fontSize: screenSize.width * 0.04,
                       fontWeight: FontWeight.w400,
                     ),

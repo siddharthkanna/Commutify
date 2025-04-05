@@ -16,7 +16,7 @@ class Login extends ConsumerWidget {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Apptheme.navy,
+      backgroundColor: Apptheme.primary,
       body: Stack(
         children: [
           Center(
@@ -32,7 +32,7 @@ class Login extends ConsumerWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 42.0,
-                        color: Apptheme.ivory,
+                        color: Apptheme.surface,
                       ),
                     ),
                     SizedBox(height: screenSize.height * 0.08),
@@ -51,7 +51,7 @@ class Login extends ConsumerWidget {
                           ),
                           minimumSize:
                               Size.fromHeight(screenSize.height * 0.06),
-                          backgroundColor: Apptheme.ivory,
+                          backgroundColor: Apptheme.surface,
                           shape: RoundedRectangleBorder(
                             borderRadius:
                                 BorderRadius.circular(screenSize.width * 0.1),

@@ -128,7 +128,7 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
             onPressed: () => Navigator.pop(context),
             child: const Text(
               "Cancel",
-              style: TextStyle(color: Apptheme.navy),
+              style: TextStyle(color: Apptheme.primary),
             ),
           ),
           TextButton(
@@ -174,15 +174,15 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Apptheme.ivory,
+      backgroundColor: Apptheme.surface,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Apptheme.navy,
-        iconTheme: const IconThemeData(color: Apptheme.ivory),
+        backgroundColor: Apptheme.primary,
+        iconTheme: const IconThemeData(color: Apptheme.surface),
         title: const Text(
           'Vehicle Details',
           style: TextStyle(
-            color: Apptheme.ivory,
+            color: Apptheme.surface,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -220,7 +220,7 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
             // Vehicle list
             Expanded(
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator(color: Apptheme.navy))
+                  ? const Center(child: CircularProgressIndicator(color: Apptheme.primary))
                   : vehicles.isEmpty
                       ? _buildEmptyState(screenSize)
                       : _buildVehicleList(screenSize),
@@ -230,11 +230,11 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: isLoading ? null : addVehicle,
-        backgroundColor: Apptheme.navy,
-        icon: const Icon(Icons.add, color: Apptheme.ivory),
+        backgroundColor: Apptheme.primary,
+        icon: const Icon(Icons.add, color: Apptheme.surface),
         label: const Text(
           'Add Vehicle',
-          style: TextStyle(color: Apptheme.ivory),
+          style: TextStyle(color: Apptheme.surface),
         ),
         elevation: 2,
       ),
@@ -274,8 +274,8 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
             icon: const Icon(Icons.add),
             label: const Text('Add Your First Vehicle'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Apptheme.navy,
-              foregroundColor: Apptheme.ivory,
+              backgroundColor: Apptheme.primary,
+              foregroundColor: Apptheme.surface,
               padding: EdgeInsets.symmetric(
                 horizontal: screenSize.width * 0.06,
                 vertical: screenSize.width * 0.03,
@@ -328,7 +328,7 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
                       ),
                       child: Icon(
                         _getVehicleIcon(vehicle.vehicleType),
-                        color: Apptheme.navy,
+                        color: Apptheme.primary,
                         size: 28,
                       ),
                     ),
@@ -369,7 +369,7 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
                         IconButton(
                           icon: Icon(
                             Icons.edit_outlined,
-                            color: Apptheme.navy.withOpacity(0.7),
+                            color: Apptheme.primary.withOpacity(0.7),
                             size: 22,
                           ),
                           onPressed: () => editVehicle(vehicle),

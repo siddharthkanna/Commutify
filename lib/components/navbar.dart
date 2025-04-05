@@ -36,7 +36,7 @@ class NavBar extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
+            color: Apptheme.surface.withOpacity(0.9),
             borderRadius: BorderRadius.circular(35),
           ),
           child: Row(
@@ -69,12 +69,12 @@ class NavBar extends StatelessWidget {
           curve: Curves.easeOutCubic,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? Apptheme.navy : Colors.black.withOpacity(0.05),
+            color: isSelected ? Apptheme.primary : Colors.black.withOpacity(0.03),
             borderRadius: BorderRadius.circular(25),
             boxShadow: isSelected 
               ? [
                   BoxShadow(
-                    color: Apptheme.navy.withOpacity(0.3),
+                    color: Apptheme.primary.withOpacity(0.2),
                     blurRadius: 8,
                     spreadRadius: 0,
                     offset: const Offset(0, 3),
@@ -87,7 +87,7 @@ class NavBar extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: isSelected ? Apptheme.ivory : Apptheme.noir.withOpacity(0.7),
+                color: isSelected ? Apptheme.surface : Apptheme.textSecondary,
                 size: 24,
               ),
               AnimatedContainer(
@@ -103,7 +103,7 @@ class NavBar extends StatelessWidget {
                     ? Text(
                         label,
                         style: const TextStyle(
-                          color: Apptheme.ivory,
+                          color: Apptheme.surface,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                         ),

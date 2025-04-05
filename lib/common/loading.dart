@@ -25,7 +25,7 @@ class LoaderAnimated extends StatelessWidget {
         backgroundColor: Colors.black45,
         body: Center(
           child: LoadingAnimationWidget.twoRotatingArc(
-            color: Apptheme.ivory,
+            color: Apptheme.surface,
             size: 45,
           ),
         ));

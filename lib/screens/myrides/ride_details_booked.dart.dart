@@ -71,15 +71,15 @@ class _RideDetailsBookedState extends ConsumerState<RideDetailsBooked> {
     }
 
     return Scaffold(
-      backgroundColor: Apptheme.ivory,
+      backgroundColor: Apptheme.surface,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Apptheme.navy,
-        iconTheme: const IconThemeData(color: Apptheme.ivory),
+        backgroundColor: Apptheme.primary,
+        iconTheme: const IconThemeData(color: Apptheme.surface),
         title: const Text(
           'Booked Ride Details',
           style: TextStyle(
-            color: Apptheme.ivory,
+            color: Apptheme.surface,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -126,9 +126,9 @@ class _RideDetailsBookedState extends ConsumerState<RideDetailsBooked> {
               ),
               TimelineTile(
                 alignment: TimelineAlign.manual,
-                afterLineStyle: const LineStyle(color: Apptheme.navy),
+                afterLineStyle: const LineStyle(color: Apptheme.primary),
                 indicatorStyle: IndicatorStyle(
-                  color: Apptheme.navy,
+                  color: Apptheme.primary,
                   iconStyle: IconStyle(
                     color: Apptheme.mist,
                     iconData: Icons.circle_rounded,
@@ -181,13 +181,13 @@ class _RideDetailsBookedState extends ConsumerState<RideDetailsBooked> {
               TimelineTile(
                 alignment: TimelineAlign.manual,
                 indicatorStyle: IndicatorStyle(
-                  color: Apptheme.navy,
+                  color: Apptheme.primary,
                   iconStyle: IconStyle(
                     color: Apptheme.mist,
                     iconData: Icons.circle_rounded,
                   ),
                 ),
-                beforeLineStyle: const LineStyle(color: Apptheme.navy),
+                beforeLineStyle: const LineStyle(color: Apptheme.primary),
                 lineXY: 0.1,
                 isLast: true,
                 endChild: Container(

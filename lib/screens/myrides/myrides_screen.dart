@@ -111,37 +111,43 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Apptheme.ivory,
+      backgroundColor: Apptheme.surface,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Apptheme.navy,
-        iconTheme: const IconThemeData(color: Apptheme.ivory),
+        backgroundColor: Apptheme.primary,
+        iconTheme: const IconThemeData(color: Apptheme.surface),
         title: Text(
           'My Rides',
           style: TextStyle(
-            color: Apptheme.ivory,
+            color: Apptheme.surface,
             fontWeight: FontWeight.w600,
             fontSize: screenSize.width * 0.06,
           ),
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Apptheme.ivory,
+          indicatorColor: Apptheme.surface,
           indicatorWeight: 3,
-          labelColor: Apptheme.ivory,
-          unselectedLabelColor: Apptheme.ivory.withOpacity(0.7),
-          labelStyle: TextStyle(
-            fontSize: screenSize.width * 0.04,
+          labelColor: Apptheme.surface,
+          unselectedLabelColor: Apptheme.surface.withOpacity(0.7),
+          labelStyle: const TextStyle(
+            fontSize: 14,
             fontWeight: FontWeight.w600,
+            fontFamily: 'Outfit',
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            fontFamily: 'Outfit',
           ),
           tabs: const [
             Tab(
               text: 'Booked', 
-              icon: Icon(Icons.airline_seat_recline_normal),
+              icon: Icon(Icons.airline_seat_recline_normal, size: 22),
             ),
             Tab(
               text: 'Published',
-              icon: Icon(Icons.drive_eta),
+              icon: Icon(Icons.drive_eta, size: 22),
             ),
           ],
         ),
@@ -164,7 +170,7 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
     
     if (isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Apptheme.navy),
+        child: CircularProgressIndicator(color: Apptheme.primary),
       );
     }
 
@@ -205,7 +211,7 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
 
     return RefreshIndicator(
       onRefresh: _refreshData,
-      color: Apptheme.navy,
+      color: Apptheme.primary,
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.all(screenSize.width * 0.04),

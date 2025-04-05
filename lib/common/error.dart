@@ -23,7 +23,7 @@ class ErrorDialog {
             child: const Text(
               'OK',
               style: TextStyle(
-                color: Apptheme.navy, // Customize the text color
+                color: Apptheme.primary, // Customize the text color
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),

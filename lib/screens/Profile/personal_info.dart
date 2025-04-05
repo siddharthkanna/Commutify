@@ -80,15 +80,15 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Apptheme.ivory,
+      backgroundColor: Apptheme.surface,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Apptheme.navy,
-        iconTheme: const IconThemeData(color: Apptheme.ivory),
+        backgroundColor: Apptheme.primary,
+        iconTheme: const IconThemeData(color: Apptheme.surface),
         title: const Text(
           'Personal Information',
           style: TextStyle(
-            color: Apptheme.ivory,
+            color: Apptheme.surface,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -96,7 +96,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           // Save icon button in app bar
           _isChangesMade
               ? IconButton(
-                  icon: const Icon(Icons.check, color: Apptheme.ivory),
+                  icon: const Icon(Icons.check, color: Apptheme.surface),
                   onPressed: _isLoading ? null : saveChanges,
                   tooltip: 'Save changes',
                 )
@@ -104,7 +104,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Apptheme.navy))
+          ? const Center(child: CircularProgressIndicator(color: Apptheme.primary))
           : SafeArea(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
@@ -123,7 +123,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Apptheme.navy,
+                                color: Apptheme.primary,
                                 width: 3,
                               ),
                             ),
@@ -133,7 +133,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                               child: Icon(
                                 Icons.person,
                                 size: screenSize.width * 0.15,
-                                color: Apptheme.navy,
+                                color: Apptheme.primary,
                               ),
                             ),
                           ),
@@ -212,8 +212,8 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                         child: ElevatedButton(
                           onPressed: _isChangesMade && !_isLoading ? saveChanges : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Apptheme.navy,
-                            foregroundColor: Apptheme.ivory,
+                            backgroundColor: Apptheme.primary,
+                            foregroundColor: Apptheme.surface,
                             padding: EdgeInsets.symmetric(vertical: screenSize.width * 0.04),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
@@ -227,7 +227,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Apptheme.ivory,
+                                    color: Apptheme.surface,
                                   ),
                                 )
                               : Text(
@@ -264,7 +264,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Apptheme.navy,
+            color: Apptheme.primary,
           ),
         ),
         const SizedBox(height: 8),
@@ -278,7 +278,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             fillColor: Colors.white,
             prefixIcon: Icon(
               icon,
-              color: Apptheme.navy.withOpacity(0.7),
+              color: Apptheme.primary.withOpacity(0.7),
               size: 22,
             ),
             helperText: helperText,
@@ -303,7 +303,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: Apptheme.navy,
+                color: Apptheme.primary,
                 width: 1.5,
               ),
             ),

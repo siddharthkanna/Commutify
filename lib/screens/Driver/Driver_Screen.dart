@@ -230,7 +230,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                         width: 30,
                         height: 30,
                         decoration: ShapeDecoration(
-                          color: Apptheme.ivory,
+                          color: Apptheme.surface,
                           shape: RoundedRectangleBorder(
                             side: const BorderSide(width: 0.50),
                             borderRadius: BorderRadius.circular(10),
@@ -290,7 +290,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                   },
                   icon: Container(
                     decoration: const BoxDecoration(
-                        shape: BoxShape.circle, color: Apptheme.ivory),
+                        shape: BoxShape.circle, color: Apptheme.surface),
                     child: const Icon(Icons.remove),
                   ),
                 ),
@@ -311,7 +311,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                   icon: Container(
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Apptheme.ivory,
+                      color: Apptheme.surface,
                     ),
                     child: const Icon(Icons.add),
                   ),

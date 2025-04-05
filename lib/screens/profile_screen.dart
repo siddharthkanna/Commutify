@@ -26,7 +26,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Apptheme.ivory,
+      backgroundColor: Apptheme.surface,
       body: CustomScrollView(
         slivers: [
           // App Bar with profile image and gradient
@@ -34,7 +34,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             expandedHeight: screenSize.height * 0.3,
             floating: false,
             pinned: true,
-            backgroundColor: Apptheme.navy,
+            backgroundColor: Apptheme.primary,
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -46,9 +46,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Apptheme.navy,
-                          Apptheme.navy.withOpacity(0.8),
-                          Apptheme.navy.withOpacity(0.6),
+                          Apptheme.primary,
+                          Apptheme.primary.withOpacity(0.8),
+                          Apptheme.primary.withOpacity(0.6),
                         ],
                       ),
                     ),
@@ -61,7 +61,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Apptheme.ivory,
+                            color: Apptheme.surface,
                             width: 3,
                           ),
                           boxShadow: [
@@ -83,7 +83,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ? Icon(
                                   Icons.person,
                                   size: screenSize.width * 0.15,
-                                  color: Apptheme.ivory,
+                                  color: Apptheme.surface,
                                 )
                               : null,
                         ),
@@ -94,7 +94,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         style: TextStyle(
                           fontSize: screenSize.width * 0.055,
                           fontWeight: FontWeight.bold,
-                          color: Apptheme.ivory,
+                          color: Apptheme.surface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -102,7 +102,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         email,
                         style: TextStyle(
                           fontSize: screenSize.width * 0.035,
-                          color: Apptheme.ivory.withOpacity(0.8),
+                          color: Apptheme.surface.withOpacity(0.8),
                         ),
                       ),
                     ],
@@ -226,7 +226,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 onPressed: () => Navigator.pop(context),
                                 child: const Text(
                                   'Cancel',
-                                  style: TextStyle(color: Apptheme.navy),
+                                  style: TextStyle(color: Apptheme.primary),
                                 ),
                               ),
                               TextButton(
@@ -316,7 +316,7 @@ class ProfileCard extends StatelessWidget {
                 ),
                 child: Icon(
                   icon,
-                  color: iconColor ?? Apptheme.navy,
+                  color: iconColor ?? Apptheme.primary,
                   size: 28,
                 ),
               ),

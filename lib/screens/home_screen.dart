@@ -90,8 +90,8 @@ class _HomeScreenState extends State<HomeScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Apptheme.navy.withOpacity(0.7),
-                Apptheme.navy.withOpacity(0.0),
+                Apptheme.primary.withOpacity(0.7),
+                Apptheme.primary.withOpacity(0.0),
               ],
             ),
           ),
@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text(
           'Commutify',
           style: TextStyle(
-            color: Apptheme.ivory,
+            color: Apptheme.surface,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
@@ -108,12 +108,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: CircleAvatar(
-              backgroundColor: Apptheme.ivory.withOpacity(0.2),
+              backgroundColor: Apptheme.surface.withOpacity(0.2),
               radius: 20,
               child: IconButton(
                 icon: const Icon(
                   Icons.notifications_outlined,
-                  color: Apptheme.ivory,
+                  color: Apptheme.surface,
                 ),
                 onPressed: () {
                   // Handle notification button press
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.black.withOpacity(0.3),
               child: const Center(
                 child: CircularProgressIndicator(
-                  color: Apptheme.ivory,
+                  color: Apptheme.primary,
                 ),
               ),
             ),
@@ -174,12 +174,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: FloatingActionButton(
                 onPressed: getCurrentLocation,
-                backgroundColor: Apptheme.navy,
+                backgroundColor: Apptheme.primary,
                 mini: false, // Use normal sized button
                 elevation: 8,
                 child: const Icon(
                   Icons.my_location,
-                  color: Apptheme.ivory,
+                  color: Apptheme.surface,
                   size: 20, // Normal icon size
                 ),
               ),
@@ -195,13 +195,13 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Apptheme.ivory.withOpacity(0.7),
+                  color: Apptheme.background.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
                   'Powered by MapBox',
                   style: TextStyle(
-                    color: Apptheme.navy,
+                    color: Apptheme.text,
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
                   ),

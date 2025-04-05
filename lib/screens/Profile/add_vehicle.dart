@@ -26,7 +26,7 @@ class _AddVehicleDialogState extends State<AddVehicleDialog> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return AlertDialog(
-      backgroundColor: Apptheme.ivory,
+      backgroundColor: Apptheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
@@ -74,7 +74,7 @@ class _AddVehicleDialogState extends State<AddVehicleDialog> {
               Navigator.of(context).pop(newVehicle);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Apptheme.navy,
+              backgroundColor: Apptheme.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.0),
               ),

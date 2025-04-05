@@ -56,7 +56,7 @@ class _VehicleSelectionState extends ConsumerState<VehicleSelection> {
           width: 200,
           height: 45,
           decoration: BoxDecoration(
-            color: Apptheme.ivory,
+            color: Apptheme.surface,
             border: Border.all(
               color: Colors.black,
               width: 1.0,

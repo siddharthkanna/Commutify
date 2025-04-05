@@ -154,7 +154,7 @@ class _RideCardState extends State<RideCard> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Apptheme.navy,
+                        backgroundColor: Apptheme.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(padding12),
                         ),

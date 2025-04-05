@@ -30,7 +30,7 @@ class DetailsPageState extends ConsumerState<DetailsPage> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Apptheme.navy,
+      backgroundColor: Apptheme.primary,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -62,18 +62,18 @@ class DetailsPageState extends ConsumerState<DetailsPage> {
                             horizontal: screenSize.width * 0.055,
                           ),
                           labelStyle: const TextStyle(
-                            color: Apptheme.ivory,
+                            color: Apptheme.surface,
                             fontWeight: FontWeight.normal,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius:
                                 BorderRadius.circular(screenSize.width * 0.15),
-                            borderSide: const BorderSide(color: Apptheme.ivory),
+                            borderSide: const BorderSide(color: Apptheme.surface),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius:
                                 BorderRadius.circular(screenSize.width * 0.15),
-                            borderSide: const BorderSide(color: Apptheme.ivory),
+                            borderSide: const BorderSide(color: Apptheme.surface),
                           ),
                         ),
                       ),
@@ -212,7 +212,7 @@ class DetailsPageState extends ConsumerState<DetailsPage> {
                           borderRadius:
                               BorderRadius.circular(screenSize.width * 0.1),
                         ),
-                        backgroundColor: Apptheme.ivory,
+                        backgroundColor: Apptheme.surface,
                       ),
                       child: const Text(
                         'Save',

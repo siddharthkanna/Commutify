@@ -57,7 +57,7 @@ class _PageViewScreenState extends State<PageViewScreen>
     
     return Scaffold(
       // Use the background color of your screens (usually ivory or white)
-      backgroundColor: Apptheme.ivory,
+      backgroundColor: Apptheme.surface,
       resizeToAvoidBottomInset: false,
       extendBody: true,
       extendBodyBehindAppBar: true,

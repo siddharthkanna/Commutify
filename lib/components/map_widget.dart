@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:commutify/Themes/app_theme.dart';
 
 final mapBoxAccessToken = dotenv.env['accessToken']!;
 final mapBoxStyleId = dotenv.env['styleId']!;
@@ -180,9 +181,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   Polyline(
                     points: routeCoordinates,
                     strokeWidth: 4.0,
-                    color: Colors.blue.shade800.withOpacity(0.7),
+                    color: Apptheme.primary.withOpacity(0.8),
                     borderStrokeWidth: 2.0,
-                    borderColor: Colors.white.withOpacity(0.7),
+                    borderColor: Apptheme.surface.withOpacity(0.7),
                   ),
                 ],
               ),
@@ -219,7 +220,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.black54,
+                  color: Apptheme.text.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Row(
@@ -230,14 +231,14 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(Apptheme.surface),
                       ),
                     ),
                     SizedBox(width: 10),
                     Text(
                       'Calculating route...',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Apptheme.text,
                         fontSize: 14,
                       ),
                     ),
@@ -256,7 +257,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Apptheme.surface,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
@@ -269,13 +270,13 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
           child: Container(
             width: 18,
             height: 18,
-            decoration: const BoxDecoration(
-              color: Colors.green,
+            decoration: BoxDecoration(
+              color: Apptheme.success,
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.circle,
-              color: Colors.white,
+              color: Apptheme.surface,
               size: 10,
             ),
           ),
@@ -283,13 +284,13 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         Container(
           width: 2,
           height: 10,
-          color: Colors.green,
+          color: Apptheme.success,
         ),
         Container(
           width: 10,
           height: 10,
-          decoration: const BoxDecoration(
-            color: Colors.green,
+          decoration: BoxDecoration(
+            color: Apptheme.success,
             shape: BoxShape.circle,
           ),
         ),
@@ -312,13 +313,13 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
           ),
           child: Container(
             padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.red,
+            decoration: BoxDecoration(
+              color: Apptheme.error,
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.location_on,
-              color: Colors.white,
+              color: Apptheme.surface,
               size: 14,
             ),
           ),
@@ -328,8 +329,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
           child: Container(
             width: 10,
             height: 10,
-            decoration: const BoxDecoration(
-              color: Colors.red,
+            decoration: BoxDecoration(
+              color: Apptheme.error,
               shape: BoxShape.circle,
             ),
           ),
