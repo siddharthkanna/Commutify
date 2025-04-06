@@ -33,9 +33,30 @@ class UserApi {
     }
   }
 
+  static Future<bool> createNewUser(Map<String, dynamic> userData) async {
+    try {
+      final url = Uri.parse("http://192.168.29.98:5000/auth/create");
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(userData),
+      );
+      if (response.statusCode == 201) {
+        return true;
+      } else {
+        print('Failed to create user: ${response.body}');
+        return false;
+      }
+    } catch (error) {
+      print('Error creating user: $error');
+      return false;
+    }
+  }
+
   static Future<bool> updateUserInfo({
     required String newName,
     required String newPhoneNumber,
+    String? newBio,
   }) async {
     try {
       final response = await http.post(
@@ -45,6 +66,7 @@ class UserApi {
           'uid': userId,
           'newName': newName,
           'newMobileNumber': newPhoneNumber,
+          if (newBio != null) 'newBio': newBio,
         }),
       );
 
@@ -61,12 +83,30 @@ class UserApi {
       );
 
       if (response.statusCode == 200) {
-        final userData = json.decode(response.body);
-        return userData;
-      } else {
+        final jsonResponse = json.decode(response.body);
+        
+        // Check if the response has the expected structure
+        if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
+          final userData = jsonResponse['data']['user'];
+          
+          // Return user data in the expected format
+          return {
+            'uid': userData['uid'],
+            'id': userData['id'],
+            'email': userData['email'],
+            'name': userData['name'],
+            'mobileNumber': userData['mobileNumber'],
+            'photoUrl': userData['photoUrl'],
+            'roles': userData['roles'],
+            'bio': userData['bio'],
+            // Include additional fields as needed
+          };
+        }
         return {};
       }
+      return {};
     } catch (error) {
+      print('Error fetching user details: $error');
       return {};
     }
   }

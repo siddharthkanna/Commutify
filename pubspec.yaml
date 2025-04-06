@@ -34,6 +34,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^2.14.0
   fl_chart: ^0.70.2
+  flutter_svg: ^2.0.17
 
 dev_dependencies:
   flutter_test:
@@ -57,4 +58,5 @@ flutter:
 
   assets:
     - assets/
+    - assets/svg/
     - .env

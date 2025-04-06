@@ -7,6 +7,8 @@ import '../components/pageview.dart';
 import 'dart:convert';
 import '../config/supabase_client.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../screens/auth/details.dart';
+
 final authProvider =
     ChangeNotifierProvider<AuthService>((ref) => AuthService());
 
@@ -120,8 +122,6 @@ class AuthService extends ChangeNotifier {
       final Map<String, dynamic> requestBody = {
         'uid': user.id,
         'email': user.email,
-        'name': user.userMetadata?['full_name'] ?? user.email?.split('@')[0],
-        'photoUrl': user.userMetadata?['avatar_url']
       };
       
       print("Logging in with backend: $requestBody");
@@ -135,14 +135,30 @@ class AuthService extends ChangeNotifier {
       print("Login response status: ${response.statusCode}");
       print("Login response body: ${response.body}");
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        // Regardless of whether the user is new or existing, redirect to the main app
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PageViewScreen(),
-          ),
-        );
+      if (response.statusCode == 200) {
+        // Parse the response to check if user is new
+        final responseData = json.decode(response.body);
+        final bool isNewUser = responseData['isNewUser'] ?? false;
+        
+        if (isNewUser) {
+          // User is new, redirect to the details page for onboarding
+          print("New user detected, navigating to details page");
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const DetailsPage(),
+            ),
+          );
+        } else {
+          // Existing user, redirect to the main app
+          print("Existing user, navigating to main app");
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const PageViewScreen(),
+            ),
+          );
+        }
       } else {
         final errorData = json.decode(response.body);
         final errorMessage = errorData['message'] ?? 'Authentication failed. Please try again.';

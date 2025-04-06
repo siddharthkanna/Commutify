@@ -16,8 +16,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
+  
   bool _isChangesMade = false;
   bool _isLoading = false;
+  String? _userRole;
+  String? _photoUrl;
+  Map<String, dynamic> _userData = {};
 
   @override
   void initState() {
@@ -28,15 +33,47 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   Future<void> fetchUserDetails() async {
     setState(() => _isLoading = true);
     try {
+      // Get additional user details from our API
       final userData = await UserApi.getUserDetails();
-      _nameController.text = userData['name'];
-      _phoneNumberController.text = userData['mobileNumber'];
-      _emailController.text = userData['email'];
 
-      setState(() {
-        _isChangesMade = false;
-        _isLoading = false;
-      });
+      print('User data received in personal_info.dart: $userData');
+      // Check if we got valid user data
+      if (userData.isNotEmpty) {
+        _nameController.text = userData['name'] ?? '';
+        _phoneNumberController.text = userData['mobileNumber'] ?? '';
+        _emailController.text = userData['email'] ?? '';
+        _bioController.text = userData['bio'] ?? '';
+        
+        setState(() {
+          _userRole = userData['roles'];
+          _photoUrl = userData['photoUrl'];
+          _userData = userData;
+          _isChangesMade = false;
+          _isLoading = false;
+        });
+      } else {
+        // Fallback to auth provider data if API fails
+        final auth = ref.watch(authProvider);
+        final user = auth.getCurrentUser();
+        
+        // Get name from Google metadata
+        String name = user?.userMetadata?['full_name'] ?? 
+                     user?.userMetadata?['name'] ?? 
+                     user?.email?.split('@')[0] ?? '';
+        
+        // Get email from auth
+        String email = user?.email ?? '';
+        String photoUrl = user?.userMetadata?['avatar_url'] ?? '';
+        
+        _nameController.text = name;
+        _emailController.text = email;
+        
+        setState(() {
+          _photoUrl = photoUrl;
+          _isChangesMade = false;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       setState(() => _isLoading = false);
       Snackbar.showSnackbar(context, 'Failed to load user details. Please try again.');
@@ -48,14 +85,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     
     String newName = _nameController.text;
     String newPhoneNumber = _phoneNumberController.text;
-
-    final auth = ref.watch(authProvider);
-    final user = auth.getCurrentUser();
+    String newBio = _bioController.text;
 
     try {
       bool isSuccess = await UserApi.updateUserInfo(
         newName: newName,
         newPhoneNumber: newPhoneNumber,
+        newBio: newBio,
       );
 
       if (isSuccess) {
@@ -109,62 +145,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
                   horizontal: screenSize.width * 0.06,
-                  vertical: screenSize.width * 0.08,
+                  vertical: screenSize.width * 0.05,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Profile picture section
-                    Center(
-                      child: Column(
-                        children: [
-                          // User avatar (can be enhanced later with image uploading)
-                          Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Apptheme.primary,
-                                width: 3,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: screenSize.width * 0.15,
-                              backgroundColor: Apptheme.mist.withOpacity(0.5),
-                              child: Icon(
-                                Icons.person,
-                                size: screenSize.width * 0.15,
-                                color: Apptheme.primary,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: screenSize.width * 0.04),
-                          
-                          // Future feature note
-                          Text(
-                            'Profile picture management coming soon',
-                            style: TextStyle(
-                              fontSize: screenSize.width * 0.035,
-                              color: Apptheme.noir.withOpacity(0.6),
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    SizedBox(height: screenSize.width * 0.1),
-                    
-                    // Form fields section
-                    Text(
-                      'Your Details',
-                      style: TextStyle(
-                        fontSize: screenSize.width * 0.05,
-                        fontWeight: FontWeight.w600,
-                        color: Apptheme.noir,
-                      ),
-                    ),
-                    SizedBox(height: screenSize.width * 0.05),
-                    
                     // Name field
                     _buildInputField(
                       label: 'Name',
@@ -177,7 +162,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       },
                     ),
                     
-                    SizedBox(height: screenSize.width * 0.06),
+                    SizedBox(height: screenSize.width * 0.05),
                     
                     // Phone number field
                     _buildInputField(
@@ -192,7 +177,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       },
                     ),
                     
-                    SizedBox(height: screenSize.width * 0.06),
+                    SizedBox(height: screenSize.width * 0.05),
                     
                     // Email field (readonly)
                     _buildInputField(
@@ -203,47 +188,133 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       helperText: 'Email cannot be changed',
                     ),
                     
-                    SizedBox(height: screenSize.width * 0.1),
+                    SizedBox(height: screenSize.width * 0.05),
+                    
+                    // Bio field
+                    _buildInputField(
+                      label: 'Bio',
+                      controller: _bioController,
+                      icon: Icons.description_outlined,
+                      maxLines: 3,
+                      onChanged: (value) {
+                        setState(() {
+                          _isChangesMade = true;
+                        });
+                      },
+                      helperText: 'Tell others about yourself',
+                    ),
+                    
+                    if (_userRole != null) ...[
+                      SizedBox(height: screenSize.width * 0.05),
+                      
+                      // User Role (readonly)
+                      _buildInfoField(
+                        label: 'User Type',
+                        value: _formatRole(_userRole ?? ''),
+                        icon: Icons.badge_outlined,
+                      ),
+                    ],
+                    
+                    SizedBox(height: screenSize.width * 0.08),
                     
                     // Save button
-                    Center(
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _isChangesMade && !_isLoading ? saveChanges : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Apptheme.primary,
-                            foregroundColor: Apptheme.surface,
-                            padding: EdgeInsets.symmetric(vertical: screenSize.width * 0.04),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            elevation: 0,
-                            disabledBackgroundColor: Apptheme.mist,
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isChangesMade && !_isLoading ? saveChanges : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Apptheme.primary,
+                          foregroundColor: Apptheme.surface,
+                          padding: EdgeInsets.symmetric(vertical: screenSize.width * 0.04),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Apptheme.surface,
-                                  ),
-                                )
-                              : Text(
-                                  'Save Changes',
-                                  style: TextStyle(
-                                    fontSize: screenSize.width * 0.045,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                          elevation: 0,
+                          disabledBackgroundColor: Apptheme.noir.withOpacity(0.1),
                         ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Apptheme.surface,
+                                ),
+                              )
+                            : Text(
+                                'Save Changes',
+                                style: TextStyle(
+                                  fontSize: screenSize.width * 0.042,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
+    );
+  }
+
+  String _formatRole(String role) {
+    if (role == 'DRIVER') return 'Driver';
+    if (role == 'PASSENGER') return 'Passenger';
+    if (role == 'BOTH') return 'Driver & Passenger';
+    return role;
+  }
+  
+  Widget _buildInfoField({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Apptheme.noir,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Apptheme.mist.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Apptheme.mist.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Apptheme.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: Apptheme.primary, size: 20),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Apptheme.noir.withOpacity(0.8),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -254,7 +325,8 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     bool readOnly = false,
     String? helperText,
     TextInputType? keyboardType,
-    Function(String)? onChanged,
+    int maxLines = 1,
+    void Function(String)? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,57 +336,66 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Apptheme.primary,
+            color: Apptheme.noir,
           ),
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          readOnly: readOnly,
-          keyboardType: keyboardType,
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            prefixIcon: Icon(
-              icon,
-              color: Apptheme.primary.withOpacity(0.7),
-              size: 22,
-            ),
-            helperText: helperText,
-            helperStyle: TextStyle(
-              fontSize: 12,
-              color: Apptheme.noir.withOpacity(0.5),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Apptheme.mist.withOpacity(0.8),
-                width: 1,
+        Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Apptheme.noir.withOpacity(0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Apptheme.mist.withOpacity(0.8),
-                width: 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Apptheme.primary,
-                width: 1.5,
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+            ],
           ),
-          style: const TextStyle(
-            fontSize: 16,
-            color: Apptheme.noir,
+          child: TextField(
+            controller: controller,
+            readOnly: readOnly,
+            keyboardType: keyboardType,
+            onChanged: onChanged,
+            maxLines: maxLines,
+            style: TextStyle(
+              fontSize: 16,
+              color: readOnly ? Apptheme.noir.withOpacity(0.7) : Apptheme.noir,
+            ),
+            decoration: InputDecoration(
+              prefixIcon: Container(
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.all(12),
+                child: Icon(icon, color: Apptheme.primary, size: 20),
+              ),
+              filled: true,
+              fillColor: readOnly ? Apptheme.mist.withOpacity(0.08) : Colors.white,
+              contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              helperText: helperText,
+              helperStyle: TextStyle(
+                color: Apptheme.noir.withOpacity(0.5),
+                fontSize: 12,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Apptheme.mist.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Apptheme.primary,
+                  width: 1.5,
+                ),
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Apptheme.mist.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+            ),
           ),
         ),
       ],

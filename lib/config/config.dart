@@ -1,11 +1,11 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-final apiUrl = dotenv.env['apiUrl'];
+const apiUrl = "http://192.168.29.98:5000";
 
 final rideUrl = "$apiUrl/ride";
 final authUrl = "$apiUrl/auth";
 
-final createUserUrl = "$authUrl/addUser";
+final createUserUrl = "$authUrl/create";
 final updateUserUrl = "$authUrl/updateUserDetails";
 final getUserDetailsUrl = "$authUrl/getUserDetails";
 

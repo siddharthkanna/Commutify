@@ -6,6 +6,7 @@ import 'package:commutify/screens/Profile/ride_stats.dart';
 import 'package:commutify/screens/Profile/vehicle_details.dart';
 import 'package:commutify/screens/auth/login.dart';
 import '../providers/auth_provider.dart';
+import '../services/user_api.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -15,21 +16,54 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  Map<String, dynamic> _userData = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    try {
+      final userData = await UserApi.getUserDetails();
+      setState(() {
+        _userData = userData;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = ref.read(authProvider);
     final user = authService.getCurrentUser();
-    String image = user?.userMetadata?['avatar_url'] ?? '';
-    String name = user?.userMetadata?['name'] ?? user?.email?.split('@')[0] ?? 'User';
-    String email = user?.email ?? '';
+    
+    // Get user information from Google auth data
+    final String name = user?.userMetadata?['full_name'] ?? 
+                         user?.userMetadata?['name'] ?? 
+                         user?.email?.split('@')[0] ?? 
+                         'User';
+    final String email = user?.email ?? '';
+    final String image = user?.userMetadata?['avatar_url'] ?? '';
+    
+    // Get phone number from our database if available
+    final String phoneNumber = _userData['mobileNumber'] ?? '';
 
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: Apptheme.surface,
-      body: CustomScrollView(
+      body: _isLoading 
+      ? const Center(child: CircularProgressIndicator(color: Apptheme.primary))
+      : CustomScrollView(
         slivers: [
-          // App Bar with profile image and gradient
+          // App Bar with user info and gradient
           SliverAppBar(
             expandedHeight: screenSize.height * 0.3,
             floating: false,
@@ -53,10 +87,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                     ),
                   ),
-                  // Profile image and name container
+                  // Profile image and user info
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // Profile image
                       Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
@@ -89,6 +124,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
+                      // User info
                       Text(
                         name,
                         style: TextStyle(
@@ -103,6 +139,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         style: TextStyle(
                           fontSize: screenSize.width * 0.035,
                           color: Apptheme.surface.withOpacity(0.8),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        phoneNumber.isNotEmpty ? phoneNumber : 'Add your phone number',
+                        style: TextStyle(
+                          fontSize: screenSize.width * 0.035,
+                          fontStyle: phoneNumber.isNotEmpty ? FontStyle.normal : FontStyle.italic,
+                          color: phoneNumber.isNotEmpty 
+                              ? Apptheme.surface.withOpacity(0.8)
+                              : Apptheme.surface.withOpacity(0.7),
                         ),
                       ),
                     ],
@@ -147,9 +194,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProfileEditScreen(),
+                          builder: (context) => const ProfileEditScreen(),
                         ),
-                      );
+                      ).then((_) => _fetchUserDetails()); // Refresh data when returning
                     },
                   ),
                   
@@ -181,7 +228,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RideStatsScreen(),
+                          builder: (context) =>const RideStatsScreen(),
                         ),
                       );
                     },
