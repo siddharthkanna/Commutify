@@ -11,9 +11,12 @@ class PublishedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     
-    // Get shorter location names for better display
+    // Get shorter location names for better display, with null safety
     final String pickupLocationShort = _getShortPlaceName(ride.pickupLocation.placeName);
     final String destinationLocationShort = _getShortPlaceName(ride.destinationLocation.placeName);
+    
+    // Format time string to be more user-friendly
+    final String formattedTime = _formatTimeString(ride.time);
     
     return Card(
       elevation: 0,
@@ -59,7 +62,7 @@ class PublishedCard extends StatelessWidget {
                         ),
                         SizedBox(width: 6),
                         Text(
-                          ride.rideStatus,
+                          ride.rideStatus.isEmpty ? 'Unknown' : ride.rideStatus,
                           style: TextStyle(
                             fontSize: screenSize.width * 0.03,
                             fontWeight: FontWeight.w600,
@@ -169,7 +172,7 @@ class PublishedCard extends StatelessWidget {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        ride.time,
+                        formattedTime,
                         style: TextStyle(
                           fontSize: screenSize.width * 0.035,
                           color: Colors.grey.shade700,
@@ -180,7 +183,9 @@ class PublishedCard extends StatelessWidget {
                   
                   // Vehicle info
                   Text(
-                    "${ride.vehicle.vehicleType} • ${ride.vehicle.vehicleName}",
+                    ride.vehicle.vehicleType.isEmpty
+                        ? "Vehicle"
+                        : "${ride.vehicle.vehicleType} • ${ride.vehicle.vehicleName}",
                     style: TextStyle(
                       fontSize: screenSize.width * 0.035,
                       color: Colors.grey.shade700,
@@ -284,22 +289,51 @@ class PublishedCard extends StatelessWidget {
     );
   }
 
+  // Helper method to safely get a shortened place name
+  String _getShortPlaceName(String fullPlaceName) {
+    if (fullPlaceName.isEmpty) {
+      return "Unknown location";
+    }
+    
+    final parts = fullPlaceName.split(',');
+    return parts.isNotEmpty ? parts[0].trim() : fullPlaceName;
+  }
+  
+  // Helper method to format time strings from ISO to readable format
+  String _formatTimeString(String timeStr) {
+    if (timeStr.isEmpty) {
+      return "Time not set";
+    }
+    
+    try {
+      // Try to parse as ISO date string
+      final DateTime dateTime = DateTime.tryParse(timeStr) ?? DateTime.now();
+      
+      // Format to a readable time
+      final String period = dateTime.hour >= 12 ? 'PM' : 'AM';
+      final int displayHour = dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour;
+      final String formattedHour = displayHour == 0 ? '12' : displayHour.toString();
+      final String formattedMinute = dateTime.minute.toString().padLeft(2, '0');
+      
+      return '$formattedHour:$formattedMinute $period, ${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    } catch (e) {
+      // If parsing fails, return the original string
+      return timeStr;
+    }
+  }
+
   Color getStatusColor(String status) {
-    switch (status) {
-      case 'Upcoming':
-        return Colors.amber.shade700;
-      case 'Completed':
-        return Colors.green.shade700;
-      case 'Cancelled':
-        return Colors.red.shade700;
+    switch (status.toLowerCase()) {
+      case 'upcoming':
+        return Colors.blue;
+      case 'completed':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      case 'active':
+        return Colors.orange;
       default:
         return Colors.grey;
     }
   }
-}
-
-String _getShortPlaceName(String placeName) {
-  // Split the place name by a delimiter (e.g., comma) and take the first part
-  List<String> parts = placeName.split(',');
-  return parts[0].trim();
 }

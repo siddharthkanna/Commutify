@@ -13,69 +13,116 @@ class SeatingCapacitySelection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 30),
-        const Text(
-          'SEATING CAPACITY:',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          alignment: Alignment.center,
-          width: 200,
-          height: 45,
-          decoration: BoxDecoration(
-            color: Apptheme.surface,
-            border: Border.all(
-              color: Colors.black,
-              width: 1.0,
-            ),
-            borderRadius: BorderRadius.circular(15.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black54
-                    .withOpacity(0.5), // Specify the shadow color
-                spreadRadius: 1, // Specify the spread radius
-                blurRadius: 5, // Specify the blur radius
-                offset: const Offset(0, 3), // Specify the offset
+    return Container(
+      decoration: BoxDecoration(
+        color: Apptheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.people_alt_outlined,
+                size: 18,
+                color: Colors.black54,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Passenger capacity',
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black54,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '$selectedCapacity ${selectedCapacity == 1 ? 'seat' : 'seats'}',
+                style: const TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Apptheme.primary,
+                ),
               ),
             ],
           ),
-          child: DropdownButton<int>(
-            value: selectedCapacity,
-            onChanged: (int? newValue) {
-              updateSelectedCapacity(newValue!);
-            },
-            items: <int>[1, 2, 3, 4, 5]
-                .map<DropdownMenuItem<int>>((int value) {
-              return DropdownMenuItem<int>(
-                value: value,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 100.0),
-                  child: Text(
-                    value.toString(),
-                    style: const TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.black,
-                    ),
+          const SizedBox(height: 16),
+          _buildCapacitySelector(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCapacitySelector() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: List.generate(5, (index) {
+        final capacity = index + 1;
+        final isSelected = capacity == selectedCapacity;
+        
+        return GestureDetector(
+          onTap: () => updateSelectedCapacity(capacity),
+          child: Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: isSelected 
+                  ? Apptheme.primary
+                  : Apptheme.mist,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected 
+                    ? Apptheme.primary
+                    : Colors.grey.withOpacity(0.3),
+                width: 1.5,
+              ),
+              boxShadow: isSelected ? [
+                BoxShadow(
+                  color: Apptheme.primary.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ] : null,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  capacity.toString(),
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? Colors.white : Colors.black87,
                   ),
                 ),
-              );
-            }).toList(),
-            style:const TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.normal,
-              color: Colors.black,
+                Text(
+                  'seat${capacity > 1 ? 's' : ''}',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w400,
+                    color: isSelected ? Colors.white.withOpacity(0.8) : Colors.black54,
+                  ),
+                ),
+              ],
             ),
-            icon: const Icon(Icons.arrow_drop_down),
-            iconSize: 32.0,
-            underline: const SizedBox(),
-            dropdownColor: Apptheme.surface,
           ),
-        ),
-      ],
+        );
+      }),
     );
   }
 }

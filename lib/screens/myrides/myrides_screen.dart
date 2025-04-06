@@ -9,15 +9,19 @@ import 'package:commutify/services/ride_api.dart';
 import '../../models/ride_modal.dart';
 import 'published_card.dart';
 import 'dart:io';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/auth_provider.dart';
+import 'package:http/http.dart' as http;
+import '../../config/config.dart';
 
-class MyRides extends StatefulWidget {
+class MyRides extends ConsumerStatefulWidget {
   const MyRides({Key? key}) : super(key: key);
 
   @override
-  _MyRidesState createState() => _MyRidesState();
+  ConsumerState<MyRides> createState() => _MyRidesState();
 }
 
-class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
+class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<Ride> bookedRides = [];
   List<Ride> publishedRides = [];
@@ -44,18 +48,52 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
     });
 
     try {
+      // Check authentication status first
+      final authService = ref.read(authProvider);
+      final user = authService.getCurrentUser();
+      
+      if (user == null || user.id == null || user.id!.isEmpty) {
+        print('MyRides: User is not authenticated or has no ID');
+        setState(() {
+          isLoading = false;
+        });
+        
+        if (mounted) {
+          Snackbar.showSnackbar(
+            context, 
+            "Authentication error. Please log in again."
+          );
+        }
+        return;
+      }
+      
+      print('MyRides: Fetching published rides for user ID: ${user.id}');
       List<Ride> rides = await RideApi.fetchPublishedRides();
+      print('MyRides: Successfully fetched ${rides.length} published rides');
 
       setState(() {
         publishedRides = rides;
         isLoading = false;
       });
     } catch (e) {
+      print('MyRides: Error fetching published rides: $e');
       setState(() {
+        publishedRides = [];
         isLoading = false;
       });
+      
       if (mounted) {
-        Snackbar.showSnackbar(context, "Oops! Something went wrong");
+        if (e is SocketException) {
+          Snackbar.showSnackbar(
+            context, 
+            "Connection error. Please check your internet connection and try again."
+          );
+        } else {
+          Snackbar.showSnackbar(
+            context, 
+            "Error loading your published rides. Please try again later."
+          );
+        }
       }
     }
   }
@@ -124,6 +162,14 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
             fontSize: screenSize.width * 0.06,
           ),
         ),
+        actions: [
+          // Debug button for testing API endpoint
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _testApiEndpoint,
+            tooltip: 'Test API Endpoint',
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Apptheme.surface,
@@ -249,5 +295,43 @@ class _MyRidesState extends State<MyRides> with SingleTickerProviderStateMixin {
         }
       ),
     );
+  }
+
+  // New method to test the API endpoint directly
+  Future<void> _testApiEndpoint() async {
+    final authService = ref.read(authProvider);
+    final user = authService.getCurrentUser();
+    
+    if (user == null || user.id == null) {
+      Snackbar.showSnackbar(context, "User not authenticated");
+      return;
+    }
+    
+    final String uid = user.id!;
+    Snackbar.showSnackbar(context, "Testing API for user ID: $uid");
+    
+    try {
+      final response = await http.get(
+        Uri.parse('$fetchPublishedRidesUrl/$uid/driver-rides')
+      );
+      
+      print('Test response status: ${response.statusCode}');
+      print('Test response body: ${response.body}');
+      
+      if (response.statusCode == 200) {
+        Snackbar.showSnackbar(
+          context, 
+          "API test successful! Status: ${response.statusCode}, Response length: ${response.body.length} chars"
+        );
+      } else {
+        Snackbar.showSnackbar(
+          context, 
+          "API test failed! Status: ${response.statusCode}, Error: ${response.body}"
+        );
+      }
+    } catch (e) {
+      print('API test error: $e');
+      Snackbar.showSnackbar(context, "API test error: $e");
+    }
   }
 }

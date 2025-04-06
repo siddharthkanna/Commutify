@@ -14,6 +14,9 @@ class Ride {
   final String rideStatus;
   final List<Passenger> passengers;
   final String passengerStatus;
+  final double? estimatedDistance;
+  final double? estimatedDuration;
+  
   Ride({
     required this.id,
     required this.price,
@@ -28,6 +31,8 @@ class Ride {
     required this.rideStatus,
     required this.passengers,
     required this.passengerStatus,
+    this.estimatedDistance,
+    this.estimatedDuration,
   });
 
   factory Ride.fromJson(Map<String, dynamic> json) {
@@ -39,14 +44,24 @@ class Ride {
       price: json['price'] ?? 0,
       time: json['selectedTime'] ?? '',
       availableSeats: json['selectedCapacity'] ?? 0,
-      vehicle: Vehicle.fromJson(json['vehicle']),
-      destinationLocation: LocationData.fromJson(json['destinationLocation']),
-      pickupLocation: LocationData.fromJson(json['pickupLocation']),
+      vehicle: Vehicle.fromJson(json['vehicle'] ?? {}),
+      destinationLocation: LocationData.fromJson(json['destinationLocation'] ?? {}),
+      pickupLocation: LocationData.fromJson(json['pickupLocation'] ?? {}),
       rideStatus: json['rideStatus'] ?? '',
       passengerStatus: json['passengerStatus'] ?? '',
-      passengers: List<Passenger>.from(json['passengerInfo']
-              ?.map((passenger) => Passenger.fromJson(passenger)) ??
-          []),
+      passengers: json['passengerInfo'] != null 
+          ? List<Passenger>.from(json['passengerInfo'].map((passenger) => Passenger.fromJson(passenger)))
+          : [],
+      estimatedDistance: json['estimatedDistance'] != null ? 
+          (json['estimatedDistance'] is int ? 
+              (json['estimatedDistance'] as int).toDouble() : 
+              json['estimatedDistance'] as double) : 
+          null,
+      estimatedDuration: json['estimatedDuration'] != null ? 
+          (json['estimatedDuration'] is int ? 
+              (json['estimatedDuration'] as int).toDouble() : 
+              json['estimatedDuration'] as double) : 
+          null,
     );
   }
 }
@@ -66,6 +81,15 @@ class Passenger {
       required this.phoneNumber});
 
   factory Passenger.fromJson(Map<String, dynamic> json) {
+    if (json == null || json.isEmpty) {
+      return Passenger(
+        id: '',
+        status: '',
+        name: '',
+        photoUrl: '',
+        phoneNumber: '',
+      );
+    }
     return Passenger(
       id: json['passengerId'] ?? '',
       status: json['passengerStatus'] ?? '',
@@ -88,10 +112,17 @@ class LocationData {
   });
 
   factory LocationData.fromJson(Map<String, dynamic> json) {
+    if (json.isEmpty) {
+      return LocationData(
+        placeName: '',
+        latitude: 0.0,
+        longitude: 0.0,
+      );
+    }
     return LocationData(
       placeName: json['placeName'] ?? '',
-      latitude: json['latitude'] ?? 0.0,
-      longitude: json['longitude'] ?? 0.0,
+      latitude: json['latitude']?.toDouble() ?? 0.0,
+      longitude: json['longitude']?.toDouble() ?? 0.0,
     );
   }
 }

@@ -15,10 +15,12 @@ final updateVehicleUrl = "$authUrl/vehicles/updateVehicle";
 final deleteVehicleUrl = "$authUrl/vehicles/deleteVehicle";
 
 final publishRideUrl = "$rideUrl/publishRide";
-final fetchPublishedRidesUrl = "$rideUrl/fetchPublishedRides";
+final fetchPublishedRidesUrl = "$rideUrl/users";
 final fetchBookedRidesUrl = "$rideUrl/fetchBookedRides";
 final fetchAvailableRidesUrl = "$rideUrl/fetchAvailableRides";
 final bookRideUrl = "$rideUrl/bookRide";
 final completeRideUrl = "$rideUrl/completeRide";
 final cancelRideDriverUrl = "$rideUrl/cancelRideDriver";
 final cancelRidePassengerUrl = "$rideUrl/cancelRidePassenger";
+
+ // Base URL for user-specific endpoint
