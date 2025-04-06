@@ -1,10 +1,9 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:commutify/Themes/app_theme.dart';
-import 'package:commutify/common/error.dart';
-import 'package:commutify/common/loading.dart';
-import 'package:commutify/screens/Profile/add_vehicle.dart';
-import 'package:commutify/screens/Profile/edit_vehicle.dart';
-import 'package:commutify/services/user_api.dart';
+import 'package:commutify/controllers/vehicle_controller.dart';
+import 'package:commutify/utils/vehicle_ui_helpers.dart';
 import 'package:commutify/services/vehicle_api.dart';
 import '../../models/vehicle_modal.dart';
 import 'package:flutter/material.dart';
@@ -16,14 +15,30 @@ class VehicleDetails extends ConsumerStatefulWidget {
   ConsumerState<VehicleDetails> createState() => _VehicleDetailsState();
 }
 
-class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
+class _VehicleDetailsState extends ConsumerState<VehicleDetails> with SingleTickerProviderStateMixin {
   List<Vehicle> vehicles = [];
   bool isLoading = false;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
     fetchVehicleData();
+  }
+  
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchVehicleData() async {
@@ -37,135 +52,52 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
       vehicles = fetchedVehicles;
       isLoading = false;
     });
+    
+    if (mounted) {
+      _animationController.reset();
+      _animationController.forward();
+    }
   }
 
   Future<void> addVehicle() async {
-    final newVehicle = await showDialog<Vehicle>(
-      context: context,
-      builder: (BuildContext context) {
-        return const AddVehicleDialog();
+    await VehicleController.addVehicle(
+      context,
+      onLoadingStart: () => setState(() => isLoading = true),
+      onLoadingEnd: () => setState(() => isLoading = false),
+      onSuccess: (message) {
+        fetchVehicleData();
+        VehicleController.showSuccessSnackbar(context, message);
       },
+      onError: (message) => VehicleController.showErrorSnackbar(context, message),
     );
-
-    if (newVehicle != null) {
-      setState(() => isLoading = true);
-      
-      try {
-        final isSuccess = await VehicleApi.createVehicle(
-          newVehicle.vehicleName,
-          newVehicle.vehicleNumber,
-          newVehicle.vehicleType,
-        );
-
-        if (isSuccess) {
-          await fetchVehicleData();
-          if (mounted) {
-            Snackbar.showSnackbar(context, "Vehicle added successfully!");
-          }
-        } else {
-          if (mounted) {
-            Snackbar.showSnackbar(context, "Failed to add the vehicle!");
-          }
-        }
-      } catch (e) {
-        if (mounted) {
-          Snackbar.showSnackbar(context, "An error occurred. Please try again.");
-        }
-      } finally {
-        if (mounted) {
-          setState(() => isLoading = false);
-        }
-      }
-    }
   }
 
   Future<void> editVehicle(Vehicle vehicle) async {
-    final updatedVehicle = await showDialog<Vehicle>(
-      context: context,
-      builder: (BuildContext context) {
-        return EditVehicleDialog(vehicle: vehicle);
+    await VehicleController.editVehicle(
+      context,
+      vehicle,
+      onLoadingStart: () => setState(() => isLoading = true),
+      onLoadingEnd: () => setState(() => isLoading = false),
+      onSuccess: (message) {
+        fetchVehicleData();
+        VehicleController.showSuccessSnackbar(context, message);
       },
+      onError: (message) => VehicleController.showErrorSnackbar(context, message),
     );
-
-    if (updatedVehicle != null) {
-      setState(() => isLoading = true);
-      
-      try {
-        await VehicleApi.updateVehicle(
-          updatedVehicle.id!,
-          updatedVehicle.vehicleName,
-          updatedVehicle.vehicleNumber,
-          updatedVehicle.vehicleType,
-        );
-        
-        await fetchVehicleData();
-        if (mounted) {
-          Snackbar.showSnackbar(context, "Vehicle updated successfully!");
-        }
-      } catch (e) {
-        if (mounted) {
-          Snackbar.showSnackbar(context, "Failed to update the vehicle: $e");
-        }
-      } finally {
-        if (mounted) {
-          setState(() => isLoading = false);
-        }
-      }
-    }
   }
 
-  Future<void> deleteVehicle(String vehicleId) async {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Confirm Delete"),
-        content: const Text("Are you sure you want to delete this vehicle?"),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              "Cancel",
-              style: TextStyle(color: Apptheme.primary),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              setState(() => isLoading = true);
-              
-              try {
-                final isSuccess = await VehicleApi.deleteVehicle(vehicleId);
-
-                if (isSuccess) {
-                  await fetchVehicleData();
-                  if (mounted) {
-                    Snackbar.showSnackbar(context, "Vehicle deleted successfully");
-                  }
-                } else {
-                  if (mounted) {
-                    Snackbar.showSnackbar(context, "Failed to delete the vehicle");
-                  }
-                }
-              } catch (e) {
-                if (mounted) {
-                  Snackbar.showSnackbar(context, "An error occurred. Please try again.");
-                }
-              } finally {
-                if (mounted) {
-                  setState(() => isLoading = false);
-                }
-              }
-            },
-            child: const Text(
-              "Delete",
-              style: TextStyle(color: Colors.redAccent),
-            ),
-          ),
-        ],
-      ),
+  Future<void> deleteVehicle(String vehicleId, String vehicleName) async {
+    await VehicleController.deleteVehicle(
+      context,
+      vehicleId,
+      vehicleName,
+      onLoadingStart: () => setState(() => isLoading = true),
+      onLoadingEnd: () => setState(() => isLoading = false),
+      onSuccess: (message) {
+        fetchVehicleData();
+        VehicleController.showSuccessSnackbar(context, message);
+      },
+      onError: (message) => VehicleController.showErrorSnackbar(context, message),
     );
   }
 
@@ -180,138 +112,59 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
         backgroundColor: Apptheme.primary,
         iconTheme: const IconThemeData(color: Apptheme.surface),
         title: const Text(
-          'Vehicle Details',
+          'My Vehicles',
           style: TextStyle(
             color: Apptheme.surface,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header section
-            Padding(
-              padding: EdgeInsets.all(screenSize.width * 0.06),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Your Vehicles',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: screenSize.width * 0.06,
-                      color: Apptheme.noir,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Manage the vehicles you use for commuting',
-                    style: TextStyle(
-                      fontSize: screenSize.width * 0.035,
-                      color: Apptheme.noir.withOpacity(0.6),
-                    ),
-                  ),
-                ],
+        actions: [
+          if (!isLoading && vehicles.isNotEmpty)
+            IconButton(
+              icon: const Icon(
+                Icons.refresh,
+                color: Apptheme.surface,
               ),
+              onPressed: fetchVehicleData,
+              tooltip: 'Refresh',
             ),
-            
-            // Vehicle list
-            Expanded(
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator(color: Apptheme.primary))
-                  : vehicles.isEmpty
-                      ? _buildEmptyState(screenSize)
-                      : _buildVehicleList(screenSize),
-            ),
-          ],
+        ],
+      ),
+      body: isLoading 
+          ? _buildLoadingState()
+          : vehicles.isEmpty 
+              ? _buildEmptyState(screenSize) 
+              : _buildVehicleList(screenSize),
+      floatingActionButton: FloatingActionButton(
+        onPressed: isLoading ? null : addVehicle,
+        backgroundColor: Apptheme.primary,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(
+          Icons.add,
+          color: Apptheme.surface,
         ),
       ),
-      floatingActionButton: vehicles.isEmpty || isLoading
-          ? null
-          : Container(
-              margin: const EdgeInsets.only(bottom: 10, right: 10),
-              child: FloatingActionButton.extended(
-                onPressed: isLoading ? null : addVehicle,
-                backgroundColor: Apptheme.primary,
-                foregroundColor: Apptheme.surface,
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                icon: const Icon(
-                  Icons.add_circle_outline,
-                  color: Apptheme.surface,
-                  size: 22,
-                ),
-                label: const Text(
-                  'Add Vehicle',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Apptheme.surface,
-                  ),
-                ),
-              ),
-            ),
     );
   }
-
-  Widget _buildEmptyState(Size screenSize) {
+  
+  Widget _buildLoadingState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: EdgeInsets.all(screenSize.width * 0.06),
-            decoration: BoxDecoration(
-              color: Apptheme.primary.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.directions_car_outlined,
-              size: screenSize.width * 0.15,
-              color: Apptheme.primary,
-            ),
+          CircularProgressIndicator(
+            color: Apptheme.primary,
+            strokeWidth: 3,
           ),
-          SizedBox(height: screenSize.width * 0.04),
+          SizedBox(height: 16),
           Text(
-            "No vehicles found",
+            "Loading your vehicles...",
             style: TextStyle(
-              fontSize: screenSize.width * 0.05,
-              fontWeight: FontWeight.w600,
-              color: Apptheme.noir,
-            ),
-          ),
-          SizedBox(height: screenSize.width * 0.02),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.1),
-            child: Text(
-              "Add your first vehicle to start commuting with others",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: screenSize.width * 0.035,
-                color: Apptheme.noir.withOpacity(0.6),
-              ),
-            ),
-          ),
-          SizedBox(height: screenSize.width * 0.08),
-          ElevatedButton.icon(
-            onPressed: addVehicle,
-            icon: const Icon(Icons.add, size: 20),
-            label: const Text('Add Your First Vehicle'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Apptheme.primary,
-              foregroundColor: Apptheme.surface,
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.width * 0.06,
-                vertical: screenSize.width * 0.03,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
+              color: Apptheme.noir.withOpacity(0.7),
+              fontSize: 16,
             ),
           ),
         ],
@@ -319,153 +172,566 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> {
     );
   }
 
-  Widget _buildVehicleList(Size screenSize) {
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(
-        horizontal: screenSize.width * 0.04,
-        vertical: screenSize.width * 0.02,
+  Widget _buildEmptyState(Size screenSize) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(screenSize.width * 0.08),
+                decoration: BoxDecoration(
+                  color: Apptheme.primary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.directions_car_outlined,
+                  size: screenSize.width * 0.16,
+                  color: Apptheme.primary,
+                ),
+              ),
+              SizedBox(height: screenSize.width * 0.06),
+              Text(
+                "No vehicles yet",
+                style: TextStyle(
+                  fontSize: screenSize.width * 0.07,
+                  fontWeight: FontWeight.w600,
+                  color: Apptheme.noir,
+                ),
+              ),
+              SizedBox(height: screenSize.width * 0.03),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.1),
+                child: Text(
+                  "Add your vehicle to start commuting with others",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: screenSize.width * 0.04,
+                    color: Apptheme.noir.withOpacity(0.6),
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              SizedBox(height: screenSize.width * 0.08),
+              ElevatedButton.icon(
+                onPressed: addVehicle,
+                icon: const Icon(Icons.add, size: 20),
+                label: const Text(
+                  'Add Vehicle',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Apptheme.primary,
+                  foregroundColor: Apptheme.surface,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.width * 0.08,
+                    vertical: screenSize.width * 0.045,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      itemCount: vehicles.length,
-      itemBuilder: (context, index) {
-        final vehicle = vehicles[index];
-        
-        return Card(
-          elevation: 1,
-          margin: EdgeInsets.symmetric(
-            vertical: screenSize.width * 0.025,
-            horizontal: screenSize.width * 0.02,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: Apptheme.mist.withOpacity(0.3),
-              width: 0.5,
-            ),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(screenSize.width * 0.04),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Apptheme.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(14),
+    );
+  }
+
+  Widget _buildVehicleList(Size screenSize) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: ListView.builder(
+        padding: EdgeInsets.symmetric(
+          horizontal: screenSize.width * 0.05,
+          vertical: screenSize.width * 0.05,
+        ),
+        itemCount: vehicles.length,
+        itemBuilder: (context, index) {
+          final vehicle = vehicles[index];
+          final vehicleColor = VehicleUIHelpers.getVehicleColor(vehicle.vehicleType);
+          
+          // Use a staggered animation based on item index
+          return AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              final delay = index * 0.2;
+              final start = delay;
+              final end = delay + 0.8;
+              
+              final opacity = CurvedAnimation(
+                parent: _animationController,
+                curve: Interval(start.clamp(0.0, 1.0), end.clamp(0.0, 1.0), 
+                  curve: Curves.easeInOut),
+              );
+              
+              final slideAnimation = Tween<Offset>(
+                begin: const Offset(0.3, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: _animationController,
+                curve: Interval(start.clamp(0.0, 1.0), end.clamp(0.0, 1.0), 
+                  curve: Curves.easeOutCubic),
+              ));
+              
+              return FadeTransition(
+                opacity: opacity,
+                child: SlideTransition(
+                  position: slideAnimation,
+                  child: child,
+                ),
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.only(bottom: screenSize.width * 0.04),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(24),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: () => editVehicle(vehicle),
+                  child: Stack(
+                    children: [
+                      // Subtle accent background
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: screenSize.width * 0.15,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                vehicleColor.withOpacity(0.04),
+                                Colors.white.withOpacity(0),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        _getVehicleIcon(vehicle.vehicleType),
-                        color: Apptheme.primary,
-                        size: 30,
-                      ),
-                    ),
-                    SizedBox(width: screenSize.width * 0.04),
-                    Expanded(
-                      child: Column(
+                      
+                      // Card content
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            vehicle.vehicleName,
-                            style: TextStyle(
-                              fontSize: screenSize.width * 0.045,
-                              fontWeight: FontWeight.w600,
-                              color: Apptheme.noir,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
+                          // Top accent line
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            height: 4,
                             decoration: BoxDecoration(
-                              color: Apptheme.mist.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              vehicle.vehicleNumber,
-                              style: TextStyle(
-                                fontSize: screenSize.width * 0.035,
-                                color: Apptheme.noir.withOpacity(0.8),
-                                fontWeight: FontWeight.w500,
-                              ),
+                              color: vehicleColor,
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            vehicle.vehicleType,
-                            style: TextStyle(
-                              fontSize: screenSize.width * 0.035,
-                              color: Apptheme.noir.withOpacity(0.5),
+                          
+                          // Main content padding
+                          Padding(
+                            padding: EdgeInsets.all(screenSize.width * 0.045),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Top row with vehicle info and actions
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Vehicle icon with soft shadow
+                                    Hero(
+                                      tag: 'vehicle_icon_${vehicle.id}',
+                                      child: Container(
+                                        width: screenSize.width * 0.14,
+                                        height: screenSize.width * 0.14,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: vehicleColor.withOpacity(0.15),
+                                              blurRadius: 8,
+                                              spreadRadius: 0,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Container(
+                                          margin: EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: vehicleColor.withOpacity(0.12),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              VehicleUIHelpers.getVehicleIcon(vehicle.vehicleType),
+                                              color: vehicleColor,
+                                              size: screenSize.width * 0.06,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: screenSize.width * 0.03),
+                                    
+                                    // Vehicle info column
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(top: 6),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            // Vehicle name with ellipsis
+                                            Hero(
+                                              tag: 'vehicle_name_${vehicle.id}',
+                                              child: Material(
+                                                color: Colors.transparent,
+                                                child: Text(
+                                                  vehicle.vehicleName,
+                                                  style: TextStyle(
+                                                    fontSize: 19,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.black.withOpacity(0.85),
+                                                    letterSpacing: -0.3,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ),
+                                            
+                                            SizedBox(height: 6),
+                                            
+                                            // Vehicle number with tag styling
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 9,
+                                                vertical: 4,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withOpacity(0.04),
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                vehicle.vehicleNumber,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.black.withOpacity(0.6),
+                                                  fontWeight: FontWeight.w500,
+                                                  letterSpacing: 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    
+                                    // Status indicator badge
+                                    if (vehicle.isActive)
+                                      Container(
+                                        margin: EdgeInsets.only(top: 8, left: 6, right: 0),
+                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: vehicle.isActive
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.grey.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(30),
+                                          border: Border.all(
+                                            color: vehicle.isActive
+                                              ? Colors.green.withOpacity(0.2)
+                                              : Colors.grey.withOpacity(0.2),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              width: 6,
+                                              height: 6,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: vehicle.isActive
+                                                  ? Colors.green
+                                                  : Colors.grey,
+                                              ),
+                                            ),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              vehicle.isActive ? 'Active' : 'Inactive',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w500,
+                                                color: vehicle.isActive
+                                                  ? Colors.green
+                                                  : Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    
+                                    // Action menu
+                                    Theme(
+                                      data: Theme.of(context).copyWith(
+                                        popupMenuTheme: PopupMenuThemeData(
+                                          elevation: 4,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                      ),
+                                      child: PopupMenuButton<String>(
+                                        icon: Icon(
+                                          Icons.more_vert,
+                                          color: Colors.black.withOpacity(0.45),
+                                          size: 22,
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        onSelected: (value) {
+                                          if (value == 'edit') {
+                                            editVehicle(vehicle);
+                                          } else if (value == 'delete') {
+                                            deleteVehicle(vehicle.id!, vehicle.vehicleName);
+                                          }
+                                        },
+                                        itemBuilder: (context) => [
+                                          PopupMenuItem(
+                                            value: 'edit',
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.edit_outlined, 
+                                                  size: 18, 
+                                                  color: vehicleColor,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                const Text(
+                                                  'Edit',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          PopupMenuItem(
+                                            value: 'delete',
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.delete_outline, 
+                                                  size: 18, 
+                                                  color: Colors.red.shade400,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                const Text(
+                                                  'Delete',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                
+                                SizedBox(height: 20),
+                                
+                                // Specs section with better wrapping and spacing
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  children: [
+                                    // Primary specs first
+                                    VehicleUIHelpers.buildSpecChip(
+                                      context: context,
+                                      icon: Icons.directions_car_filled_outlined,
+                                      label: vehicle.vehicleType,
+                                      color: vehicleColor,
+                                      isPrimary: true,
+                                    ),
+                                    
+                                    // Capacity
+                                    if (vehicle.capacity > 0)
+                                      VehicleUIHelpers.buildSpecChip(
+                                        context: context,
+                                        icon: Icons.people_alt_outlined,
+                                        label: "${vehicle.capacity} seats",
+                                        color: Colors.black54,
+                                      ),
+                                    
+                                    // Make/Model
+                                    if (vehicle.make != null || vehicle.model != null)
+                                      VehicleUIHelpers.buildSpecChip(
+                                        context: context,
+                                        icon: Icons.info_outline,
+                                        label: [vehicle.make, vehicle.model]
+                                            .where((e) => e != null && e.isNotEmpty)
+                                            .join(' '),
+                                        color: Colors.black54,
+                                      ),
+                                      
+                                    // Year
+                                    if (vehicle.year != null)
+                                      VehicleUIHelpers.buildSpecChip(
+                                        context: context,
+                                        icon: Icons.calendar_today_outlined,
+                                        label: vehicle.year!,
+                                        color: Colors.black54,
+                                      ),
+                                      
+                                    // Color
+                                    if (vehicle.color != null)
+                                      VehicleUIHelpers.buildSpecChip(
+                                        context: context,
+                                        icon: Icons.palette_outlined,
+                                        label: vehicle.color!,
+                                        color: Colors.black54,
+                                      ),
+                                    
+                                    // Fuel Type
+                                    if (vehicle.fuelType != null)
+                                      VehicleUIHelpers.buildSpecChip(
+                                        context: context,
+                                        icon: Icons.local_gas_station_outlined,
+                                        label: vehicle.fuelType!,
+                                        color: Colors.black54,
+                                      ),
+                                  ],
+                                ),
+                                
+                                // Features section
+                                if (vehicle.features != null && vehicle.features!.isNotEmpty) ...[
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 22),
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.05),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Features heading
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.stars,
+                                              size: 16,
+                                              color: vehicleColor,
+                                            ),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              "Features",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black.withOpacity(0.7),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        
+                                        const SizedBox(height: 12),
+                                        
+                                        // Feature tags in a grid-like arrangement
+                                        Wrap(
+                                          spacing: 10,
+                                          runSpacing: 10,
+                                          children: vehicle.features!.take(4).map((feature) => 
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(30),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black.withOpacity(0.03),
+                                                    blurRadius: 4,
+                                                    offset: const Offset(0, 1),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Text(
+                                                feature,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black.withOpacity(0.7),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            )
+                                          ).toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    Column(
-                      children: [
-                        Container(
+                      
+                      // Edit indicator hint
+                      Positioned(
+                        bottom: 12,
+                        right: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Apptheme.mist.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            color: vehicleColor.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(30),
                           ),
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.edit_outlined,
-                              color: Apptheme.primary,
-                              size: 20,
-                            ),
-                            onPressed: () => editVehicle(vehicle),
-                            tooltip: 'Edit',
-                            constraints: const BoxConstraints(
-                              minWidth: 36,
-                              minHeight: 36,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.touch_app_outlined,
+                                color: vehicleColor,
+                                size: 12,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "Tap to edit",
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: vehicleColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.redAccent,
-                              size: 20,
-                            ),
-                            onPressed: () => deleteVehicle(vehicle.id!),
-                            tooltip: 'Delete',
-                            constraints: const BoxConstraints(
-                              minWidth: 36,
-                              minHeight: 36,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
-  }
-  
-  IconData _getVehicleIcon(String vehicleType) {
-    final type = vehicleType.toLowerCase();
-    if (type.contains('car')) {
-      return Icons.directions_car_outlined;
-    } else if (type.contains('bike') || type.contains('motorcycle')) {
-      return Icons.motorcycle_outlined;
-    } else if (type.contains('bus')) {
-      return Icons.directions_bus_outlined;
-    } else if (type.contains('truck')) {
-      return Icons.local_shipping_outlined;
-    } else {
-      return Icons.commute_outlined;
-    }
   }
 }

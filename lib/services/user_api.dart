@@ -64,9 +64,9 @@ class UserApi {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'uid': userId,
-          'newName': newName,
-          'newMobileNumber': newPhoneNumber,
-          if (newBio != null) 'newBio': newBio,
+          'name': newName,
+          'mobileNumber': newPhoneNumber,
+          if (newBio != null) 'bio': newBio,
         }),
       );
 
@@ -89,6 +89,20 @@ class UserApi {
         if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
           final userData = jsonResponse['data']['user'];
           
+          // Handle roles which can be a list or string
+          var roles = userData['roles'];
+          String roleString;
+          
+          // Convert roles to string if it's a list
+          if (roles is List) {
+            // If it's the first item in the list or join with comma if multiple
+            roleString = roles.isNotEmpty ? (roles.length == 1 ? roles[0].toString() : roles.join(',')) : 'PASSENGER';
+          } else if (roles is String) {
+            roleString = roles;
+          } else {
+            roleString = 'PASSENGER'; // Default role
+          }
+          
           // Return user data in the expected format
           return {
             'uid': userData['uid'],
@@ -97,7 +111,7 @@ class UserApi {
             'name': userData['name'],
             'mobileNumber': userData['mobileNumber'],
             'photoUrl': userData['photoUrl'],
-            'roles': userData['roles'],
+            'roles': roleString,
             'bio': userData['bio'],
             // Include additional fields as needed
           };

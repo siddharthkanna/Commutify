@@ -37,6 +37,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       final userData = await UserApi.getUserDetails();
 
       print('User data received in personal_info.dart: $userData');
+      
+      // Debugging - check roles type and value
+      if (userData.containsKey('roles')) {
+        print('Roles type: ${userData['roles'].runtimeType}');
+        print('Roles value: ${userData['roles']}');
+      }
+      
       // Check if we got valid user data
       if (userData.isNotEmpty) {
         _nameController.text = userData['name'] ?? '';
@@ -76,6 +83,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       }
     } catch (e) {
       setState(() => _isLoading = false);
+      print('Error fetching user details: $e');
       Snackbar.showSnackbar(context, 'Failed to load user details. Please try again.');
     }
   }
@@ -210,7 +218,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       // User Role (readonly)
                       _buildInfoField(
                         label: 'User Type',
-                        value: _formatRole(_userRole ?? ''),
+                        value: _formatRole(_userRole),
                         icon: Icons.badge_outlined,
                       ),
                     ],
@@ -258,7 +266,24 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     );
   }
 
-  String _formatRole(String role) {
+  String _formatRole(String? role) {
+    // Handle null or empty role
+    if (role == null || role.isEmpty) {
+      return 'User';
+    }
+    
+    // If the role contains a comma, it means multiple roles
+    if (role.contains(',')) {
+      List<String> roles = role.split(',');
+      List<String> formattedRoles = roles.map((r) => _formatSingleRole(r.trim())).toList();
+      return formattedRoles.join(' & ');
+    }
+    
+    // Otherwise, format single role
+    return _formatSingleRole(role);
+  }
+  
+  String _formatSingleRole(String role) {
     if (role == 'DRIVER') return 'Driver';
     if (role == 'PASSENGER') return 'Passenger';
     if (role == 'BOTH') return 'Driver & Passenger';

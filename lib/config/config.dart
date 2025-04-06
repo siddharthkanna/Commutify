@@ -6,8 +6,8 @@ final rideUrl = "$apiUrl/ride";
 final authUrl = "$apiUrl/auth";
 
 final createUserUrl = "$authUrl/create";
-final updateUserUrl = "$authUrl/updateUserDetails";
-final getUserDetailsUrl = "$authUrl/getUserDetails";
+final updateUserUrl = "$authUrl/user/update";
+final getUserDetailsUrl = "$authUrl/user/details";
 
 final fetchVehiclesUrl = "$authUrl/vehicles";
 final addVehicleUrl = "$authUrl/vehicles/addVehicle";
