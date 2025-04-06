@@ -4,6 +4,8 @@ import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/common/error.dart';
 import 'package:commutify/providers/auth_provider.dart';
 import 'package:commutify/services/user_api.dart';
+import 'package:commutify/utils/notification_utils.dart';
+import 'package:commutify/controllers/profile_controller.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
   const ProfileEditScreen({super.key});
@@ -31,91 +33,66 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   Future<void> fetchUserDetails() async {
-    setState(() => _isLoading = true);
-    try {
-      // Get additional user details from our API
-      final userData = await UserApi.getUserDetails();
-
-      print('User data received in personal_info.dart: $userData');
+    final userData = await ProfileController.fetchUserDetails(
+      context,
+      onLoadingStart: () => setState(() => _isLoading = true),
+      onLoadingEnd: () => setState(() => _isLoading = false),
+    );
+    
+    if (userData != null && userData.isNotEmpty) {
+      _nameController.text = userData['name'] ?? '';
+      _phoneNumberController.text = userData['mobileNumber'] ?? '';
+      _emailController.text = userData['email'] ?? '';
+      _bioController.text = userData['bio'] ?? '';
       
-      // Debugging - check roles type and value
-      if (userData.containsKey('roles')) {
-        print('Roles type: ${userData['roles'].runtimeType}');
-        print('Roles value: ${userData['roles']}');
-      }
+      setState(() {
+        _userRole = userData['roles'];
+        _photoUrl = userData['photoUrl'];
+        _userData = userData;
+        _isChangesMade = false;
+      });
+    } else {
+      // Fallback to auth provider data if API fails
+      final auth = ref.watch(authProvider);
+      final user = auth.getCurrentUser();
       
-      // Check if we got valid user data
-      if (userData.isNotEmpty) {
-        _nameController.text = userData['name'] ?? '';
-        _phoneNumberController.text = userData['mobileNumber'] ?? '';
-        _emailController.text = userData['email'] ?? '';
-        _bioController.text = userData['bio'] ?? '';
-        
-        setState(() {
-          _userRole = userData['roles'];
-          _photoUrl = userData['photoUrl'];
-          _userData = userData;
-          _isChangesMade = false;
-          _isLoading = false;
-        });
-      } else {
-        // Fallback to auth provider data if API fails
-        final auth = ref.watch(authProvider);
-        final user = auth.getCurrentUser();
-        
-        // Get name from Google metadata
-        String name = user?.userMetadata?['full_name'] ?? 
-                     user?.userMetadata?['name'] ?? 
-                     user?.email?.split('@')[0] ?? '';
-        
-        // Get email from auth
-        String email = user?.email ?? '';
-        String photoUrl = user?.userMetadata?['avatar_url'] ?? '';
-        
-        _nameController.text = name;
-        _emailController.text = email;
-        
-        setState(() {
-          _photoUrl = photoUrl;
-          _isChangesMade = false;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      print('Error fetching user details: $e');
-      Snackbar.showSnackbar(context, 'Failed to load user details. Please try again.');
+      // Get name from Google metadata
+      String name = user?.userMetadata?['full_name'] ?? 
+                   user?.userMetadata?['name'] ?? 
+                   user?.email?.split('@')[0] ?? '';
+      
+      // Get email from auth
+      String email = user?.email ?? '';
+      String photoUrl = user?.userMetadata?['avatar_url'] ?? '';
+      
+      _nameController.text = name;
+      _emailController.text = email;
+      
+      setState(() {
+        _photoUrl = photoUrl;
+        _isChangesMade = false;
+      });
     }
   }
 
   void saveChanges() async {
-    setState(() => _isLoading = true);
-    
     String newName = _nameController.text;
     String newPhoneNumber = _phoneNumberController.text;
     String newBio = _bioController.text;
 
-    try {
-      bool isSuccess = await UserApi.updateUserInfo(
-        newName: newName,
-        newPhoneNumber: newPhoneNumber,
-        newBio: newBio,
-      );
-
-      if (isSuccess) {
-        Snackbar.showSnackbar(context, 'Details updated successfully!');
-        setState(() {
-          _isChangesMade = false;
-        });
-      } else {
-        Snackbar.showSnackbar(
-            context, 'Failed to update details. Please try again.');
-      }
-    } catch (e) {
-      Snackbar.showSnackbar(
-          context, 'An error occurred. Please try again later.');
-    } finally {
-      setState(() => _isLoading = false);
+    bool isSuccess = await ProfileController.updateUserInfo(
+      context,
+      newName: newName, 
+      newPhoneNumber: newPhoneNumber,
+      newBio: newBio,
+      onLoadingStart: () => setState(() => _isLoading = true),
+      onLoadingEnd: () => setState(() => _isLoading = false),
+    );
+    
+    if (isSuccess) {
+      setState(() {
+        _isChangesMade = false;
+      });
     }
   }
 

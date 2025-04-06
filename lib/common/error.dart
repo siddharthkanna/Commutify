@@ -1,52 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
+import 'package:commutify/utils/notification_utils.dart';
+import 'package:commutify/utils/dialog_utils.dart';
 
 class ErrorDialog {
   static void showErrorDialog(BuildContext context, String message) {
-    showDialog(
+    DialogUtils.showInfoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Error',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        content: Text(
-          message,
-          style: const TextStyle(fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'OK',
-              style: TextStyle(
-                color: Apptheme.primary, // Customize the text color
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        backgroundColor: Colors.white, // Customize the background color
-        elevation: 5, // Add some elevation for a raised effect
-      ),
+      title: 'Error',
+      message: message,
     );
   }
 }
 
 class Snackbar {
-  static void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  static void showSnackbar(BuildContext context, String message, {bool isError = false}) {
+    if (isError) {
+      NotificationUtils.showError(context, message);
+    } else {
+      NotificationUtils.showSuccess(context, message);
+    }
+  }
+  
+  static void showSuccessSnackbar(BuildContext context, String message) {
+    NotificationUtils.showSuccess(context, message);
+  }
+  
+  static void showErrorSnackbar(BuildContext context, String message) {
+    NotificationUtils.showError(context, message);
+  }
+  
+  static void showInfoSnackbar(BuildContext context, String message) {
+    NotificationUtils.showInfo(context, message);
+  }
+  
+  static void showWarningSnackbar(BuildContext context, String message) {
+    NotificationUtils.showWarning(context, message);
   }
 }

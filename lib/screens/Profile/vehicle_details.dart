@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/controllers/vehicle_controller.dart';
 import 'package:commutify/utils/vehicle_ui_helpers.dart';
+import 'package:commutify/utils/notification_utils.dart';
 import 'package:commutify/services/vehicle_api.dart';
 import '../../models/vehicle_modal.dart';
 import 'package:flutter/material.dart';
@@ -46,16 +47,26 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> with SingleTick
       isLoading = true;
     });
 
-    final fetchedVehicles = await VehicleApi.fetchVehicles();
+    try {
+      final fetchedVehicles = await VehicleApi.fetchVehicles();
 
-    setState(() {
-      vehicles = fetchedVehicles;
-      isLoading = false;
-    });
-    
-    if (mounted) {
-      _animationController.reset();
-      _animationController.forward();
+      setState(() {
+        vehicles = fetchedVehicles;
+        isLoading = false;
+      });
+      
+      if (mounted) {
+        _animationController.reset();
+        _animationController.forward();
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      
+      if (mounted) {
+        NotificationUtils.showError(context, "Failed to fetch vehicles: $e");
+      }
     }
   }
 
@@ -64,11 +75,8 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> with SingleTick
       context,
       onLoadingStart: () => setState(() => isLoading = true),
       onLoadingEnd: () => setState(() => isLoading = false),
-      onSuccess: (message) {
-        fetchVehicleData();
-        VehicleController.showSuccessSnackbar(context, message);
-      },
-      onError: (message) => VehicleController.showErrorSnackbar(context, message),
+      onSuccess: (message) => fetchVehicleData(),
+      onError: (_) {}, // Notification is already handled in the controller
     );
   }
 
@@ -78,11 +86,8 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> with SingleTick
       vehicle,
       onLoadingStart: () => setState(() => isLoading = true),
       onLoadingEnd: () => setState(() => isLoading = false),
-      onSuccess: (message) {
-        fetchVehicleData();
-        VehicleController.showSuccessSnackbar(context, message);
-      },
-      onError: (message) => VehicleController.showErrorSnackbar(context, message),
+      onSuccess: (message) => fetchVehicleData(),
+      onError: (_) {}, // Notification is already handled in the controller
     );
   }
 
@@ -93,11 +98,8 @@ class _VehicleDetailsState extends ConsumerState<VehicleDetails> with SingleTick
       vehicleName,
       onLoadingStart: () => setState(() => isLoading = true),
       onLoadingEnd: () => setState(() => isLoading = false),
-      onSuccess: (message) {
-        fetchVehicleData();
-        VehicleController.showSuccessSnackbar(context, message);
-      },
-      onError: (message) => VehicleController.showErrorSnackbar(context, message),
+      onSuccess: (message) => fetchVehicleData(),
+      onError: (_) {}, // Notification is already handled in the controller
     );
   }
 

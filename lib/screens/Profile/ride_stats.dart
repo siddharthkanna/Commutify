@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/common/loading.dart';
+import 'package:commutify/common/error.dart';
+import 'package:commutify/controllers/profile_controller.dart';
 import 'package:commutify/services/user_api.dart';
 
 class RideStatsScreen extends StatefulWidget {
@@ -22,20 +24,17 @@ class _RideStatsScreenState extends State<RideStatsScreen> {
   }
 
   Future<void> fetchRideCounts() async {
-    try {
-      final userData =
-          await UserApi.getUserDetails(); 
-      final passengerRides = userData['ridesAsPasssenger'] ?? 0;
-      final driverRides = userData['ridesAsDriver'] ?? 0;
-
+    final rideStats = await ProfileController.fetchRideStats(
+      context,
+      onLoadingStart: () => setState(() => isLoading = true),
+      onLoadingEnd: () => setState(() => isLoading = false),
+    );
+    
+    if (rideStats != null) {
       setState(() {
-        ridesAsPassenger = passengerRides;
-        ridesAsDriver = driverRides;
-        isLoading = false;
+        ridesAsPassenger = rideStats['ridesAsPassenger'] ?? 0;
+        ridesAsDriver = rideStats['ridesAsDriver'] ?? 0;
       });
-    } catch (error) {
-      print("Error fetching ride counts: $error");
-      // Handle error if needed
     }
   }
 

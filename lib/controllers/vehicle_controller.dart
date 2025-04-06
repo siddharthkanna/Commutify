@@ -3,6 +3,8 @@ import 'package:commutify/models/vehicle_modal.dart';
 import 'package:commutify/services/vehicle_api.dart';
 import 'package:commutify/screens/Profile/add_vehicle.dart';
 import 'package:commutify/screens/Profile/edit_vehicle.dart';
+import 'package:commutify/utils/notification_utils.dart';
+import 'package:commutify/utils/dialog_utils.dart';
 
 /// Controller class for vehicle operations
 class VehicleController {
@@ -29,12 +31,18 @@ class VehicleController {
         if (isSuccess) {
           // Re-fetch vehicles to update the list
           await VehicleApi.fetchVehicles();
-          onSuccess("Vehicle added successfully!");
+          final message = "Vehicle added successfully!";
+          onSuccess(message);
+          NotificationUtils.showSuccess(context, message);
         } else {
-          onError("Failed to add the vehicle!");
+          final message = "Failed to add the vehicle!";
+          onError(message);
+          NotificationUtils.showError(context, message);
         }
       } catch (e) {
-        onError("An error occurred. Please try again.");
+        final message = "An error occurred. Please try again.";
+        onError(message);
+        NotificationUtils.showError(context, message);
       } finally {
         onLoadingEnd();
       }
@@ -66,12 +74,18 @@ class VehicleController {
         
         if (isSuccess) {
           await VehicleApi.fetchVehicles();
-          onSuccess("Vehicle updated successfully!");
+          final message = "Vehicle updated successfully!";
+          onSuccess(message);
+          NotificationUtils.showSuccess(context, message);
         } else {
-          onError("Failed to update the vehicle");
+          final message = "Failed to update the vehicle";
+          onError(message);
+          NotificationUtils.showError(context, message);
         }
       } catch (e) {
-        onError("Failed to update the vehicle: $e");
+        final message = "Failed to update the vehicle: $e";
+        onError(message);
+        NotificationUtils.showError(context, message);
       } finally {
         onLoadingEnd();
       }
@@ -88,122 +102,45 @@ class VehicleController {
     required Function(String) onSuccess,
     required Function(String) onError,
   }) async {
-    showDialog(
+    final confirmDelete = await DialogUtils.showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Delete Vehicle", 
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          "Are you sure you want to delete '$vehicleName'?",
-          style: const TextStyle(
-            color: Colors.black87,
-            height: 1.3,
-          ),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              "Cancel",
-              style: TextStyle(
-                color: Colors.redAccent,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              onLoadingStart();
-              
-              try {
-                final isSuccess = await VehicleApi.deleteVehicle(vehicleId);
-
-                if (isSuccess) {
-                  await VehicleApi.fetchVehicles();
-                  onSuccess("Vehicle deleted successfully");
-                } else {
-                  onError("Failed to delete the vehicle");
-                }
-              } catch (e) {
-                onError("An error occurred. Please try again.");
-              } finally {
-                onLoadingEnd();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              "Delete",
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
+      itemName: vehicleName,
+      title: "Delete Vehicle",
     );
+    
+    if (confirmDelete) {
+      onLoadingStart();
+      
+      try {
+        final isSuccess = await VehicleApi.deleteVehicle(vehicleId);
+
+        if (isSuccess) {
+          await VehicleApi.fetchVehicles();
+          final message = "Vehicle deleted successfully";
+          onSuccess(message);
+          NotificationUtils.showSuccess(context, message);
+        } else {
+          final message = "Failed to delete the vehicle";
+          onError(message);
+          NotificationUtils.showError(context, message);
+        }
+      } catch (e) {
+        final message = "An error occurred. Please try again.";
+        onError(message);
+        NotificationUtils.showError(context, message);
+      } finally {
+        onLoadingEnd();
+      }
+    }
   }
   
   /// Display a success snackbar
   static void showSuccessSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 10),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: const EdgeInsets.all(10),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    NotificationUtils.showSuccess(context, message);
   }
   
   /// Display an error snackbar
   static void showErrorSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error, color: Colors.white),
-            const SizedBox(width: 10),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.red.shade700,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: const EdgeInsets.all(10),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    NotificationUtils.showError(context, message);
   }
 } 
