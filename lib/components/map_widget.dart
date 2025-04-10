@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:math';
 import 'package:commutify/Themes/app_theme.dart';
 
 // Default Mapbox token in case .env fails - you should replace this with your own valid token
@@ -129,13 +130,21 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     // Check if pickup location has changed
     if (widget.pickupLocation != oldWidget.pickupLocation) {
       moveToPickupLocation();
-      getRouteCoordinates();
     }
 
     // Check if destination location has changed
     if (widget.destinationLocation != oldWidget.destinationLocation) {
+      print("ROUTE DEBUG: Destination location changed, calculating route");
       moveToDestinationLocation();
-      getRouteCoordinates();
+    }
+    
+    // Calculate route if either location changes or when both are available
+    if ((widget.pickupLocation != oldWidget.pickupLocation || 
+         widget.destinationLocation != oldWidget.destinationLocation) &&
+         widget.pickupLocation != null && 
+         widget.destinationLocation != null) {
+      // Force fixed testing route when on development
+      createTestRoute();
     }
   }
 
@@ -157,35 +166,79 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     if (widget.pickupLocation != null && widget.destinationLocation != null) {
       setState(() {
         isRouteLoading = true;
+        // Clear previous route to avoid showing stale data
+        routeCoordinates = [];
       });
       
       try {
+        print("ROUTE DEBUG: Calculating route from ${widget.pickupLocation!.latitude},${widget.pickupLocation!.longitude} to ${widget.destinationLocation!.latitude},${widget.destinationLocation!.longitude}");
+        
         final response = await http.get(
           Uri.parse(
-            "https://api.mapbox.com/directions/v5/mapbox/driving/${widget.pickupLocation!.longitude},${widget.pickupLocation!.latitude};${widget.destinationLocation!.longitude},${widget.destinationLocation!.latitude}?geometries=geojson&access_token=$mapBoxAccessToken",
+            "https://api.mapbox.com/directions/v5/mapbox/driving/${widget.pickupLocation!.longitude},${widget.pickupLocation!.latitude};${widget.destinationLocation!.longitude},${widget.destinationLocation!.latitude}?geometries=geojson&overview=full&access_token=$mapBoxAccessToken",
           ),
         );
 
+        print("ROUTE DEBUG: Response status code: ${response.statusCode}");
+        
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
-          final List<dynamic> coordinates =
-              data['routes'][0]['geometry']['coordinates'];
-          setState(() {
-            routeCoordinates =
-                coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
-            adjustMapZoom();
-            isRouteLoading = false;
-          });
+          print("ROUTE DEBUG: Response data received: ${data.toString().substring(0, min(100, data.toString().length))}...");
+          
+          if (data['routes'] != null && data['routes'].isNotEmpty) {
+            final List<dynamic> coordinates =
+                data['routes'][0]['geometry']['coordinates'];
+                
+            print("ROUTE DEBUG: Coordinates found: ${coordinates.length}");
+                
+            if (coordinates.isNotEmpty) {
+              // Convert coordinates format
+              final List<LatLng> newRouteCoordinates = coordinates
+                  .map<LatLng>((coord) {
+                    // Mapbox returns [longitude, latitude]
+                    return LatLng(coord[1], coord[0]);
+                  })
+                  .toList();
+              
+              print("ROUTE DEBUG: Converted ${newRouteCoordinates.length} points");
+              print("ROUTE DEBUG: First point: ${newRouteCoordinates.first}, Last point: ${newRouteCoordinates.last}");
+                
+              setState(() {
+                routeCoordinates = newRouteCoordinates;
+                
+                // Log route data for debugging
+                print("ROUTE DEBUG: Route found with ${routeCoordinates.length} points");
+                
+                // Adjust map to show the entire route
+                adjustMapZoom();
+                isRouteLoading = false;
+              });
+            } else {
+              print("ROUTE DEBUG: No coordinates found in route response");
+              setState(() {
+                isRouteLoading = false;
+              });
+            }
+          } else {
+            print("ROUTE DEBUG: No routes found in response: ${response.body}");
+            setState(() {
+              isRouteLoading = false;
+            });
+          }
         } else {
+          print("ROUTE DEBUG: Error calculating route: ${response.statusCode} - ${response.body}");
           setState(() {
             isRouteLoading = false;
           });
         }
       } catch (e) {
+        print("ROUTE DEBUG: Exception calculating route: $e");
         setState(() {
           isRouteLoading = false;
         });
       }
+    } else {
+      print("ROUTE DEBUG: Cannot calculate route - pickup or destination is null");
     }
   }
 
@@ -208,12 +261,62 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         LatLng(maxLat, maxLng),
       );
 
-      mapController.fitBounds(
-        bounds,
-        options: const FitBoundsOptions(
-          padding: EdgeInsets.all(110.0),
+      try {
+        // Add a slight delay to allow animations to settle
+        Future.delayed(const Duration(milliseconds: 300), () {
+          mapController.fitBounds(
+            bounds,
+            options: const FitBoundsOptions(
+              padding: EdgeInsets.all(80.0),
+              maxZoom: 16.0,
+            ),
+          );
+          
+          print("Map adjusted to show full route");
+        });
+      } catch (e) {
+        print("Error adjusting map zoom: $e");
+      }
+    }
+  }
+
+  // Create a test route for debugging
+  void createTestRoute() {
+    if (widget.pickupLocation != null && widget.destinationLocation != null) {
+      print("ROUTE TESTING: Creating direct test route");
+      
+      // Create a simple straight line route between pickup and destination
+      final LatLng start = widget.pickupLocation!;
+      final LatLng end = widget.destinationLocation!;
+      
+      // Generate a few points to form a route
+      final List<LatLng> testRoute = [
+        start,
+        LatLng(
+          start.latitude + (end.latitude - start.latitude) * 0.25,
+          start.longitude + (end.longitude - start.longitude) * 0.25
         ),
-      );
+        LatLng(
+          start.latitude + (end.latitude - start.latitude) * 0.5,
+          start.longitude + (end.longitude - start.longitude) * 0.5
+        ),
+        LatLng(
+          start.latitude + (end.latitude - start.latitude) * 0.75,
+          start.longitude + (end.longitude - start.longitude) * 0.75
+        ),
+        end
+      ];
+      
+      print("ROUTE TESTING: Created test route with ${testRoute.length} points");
+      print("ROUTE TESTING: Start: $start, End: $end");
+      
+      setState(() {
+        routeCoordinates = testRoute;
+        adjustMapZoom();
+      });
+      
+      // Also try regular route calculation for comparison
+      getRouteCoordinates();
     }
   }
 
@@ -226,11 +329,10 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       'accessToken': mapBoxAccessToken,
     };
     
-    print("DEBUG: URL Template: $urlTemplate");
-    print("DEBUG: Additional Options: $additionalOptions");
-    // Debug direct URL testing
-    print("DEBUG: Testing direct raster URL construction:");
-    print("https://api.mapbox.com/v4/mapbox.streets/0/0/0@2x.png?access_token=$mapBoxAccessToken");
+    print("ROUTE DEBUG: Building map with ${routeCoordinates.length} route points");
+    if (routeCoordinates.isNotEmpty) {
+      print("ROUTE DEBUG: First route point: ${routeCoordinates.first}, Last route point: ${routeCoordinates.last}");
+    }
     
     return Stack(
       children: [
@@ -294,25 +396,22 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                       fallbackUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       // Credit to OpenStreetMap
                       tileProvider: NetworkTileProvider(),
-                      tileBuilder: (context, child, tile) {
-                        // Debug the tile loading
-                        print("Loading tile: $tile");
-                        return child;
-                      },
                     ),
-                    // Route polyline
+                    
+                    // Route polyline - Using plain bright colors for maximum visibility
                     if (routeCoordinates.isNotEmpty)
                       PolylineLayer(
                         polylines: [
                           Polyline(
                             points: routeCoordinates,
-                            strokeWidth: 4.0,
-                            color: Apptheme.primary.withOpacity(0.8),
-                            borderStrokeWidth: 2.0,
-                            borderColor: Apptheme.surface.withOpacity(0.7),
+                            strokeWidth: 10.0,
+                            color: Colors.red,
+                            borderStrokeWidth: 5.0,
+                            borderColor: Colors.white,
                           ),
                         ],
                       ),
+                      
                     // Pickup location marker
                     if (widget.pickupLocation != null)
                       MarkerLayer(
@@ -351,7 +450,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
               }
             },
           ),
-        // Loading indicator for route
+        // Loading indicator for route - improved visibility
         if (isRouteLoading)
           Positioned(
             top: 60,
@@ -361,10 +460,18 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Apptheme.text.withOpacity(0.7),
+                  color: Apptheme.surface,
                   borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
@@ -372,15 +479,16 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Apptheme.surface),
+                        valueColor: AlwaysStoppedAnimation<Color>(Apptheme.primary),
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Text(
                       'Calculating route...',
                       style: TextStyle(
                         color: Apptheme.text,
                         fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],

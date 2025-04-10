@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:commutify/models/map_box_place.dart';
+import 'package:latlong2/latlong.dart';
 
 class MapService {
   // Default Mapbox token in case .env fails
@@ -15,7 +16,7 @@ class MapService {
   /// Takes pickup and destination locations and returns a map with:
   /// - distance: in kilometers
   /// - duration: in minutes
-  /// - route: list of coordinate points (if needed to draw route)
+  /// - route: list of coordinate points to draw the route on map
   static Future<Map<String, dynamic>> getRouteDetails(
     MapBoxPlace? pickupLocation,
     MapBoxPlace? destinationLocation,
@@ -25,23 +26,28 @@ class MapService {
       'distance': 0.0,
       'duration': 0.0,
       'route': [],
+      'routePoints': [],
+      'status': 'error',
+      'message': 'Missing locations',
     };
 
     // Check if both locations are available
     if (pickupLocation == null || destinationLocation == null) {
-      print('Cannot calculate route: One or both locations are missing');
+      print("ROUTE DEBUG: MapService - Missing pickup or destination location");
       return result;
     }
 
     try {
+      print("ROUTE DEBUG: MapService - Calculating route from ${pickupLocation.placeName} to ${destinationLocation.placeName}");
+      print("ROUTE DEBUG: MapService - Coordinates: [${pickupLocation.longitude},${pickupLocation.latitude}] to [${destinationLocation.longitude},${destinationLocation.latitude}]");
+      
       final response = await http.get(
         Uri.parse(
-          "https://api.mapbox.com/directions/v5/mapbox/driving/" +
-          "${pickupLocation.longitude},${pickupLocation.latitude};" +
-          "${destinationLocation.longitude},${destinationLocation.latitude}" +
-          "?geometries=geojson&overview=full&access_token=$mapBoxAccessToken",
+          "https://api.mapbox.com/directions/v5/mapbox/driving/${pickupLocation.longitude},${pickupLocation.latitude};${destinationLocation.longitude},${destinationLocation.latitude}?geometries=geojson&overview=full&access_token=$mapBoxAccessToken",
         ),
       );
+
+      print("ROUTE DEBUG: MapService - API response code: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -60,7 +66,21 @@ class MapService {
           
           // Extract route coordinates
           final List<dynamic> coordinates = route['geometry']['coordinates'];
-          final routePoints = coordinates.map((coord) => {
+          print("ROUTE DEBUG: MapService - Found ${coordinates.length} route points");
+          
+          // Convert to LatLng objects for direct use in Flutter Map
+          final List<LatLng> routePoints = coordinates.map((coord) => 
+            LatLng(coord[1], coord[0])
+          ).toList();
+          
+          // Log first and last points for debugging
+          if (routePoints.isNotEmpty) {
+            print("ROUTE DEBUG: MapService - First point: ${routePoints.first}");
+            print("ROUTE DEBUG: MapService - Last point: ${routePoints.last}");
+          }
+          
+          // Also keep the original format for other uses
+          final routeCoordinates = coordinates.map((coord) => {
             'longitude': coord[0],
             'latitude': coord[1]
           }).toList();
@@ -68,18 +88,27 @@ class MapService {
           result = {
             'distance': double.parse(distanceInKm.toStringAsFixed(2)),
             'duration': double.parse(durationInMinutes.toStringAsFixed(1)),
-            'route': routePoints,
+            'route': routeCoordinates,
+            'routePoints': routePoints,
+            'status': 'success',
+            'message': 'Route calculated successfully',
           };
           
-          print('Route calculated: ${distanceInKm.toStringAsFixed(2)} km, ${durationInMinutes.toStringAsFixed(1)} minutes');
+          print('ROUTE DEBUG: MapService - Route calculated: ${distanceInKm.toStringAsFixed(2)} km, ${durationInMinutes.toStringAsFixed(1)} minutes with ${routePoints.length} points');
         } else {
-          print('No routes found in Mapbox response');
+          print('ROUTE DEBUG: MapService - No routes found in Mapbox response: ${response.body}');
+          result['status'] = 'error';
+          result['message'] = 'No routes found';
         }
       } else {
-        print('Mapbox API error: ${response.statusCode} - ${response.body}');
+        print('ROUTE DEBUG: MapService - Mapbox API error: ${response.statusCode} - ${response.body}');
+        result['status'] = 'error';
+        result['message'] = 'API error: ${response.statusCode}';
       }
     } catch (e) {
-      print('Error calculating route: $e');
+      print('ROUTE DEBUG: MapService - Error calculating route: $e');
+      result['status'] = 'error';
+      result['message'] = 'Exception: $e';
     }
 
     return result;

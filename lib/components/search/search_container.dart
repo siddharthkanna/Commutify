@@ -6,6 +6,7 @@ import 'package:commutify/screens/Driver/Driver_Screen.dart';
 import 'package:commutify/screens/Passenger/passengerScreen.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class SearchContainer extends StatefulWidget {
   final Function(MapBoxPlace) setPickupLocation;
@@ -358,7 +359,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
               ),
             ),
             
-            SizedBox(height: screenSize.width * 0.05),
+            SizedBox(height: screenSize.width * 0.04),
             
             // Confirm button
             SizedBox(

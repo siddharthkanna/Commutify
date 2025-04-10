@@ -52,7 +52,7 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
       final authService = ref.read(authProvider);
       final user = authService.getCurrentUser();
       
-      if (user == null || user.id == null || user.id!.isEmpty) {
+      if (user == null ||  user.id.isEmpty) {
         print('MyRides: User is not authenticated or has no ID');
         setState(() {
           isLoading = false;
@@ -163,11 +163,11 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
           ),
         ),
         actions: [
-          // Debug button for testing API endpoint
+          // Refresh button for rides data
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _testApiEndpoint,
-            tooltip: 'Test API Endpoint',
+            icon: const Icon(Icons.refresh, color: Apptheme.surface),
+            onPressed: _refreshData,
+            tooltip: 'Refresh Rides',
           ),
         ],
         bottom: TabBar(
@@ -295,43 +295,5 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
         }
       ),
     );
-  }
-
-  // New method to test the API endpoint directly
-  Future<void> _testApiEndpoint() async {
-    final authService = ref.read(authProvider);
-    final user = authService.getCurrentUser();
-    
-    if (user == null || user.id == null) {
-      Snackbar.showSnackbar(context, "User not authenticated");
-      return;
-    }
-    
-    final String uid = user.id!;
-    Snackbar.showSnackbar(context, "Testing API for user ID: $uid");
-    
-    try {
-      final response = await http.get(
-        Uri.parse('$fetchPublishedRidesUrl/$uid/driver-rides')
-      );
-      
-      print('Test response status: ${response.statusCode}');
-      print('Test response body: ${response.body}');
-      
-      if (response.statusCode == 200) {
-        Snackbar.showSnackbar(
-          context, 
-          "API test successful! Status: ${response.statusCode}, Response length: ${response.body.length} chars"
-        );
-      } else {
-        Snackbar.showSnackbar(
-          context, 
-          "API test failed! Status: ${response.statusCode}, Error: ${response.body}"
-        );
-      }
-    } catch (e) {
-      print('API test error: $e');
-      Snackbar.showSnackbar(context, "API test error: $e");
-    }
   }
 }

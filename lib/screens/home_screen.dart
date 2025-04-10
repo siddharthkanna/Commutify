@@ -136,15 +136,31 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         pickupLocation = LatLng(location.latitude, location.longitude);
         print("Pickup location set to: $pickupLocation");
+        
+        // If destination is already set, this will trigger route recalculation
+        if (destinationLocation != null) {
+          print("Destination exists, route should update");
+        }
       });
     });
   }
 
   void setDestinationLocation(MapBoxPlace location) {
-    print("Setting destination location: ${location.placeName}");
-    setState(() {
-      destinationLocation = LatLng(location.latitude, location.longitude);
-      print("Destination location set to: $destinationLocation");
+    print("ROUTE DEBUG: Setting destination location: ${location.placeName} at ${location.latitude}, ${location.longitude}");
+    // Use the scheduler to ensure setState is called after the frame is built
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        destinationLocation = LatLng(location.latitude, location.longitude);
+        print("ROUTE DEBUG: Destination location set to: $destinationLocation, route should display");
+      });
+      
+      // Force rebuild to ensure route is displayed
+      Future.delayed(const Duration(milliseconds: 100), () {
+        setState(() {
+          // Just force a rebuild
+          print("ROUTE DEBUG: Forcing map rebuild after destination set");
+        });
+      });
     });
   }
 
@@ -206,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Map layer - always show map for debugging
           MapWidget(
-            key: ValueKey('map-${pickupLocation?.latitude}-${pickupLocation?.longitude}-${destinationLocation?.latitude}-${destinationLocation?.longitude}'),
+            key: ValueKey('map-${DateTime.now().millisecondsSinceEpoch}-${pickupLocation?.latitude}-${pickupLocation?.longitude}-${destinationLocation?.latitude}-${destinationLocation?.longitude}'),
             pickupLocation: pickupLocation,
             destinationLocation: destinationLocation,
             isCurrentLocation: true,

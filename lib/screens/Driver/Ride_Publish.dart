@@ -20,12 +20,13 @@ class _RidePublishedState extends State<RidePublished> with SingleTickerProvider
   late AnimationController _controller;
   late Animation<double> _fadeInAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1400),
       vsync: this,
     );
     
@@ -36,10 +37,17 @@ class _RidePublishedState extends State<RidePublished> with SingleTickerProvider
       ),
     );
     
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
+        curve: const Interval(0.2, 0.7, curve: Curves.easeOutCubic),
+      ),
+    );
+    
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
       ),
     );
     
@@ -55,14 +63,14 @@ class _RidePublishedState extends State<RidePublished> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Apptheme.backgroundblue,
+      backgroundColor: Apptheme.background,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             final screenWidth = constraints.maxWidth;
             final screenHeight = constraints.maxHeight;
             final isSmallScreen = screenWidth < 600;
-            final imageSize = isSmallScreen ? screenWidth * 0.7 : screenWidth * 0.5;
+            final imageSize = isSmallScreen ? screenWidth * 0.65 : screenWidth * 0.45;
             
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -70,57 +78,53 @@ class _RidePublishedState extends State<RidePublished> with SingleTickerProvider
                 opacity: _fadeInAnimation,
                 child: SlideTransition(
                   position: _slideAnimation,
-                  child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                        width: imageSize,
-                        height: imageSize * 0.75,
-                        decoration: BoxDecoration(
-                          image: const DecorationImage(
-                      image: AssetImage('assets/ride_post.png'),
-                            fit: BoxFit.contain,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 30,
-                              offset: const Offset(0, 15),
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: imageSize,
+                          height: imageSize * 0.75,
+                          decoration: const BoxDecoration(
+                            image:  DecorationImage(
+                              image: AssetImage('assets/ride_post.png'),
+                              fit: BoxFit.contain,
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                      SizedBox(height: screenHeight * 0.05),
-                Text(
-                        'Ride Published Successfully!',
-                  style: TextStyle(
-                          fontSize: isSmallScreen ? 26 : 32,
-                          fontWeight: FontWeight.w700,
-                    fontFamily: 'Outfit',
-                          letterSpacing: -0.5,
-                          color: Colors.black.withOpacity(0.9),
+                        SizedBox(height: screenHeight * 0.05),
+                        Text(
+                          'Ride Published Successfully!',
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 26 : 32,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Outfit',
+                            letterSpacing: -0.5,
+                            color: Apptheme.primary,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: screenHeight * 0.025),
-                      Text(
-                        'Your ride is now visible to passengers who can book and travel with you.',
-                    style: TextStyle(
-                          fontSize: isSmallScreen ? 16 : 18,
-                          fontWeight: FontWeight.w400,
-                      fontFamily: 'Outfit',
-                          color: Colors.black.withOpacity(0.6),
-                          height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
-                      ),
-                      if (widget.estimatedDistance != null && widget.estimatedDuration != null) ...[
                         SizedBox(height: screenHeight * 0.025),
-                        _buildRouteDetails(isSmallScreen),
+                        Text(
+                          'Your ride is now visible to passengers who can book and travel with you.',
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 16 : 18,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'Outfit',
+                            color: Apptheme.textSecondary,
+                            height: 1.4,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        if (widget.estimatedDistance != null && widget.estimatedDuration != null) ...[
+                          SizedBox(height: screenHeight * 0.035),
+                          _buildRouteDetails(isSmallScreen),
+                        ],
+                        SizedBox(height: screenHeight * 0.06),
+                        _buildButton(context, isSmallScreen),
                       ],
-                      SizedBox(height: screenHeight * 0.06),
-                      _buildButton(context, isSmallScreen),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -133,13 +137,20 @@ class _RidePublishedState extends State<RidePublished> with SingleTickerProvider
 
   Widget _buildRouteDetails(bool isSmallScreen) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Apptheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: Apptheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
         border: Border.all(
-          color: Apptheme.primary.withOpacity(0.2),
-          width: 1.5,
+          color: Apptheme.primary.withOpacity(0.08),
+          width: 1,
         ),
       ),
       child: Row(
@@ -154,7 +165,7 @@ class _RidePublishedState extends State<RidePublished> with SingleTickerProvider
           Container(
             height: 40,
             width: 1,
-            color: Apptheme.primary.withOpacity(0.2),
+            color: Apptheme.primary.withOpacity(0.1),
           ),
           _buildDetailItem(
             icon: Icons.timer,
@@ -176,18 +187,18 @@ class _RidePublishedState extends State<RidePublished> with SingleTickerProvider
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Apptheme.primary.withOpacity(0.2),
+            color: Apptheme.primary.withOpacity(0.07),
             shape: BoxShape.circle,
           ),
           child: Icon(
             icon,
-            size: isSmallScreen ? 16 : 18,
+            size: isSmallScreen ? 18 : 20,
             color: Apptheme.primary,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Text(
           value,
           style: TextStyle(
@@ -197,13 +208,14 @@ class _RidePublishedState extends State<RidePublished> with SingleTickerProvider
             color: Apptheme.primary,
           ),
         ),
+        const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            fontSize: isSmallScreen ? 12 : 14,
+            fontSize: isSmallScreen ? 13 : 15,
             fontWeight: FontWeight.w400,
             fontFamily: 'Outfit',
-            color: Colors.black.withOpacity(0.6),
+            color: Apptheme.textSecondary,
           ),
         ),
       ],
@@ -211,52 +223,49 @@ class _RidePublishedState extends State<RidePublished> with SingleTickerProvider
   }
 
   Widget _buildButton(BuildContext context, bool isSmallScreen) {
-    return Container(
-      decoration: BoxDecoration(
+    return Material(
+      borderRadius: BorderRadius.circular(16),
+      color: Apptheme.primary,
+      elevation: 0,
+      child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Apptheme.noir.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
+        onTap: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
               builder: (context) => const PageViewScreen(initialPage: 1),
             ),
             (route) => false,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-          minimumSize: Size(isSmallScreen ? 220 : 260, 58),
-                    backgroundColor: Apptheme.noir,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-                    shape: RoundedRectangleBorder(
+          );
+        },
+        child: Container(
+          width: isSmallScreen ? 220 : 260,
+          height: 58,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'View My Rides',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'Outfit',
-                letterSpacing: 0.2,
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'View My Rides',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Outfit',
+                  letterSpacing: 0.2,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            const Icon(Icons.arrow_forward_rounded, size: 20),
-          ],
+              SizedBox(width: 12),
+              Icon(
+                Icons.arrow_forward_rounded, 
+                size: 20,
+                color: Colors.white,
+              ),
+            ],
+          ),
         ),
       ),
     );

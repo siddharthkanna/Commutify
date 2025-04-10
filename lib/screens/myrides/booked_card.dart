@@ -8,6 +8,64 @@ class BookedCard extends StatelessWidget {
 
   const BookedCard({Key? key, required this.ride}) : super(key: key);
 
+  String _formatTime(String timeStr) {
+    if (timeStr.isEmpty) {
+      return "Time not set";
+    }
+    
+    try {
+      // Try to parse as ISO date string
+      final DateTime dateTime = DateTime.tryParse(timeStr) ?? DateTime.now();
+      
+      // Format the date
+      final int dayNum = dateTime.day;
+      final String day = dayNum.toString();
+      final String suffix = daySuffix(dayNum);
+      final String month = _getMonthName(dateTime.month);
+      
+      // Format the time
+      final String period = dateTime.hour >= 12 ? 'PM' : 'AM';
+      final int displayHour = dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour;
+      final String formattedHour = displayHour == 0 ? '12' : displayHour.toString();
+      final String formattedMinute = dateTime.minute.toString().padLeft(2, '0');
+      
+      return '$day$suffix $month, $formattedHour:$formattedMinute $period';
+    } catch (e) {
+      // If parsing fails, return the original string
+      return timeStr;
+    }
+  }
+
+  String _getMonthName(int month) {
+    switch (month) {
+      case 1: return 'January';
+      case 2: return 'February';
+      case 3: return 'March';
+      case 4: return 'April';
+      case 5: return 'May';
+      case 6: return 'June';
+      case 7: return 'July';
+      case 8: return 'August';
+      case 9: return 'September';
+      case 10: return 'October';
+      case 11: return 'November';
+      case 12: return 'December';
+      default: return '';
+    }
+  }
+
+  String daySuffix(int day) {
+    if (day >= 11 && day <= 13) {
+      return 'th';
+    }
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -15,6 +73,10 @@ class BookedCard extends StatelessWidget {
     // Get shorter location names for better display
     final String pickupLocationShort = _getShortPlaceName(ride.pickupLocation.placeName);
     final String destinationLocationShort = _getShortPlaceName(ride.destinationLocation.placeName);
+    
+    // Handle null or empty passengerStatus
+    final String statusText = ride.passengerStatus.isNotEmpty ? ride.passengerStatus : 'Pending';
+    final Color statusColor = getStatusColor(statusText);
     
     return Card(
       elevation: 0,
@@ -44,7 +106,7 @@ class BookedCard extends StatelessWidget {
                       vertical: screenSize.width * 0.015,
                     ),
                     decoration: BoxDecoration(
-                      color: getStatusColor(ride.passengerStatus).withOpacity(0.15),
+                      color: statusColor.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -55,16 +117,16 @@ class BookedCard extends StatelessWidget {
                           height: 8,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: getStatusColor(ride.passengerStatus),
+                            color: statusColor,
                           ),
                         ),
                         SizedBox(width: 6),
                         Text(
-                          ride.passengerStatus,
+                          statusText,
                           style: TextStyle(
                             fontSize: screenSize.width * 0.03,
                             fontWeight: FontWeight.w600,
-                            color: getStatusColor(ride.passengerStatus),
+                            color: statusColor,
                           ),
                         ),
                       ],
@@ -170,7 +232,7 @@ class BookedCard extends StatelessWidget {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        ride.time,
+                        _formatTime(ride.time),
                         style: TextStyle(
                           fontSize: screenSize.width * 0.035,
                           color: Colors.grey.shade700,

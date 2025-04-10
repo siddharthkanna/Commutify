@@ -6,6 +6,7 @@ import 'package:commutify/services/ride_api.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import '../../models/ride_modal.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:commutify/common/error.dart';
 
 class RideDetailsPublished extends ConsumerStatefulWidget {
   final Ride ride;
@@ -24,18 +25,14 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
 
       bool isSuccess = await RideApi.completeRide(widget.ride.id);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(isSuccess
-                ? 'Ride completed successfully!'
-            : 'Failed to complete the ride. Please try again.'),
-      ),
-      );
-
-      setState(() => isLoading = false);
-    if (isSuccess) {
-      Navigator.pop(context);
-    }
+      if (isSuccess) {
+        Snackbar.showSuccessSnackbar(context, 'Ride completed successfully!');
+        setState(() => isLoading = false);
+        Navigator.pop(context);
+      } else {
+        Snackbar.showErrorSnackbar(context, 'Failed to complete the ride. Please try again.');
+        setState(() => isLoading = false);
+      }
     }
 
   // Method to handle cancelling a ride
@@ -44,23 +41,21 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
         isLoading = true;
       });
 
-      bool isSuccess = await RideApi.cancelRideDriver(widget.ride.id);
+      final result = await RideApi.cancelRide(widget.ride.id, role: 'driver');
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(isSuccess
-            ? 'Ride cancelled successfully!'
-            : 'Failed to cancel the ride. Please try again.'),
-      ),
-      );
-
-      setState(() {
-        isLoading = false;
-      });
-    if (isSuccess) {
-      Navigator.pop(context);
+      if (result['success']) {
+        Snackbar.showSuccessSnackbar(context, 'Ride cancelled successfully!');
+        setState(() {
+          isLoading = false;
+        });
+        Navigator.pop(context);
+      } else {
+        Snackbar.showErrorSnackbar(context, 'Failed to cancel the ride: ${result['message']}');
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
-  }
 
   @override
   Widget build(BuildContext context) {
