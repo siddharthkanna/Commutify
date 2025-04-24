@@ -1,13 +1,12 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:commutify/services/map_service.dart';
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/models/map_box_place.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:commutify/services/recent_searches_service.dart';
+import 'dart:math';
+import 'package:commutify/services/map_box_search_service.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -19,26 +18,24 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  
+  String _sessionToken = '';
   bool _showClearButton = false;
-  List<MapBoxPlace> _suggestions = [];
-  List<MapBoxPlace> _recentSearches = [];
   bool _isLoading = false;
   String _errorMessage = '';
+  
+  List<MapBoxPlace> _suggestions = [];
+  List<MapBoxPlace> _recentSearches = [];
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onTextChanged);
+    _generateSessionToken();
+    _loadRecentSearches();
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
-    });
-    _loadRecentSearches();
-  }
-
-  Future<void> _loadRecentSearches() async {
-    final searches = await RecentSearchesService.getRecentSearches();
-    setState(() {
-      _recentSearches = searches;
     });
   }
 
@@ -49,14 +46,29 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
+  /// Generates a unique session token for MapBox API requests
+  void _generateSessionToken() {
+    _sessionToken = '${DateTime.now().millisecondsSinceEpoch}-${1000000 + Random().nextInt(9000000)}';
+  }
+
+  /// Loads recent searches from local storage
+  Future<void> _loadRecentSearches() async {
+    final searches = await RecentSearchesService.getRecentSearches();
+    setState(() {
+      _recentSearches = searches;
+    });
+  }
+
+  /// Handles text changes in the search field
   void _onTextChanged() {
     final query = _searchController.text;
     setState(() {
       _showClearButton = query.isNotEmpty;
+      _errorMessage = '';
     });
     
     if (query.length > 2) {
-      updateSuggestions(query);
+      _updateSuggestions(query);
     } else if (query.isEmpty) {
       setState(() {
         _suggestions = [];
@@ -64,65 +76,78 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  /// Clears the search field
   void _clearText() {
     HapticFeedback.lightImpact();
     setState(() {
       _searchController.clear();
       _showClearButton = false;
       _suggestions = [];
+      _errorMessage = '';
     });
   }
 
-  Future<List<MapBoxPlace>> fetchLocationSuggestions(String query) async {
-    final apiKey = MapService.mapBoxAccessToken;
-    const country = 'IN';
-    final endpoint =
-        'https://api.mapbox.com/geocoding/v5/mapbox.places/$query.json?country=$country&access_token=$apiKey';
-
-    final response = await http.get(Uri.parse(endpoint));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final features = data['features'] as List<dynamic>;
-      return features
-          .map((feature) => MapBoxPlace(
-                placeName: feature['place_name'],
-                longitude: feature['geometry']['coordinates'][0],
-                latitude: feature['geometry']['coordinates'][1],
-              ))
-          .toList();
-    } else {
-      throw Exception('Failed to fetch location suggestions');
-    }
-  }
-
-  Future<void> updateSuggestions(String query) async {
+  /// Updates location suggestions based on search query
+  Future<void> _updateSuggestions(String query) async {
     setState(() {
       _isLoading = true;
       _errorMessage = '';
     });
     
     try {
-      final results = await fetchLocationSuggestions(query);
+      final results = await MapBoxSearchService.getSuggestions(
+        query: query,
+        sessionToken: _sessionToken,
+      );
       setState(() {
         _suggestions = results;
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Could not load suggestions. Please try again.';
+        _errorMessage = e.toString();
         _isLoading = false;
       });
     }
   }
 
-  void _selectLocation(MapBoxPlace place) async {
+  /// Handles location selection
+  Future<void> _selectLocation(MapBoxPlace place) async {
     HapticFeedback.selectionClick();
-    // Save to recent searches before returning
-    await RecentSearchesService.addRecentSearch(place);
-    if (mounted) {
-      Navigator.pop(context, [place]);
+    
+    if (place.mapboxId != null) {
+      try {
+        // Get full place details including coordinates
+        final fullPlace = await MapBoxSearchService.retrievePlace(
+          mapboxId: place.mapboxId!,
+          sessionToken: _sessionToken,
+        );
+        // Save to recent searches before returning
+        await RecentSearchesService.addRecentSearch(fullPlace);
+        if (mounted) {
+          Navigator.pop(context, [fullPlace]);
+        }
+      } catch (e) {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+      }
+    } else {
+      // For backward compatibility with recent searches that might not have mapboxId
+      await RecentSearchesService.addRecentSearch(place);
+      if (mounted) {
+        Navigator.pop(context, [place]);
+      }
     }
+  }
+
+  /// Clears all recent searches
+  Future<void> _clearRecentSearches() async {
+    HapticFeedback.lightImpact();
+    await RecentSearchesService.clearRecentSearches();
+    setState(() {
+      _recentSearches = [];
+    });
   }
 
   @override
@@ -135,91 +160,9 @@ class _SearchScreenState extends State<SearchScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Search bar
-            Container(
-              margin: EdgeInsets.only(
-                top: isPortrait ? 8 : 4,
-                left: 16,
-                right: 16,
-                bottom: 8,
-              ),
-              decoration: BoxDecoration(
-                color: Apptheme.background,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Apptheme.primary.withOpacity(0.05),
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: Apptheme.primary,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                        color: Apptheme.text,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Search for a location',
-                        hintStyle: TextStyle(
-                          color: Apptheme.textSecondary,
-                          fontSize: 16.0,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                        suffixIcon: _showClearButton
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: _clearText,
-                                color: Apptheme.textSecondary,
-                              )
-                            : null,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Loading indicator
-            if (_isLoading)
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: const LinearProgressIndicator(
-                  backgroundColor: Colors.transparent,
-                  color: Apptheme.primary,
-                ),
-              ),
-              
-            // Error message
-            if (_errorMessage.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  _errorMessage,
-                  style: TextStyle(
-                    color: Apptheme.error,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              
-            // Results section
+            _buildSearchBar(isPortrait),
+            if (_isLoading) _buildLoadingIndicator(),
+            if (_errorMessage.isNotEmpty) _buildErrorMessage(),
             Expanded(
               child: _searchController.text.isEmpty
                   ? _buildRecentSearches()
@@ -230,28 +173,92 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
     );
   }
-  
-  Widget _buildRecentSearches() {
-    if (_recentSearches.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search,
-              size: 48,
-              color: Apptheme.textSecondary.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No recent searches',
+
+  Widget _buildSearchBar(bool isPortrait) {
+    return Container(
+      margin: EdgeInsets.only(
+        top: isPortrait ? 8 : 4,
+        left: 16,
+        right: 16,
+        bottom: 8,
+      ),
+      decoration: BoxDecoration(
+        color: Apptheme.background,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Apptheme.primary.withOpacity(0.05),
+            blurRadius: 10,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: Icon(Icons.arrow_back, color: Apptheme.primary),
+            onPressed: () => Navigator.pop(context),
+          ),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
               style: TextStyle(
-                color: Apptheme.textSecondary,
-                fontSize: 16,
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+                color: Apptheme.text,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Search for a location',
+                hintStyle: TextStyle(
+                  color: Apptheme.textSecondary,
+                  fontSize: 16.0,
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                suffixIcon: _showClearButton
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: _clearText,
+                        color: Apptheme.textSecondary,
+                      )
+                    : null,
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: const LinearProgressIndicator(
+        backgroundColor: Colors.transparent,
+        color: Apptheme.primary,
+      ),
+    );
+  }
+
+  Widget _buildErrorMessage() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Text(
+        _errorMessage,
+        style: TextStyle(
+          color: Apptheme.error,
+          fontSize: 14,
         ),
+      ),
+    );
+  }
+
+  Widget _buildRecentSearches() {
+    if (_recentSearches.isEmpty) {
+      return _buildEmptyState(
+        icon: Icons.search,
+        message: 'No recent searches',
       );
     }
 
@@ -271,22 +278,16 @@ class _SearchScreenState extends State<SearchScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (_recentSearches.isNotEmpty)
-                TextButton(
-                  onPressed: () async {
-                    await RecentSearchesService.clearRecentSearches();
-                    setState(() {
-                      _recentSearches = [];
-                    });
-                  },
-                  child: Text(
-                    'Clear All',
-                    style: TextStyle(
-                      color: Apptheme.primary,
-                      fontSize: 14,
-                    ),
+              TextButton(
+                onPressed: _clearRecentSearches,
+                child: Text(
+                  'Clear All',
+                  style: TextStyle(
+                    color: Apptheme.primary,
+                    fontSize: 14,
                   ),
                 ),
+              ),
             ],
           ),
         ),
@@ -295,14 +296,10 @@ class _SearchScreenState extends State<SearchScreen> {
             itemCount: _recentSearches.length,
             itemBuilder: (context, index) {
               final place = _recentSearches[index];
-              return ListTile(
-                leading: const Icon(Icons.history),
-                title: Text(
-                  place.placeName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () => _selectLocation(place),
+              return _buildPlaceItem(
+                place: place,
+                icon: Icons.history,
+                iconColor: Apptheme.textSecondary,
               );
             },
           ),
@@ -310,28 +307,12 @@ class _SearchScreenState extends State<SearchScreen> {
       ],
     );
   }
-  
+
   Widget _buildSearchResults() {
     if (_suggestions.isEmpty && !_isLoading) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: 48,
-              color: Apptheme.textSecondary.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No results found',
-              style: TextStyle(
-                color: Apptheme.textSecondary,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
+      return _buildEmptyState(
+        icon: Icons.search_off,
+        message: 'No results found',
       );
     }
     
@@ -348,7 +329,33 @@ class _SearchScreenState extends State<SearchScreen> {
       },
     );
   }
-  
+
+  Widget _buildEmptyState({
+    required IconData icon,
+    required String message,
+  }) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 48,
+            color: Apptheme.textSecondary.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: TextStyle(
+              color: Apptheme.textSecondary,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPlaceItem({
     required MapBoxPlace place,
     required IconData icon,
