@@ -1,5 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, unused_local_variable, use_build_context_synchronously, prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'package:commutify/common/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:commutify/Themes/app_theme.dart';
@@ -151,9 +152,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
                                       width: 8,
                                       height: 8,
                                       decoration: BoxDecoration(
-                                        color: rideStatus.toLowerCase() == 'upcoming' ? 
-                                          const Color(0xFF4CAF50) : 
-                                          Colors.white,
+                                        color: _getStatusColor(rideStatus),
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -917,7 +916,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
                                               borderRadius: BorderRadius.circular(30),
                                             ),
                                             child: Text(
-                                              '${widget.ride.availableSeats} seats',
+                                              '${widget.ride.availableSeats - widget.ride.passengers.where((p) => p.status.toLowerCase() == 'confirmed').length} seats',
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
@@ -1039,13 +1038,13 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
                                   ),
                                   const Spacer(),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
                                     decoration: BoxDecoration(
                                       color: Apptheme.mist.withOpacity(0.6),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
-                                      '${widget.ride.passengers.length}/${widget.ride.availableSeats}',
+                                      '${widget.ride.passengers.where((p) => p.status.toLowerCase() == 'completed' || p.status.toLowerCase() == 'ongoing').length}/${widget.ride.availableSeats}',
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -1056,7 +1055,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 15),
+                             // const SizedBox(height: 15),
                               
                               if (widget.ride.passengers.isEmpty)
                                 Container(
@@ -1450,44 +1449,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
         
         // Loading overlay
         if (isLoading)
-          Container(
-            color: Colors.black.withOpacity(0.4),
-            height: screenHeight,
-            width: screenWidth,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Apptheme.primary),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Processing...',
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontWeight: FontWeight.w500,
-                                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          const LoaderAnimated(),
       ],
     );
   }
@@ -1642,9 +1604,9 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
   // Helper method to get status color
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'confirmed':
+      case 'completed':
         return Colors.green;
-      case 'pending':
+      case 'ongoing':
         return Colors.orange;
       case 'cancelled':
         return Colors.red;
@@ -1705,7 +1667,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
                 },
               ),
               const Divider(),
-              if (widget.ride.rideStatus == 'Upcoming' && passenger.status.toLowerCase() == 'confirmed')
+              if (widget.ride.rideStatus == 'Upcoming' && passenger.status.toLowerCase() == 'completed')
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.red.shade50,

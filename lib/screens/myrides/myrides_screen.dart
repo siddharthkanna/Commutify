@@ -23,14 +23,22 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
   List<Ride> bookedRides = [];
   List<Ride> publishedRides = [];
 
-  bool isLoading = false;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _bookedRides();
-    _publishedRides();
+    Future.wait([
+      _bookedRides(),
+      _publishedRides()
+    ]).then((_) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
   }
 
   @override
@@ -40,20 +48,12 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
   }
 
   Future<void> _publishedRides() async {
-    setState(() {
-      isLoading = true;
-    });
-
     try {
       // Check authentication status first
       final authService = ref.read(authProvider);
       final user = authService.getCurrentUser();
       
       if (user == null ||  user.id.isEmpty) {
-        setState(() {
-          isLoading = false;
-        });
-        
         if (mounted) {
           Snackbar.showSnackbar(
             context, 
@@ -65,16 +65,12 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
       
       List<Ride> rides = await RideApi.fetchPublishedRides();
 
-      setState(() {
-        publishedRides = rides;
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          publishedRides = rides;
+        });
+      }
     } catch (e) {
-      setState(() {
-        publishedRides = [];
-        isLoading = false;
-      });
-      
       if (mounted) {
         if (e is SocketException) {
           Snackbar.showSnackbar(
@@ -87,22 +83,22 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
             "Error loading your published rides. Please try again later."
           );
         }
+        setState(() {
+          publishedRides = [];
+        });
       }
     }
   }
 
   Future<void> _bookedRides() async {
-    setState(() {
-      isLoading = true;
-    });
-
     try {
       List<Ride> rides = await RideApi.fetchBookedRides();
 
-      setState(() {
-        bookedRides = rides;
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          bookedRides = rides;
+        });
+      }
     } catch (e) {
       if (mounted) {
         // Check if the error is due to a connection issue (SocketException)
@@ -112,28 +108,39 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
         } else {
           Snackbar.showSnackbar(context, "Oops! Something went wrong");
         }
+        setState(() {
+          bookedRides = [];
+        });
       }
-
-      setState(() {
-        bookedRides = [];
-        isLoading = false;
-      });
     }
   }
 
   Future<void> _refreshData() async {
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
+
     try {
-      await _bookedRides();
-      await _publishedRides();
+      await Future.wait([
+        _bookedRides(),
+        _publishedRides()
+      ]);
     } catch (e) {
       if (mounted) {
         Snackbar.showSnackbar(context, "Oops! Something went wrong");
+        setState(() {
+          publishedRides = [];
+          bookedRides = [];
+        });
       }
-
-      setState(() {
-        publishedRides = [];
-        bookedRides = [];
-      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

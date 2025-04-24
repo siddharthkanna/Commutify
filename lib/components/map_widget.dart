@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/services/map_service.dart';
+import 'package:commutify/common/error.dart';
 import 'dart:math' as math;
 
 class MapWidget extends StatefulWidget {
@@ -110,22 +111,24 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
           widget.destinationLocation!
         );
         
-        if (newRouteCoordinates != null) {
+        if (newRouteCoordinates != null && newRouteCoordinates.isNotEmpty) {
           setState(() {
             routeCoordinates = newRouteCoordinates;
             adjustMapZoom();
           });
         } else {
-          setState(() {
-            hasMapLoadError = true;
-            mapErrorMessage = "Could not calculate route between locations";
-          });
+          // If no route is found, it means the locations are not routable
+          if (mounted && context.mounted) {
+            Snackbar.showWarningSnackbar(
+              context,
+              "Unable to find a valid route between these locations. The destinations might be across water bodies or in unreachable areas."
+            );
+          }
         }
       } catch (e) {
-        setState(() {
-          hasMapLoadError = true;
-          mapErrorMessage = "Error calculating route: $e";
-        });
+        if (mounted && context.mounted) {
+          Snackbar.showErrorSnackbar(context, "Error calculating route: $e");
+        }
       } finally {
         setState(() {
           isRouteLoading = false;
