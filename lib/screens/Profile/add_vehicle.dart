@@ -27,7 +27,7 @@ class _AddVehicleDialogState extends State<AddVehicleDialog> {
   int _capacity = 4;
   final List<int> _capacityOptions = [1, 2, 3, 4, 5, 6, 7, 8];
   
-  List<String> _selectedFeatures = [];
+  final List<String> _selectedFeatures = [];
   final List<String> _availableFeatures = [
     'AC', 
     'Music System', 

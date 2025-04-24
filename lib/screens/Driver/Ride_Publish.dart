@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/components/pageview.dart';

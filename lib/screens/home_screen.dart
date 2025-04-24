@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/location_service.dart';
@@ -9,7 +11,6 @@ import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter/rendering.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -173,8 +174,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     super.build(context);
     final screenSize = MediaQuery.of(context).size;
     // Add padding for navigation bar
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final navbarHeight = 70.0 + 20.0; // Height of navbar (70) plus vertical margin (20)
+    //final bottomPadding = MediaQuery.of(context).padding.bottom;
+    const navbarHeight = 70.0 + 20.0; // Height of navbar (70) plus vertical margin (20)
     
     // Debug print for locations
     print("Build HomeScreen - pickupLocation: $pickupLocation, destinationLocation: $destinationLocation");

@@ -6,7 +6,6 @@ import 'package:commutify/screens/Driver/Driver_Screen.dart';
 import 'package:commutify/screens/Passenger/passengerScreen.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
 class SearchContainer extends StatefulWidget {
   final Function(MapBoxPlace) setPickupLocation;
@@ -486,7 +485,7 @@ class _SearchContainerState extends State<SearchContainer> with SingleTickerProv
                   color: Apptheme.error.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.chevron_right,
                   size: 16,
                   color: Apptheme.textSecondary,

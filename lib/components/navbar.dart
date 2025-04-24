@@ -15,7 +15,7 @@ class NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
+    //final screenSize = MediaQuery.of(context).size;
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),

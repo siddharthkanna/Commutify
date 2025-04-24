@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:commutify/Themes/app_theme.dart';
-import 'package:commutify/common/error.dart';
 import 'package:commutify/providers/auth_provider.dart';
-import 'package:commutify/services/user_api.dart';
-import 'package:commutify/utils/notification_utils.dart';
 import 'package:commutify/controllers/profile_controller.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
@@ -23,8 +20,6 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   bool _isChangesMade = false;
   bool _isLoading = false;
   String? _userRole;
-  String? _photoUrl;
-  Map<String, dynamic> _userData = {};
 
   @override
   void initState() {
@@ -47,8 +42,6 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       
       setState(() {
         _userRole = userData['roles'];
-        _photoUrl = userData['photoUrl'];
-        _userData = userData;
         _isChangesMade = false;
       });
     } else {
@@ -63,13 +56,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       
       // Get email from auth
       String email = user?.email ?? '';
-      String photoUrl = user?.userMetadata?['avatar_url'] ?? '';
       
       _nameController.text = name;
       _emailController.text = email;
       
       setState(() {
-        _photoUrl = photoUrl;
         _isChangesMade = false;
       });
     }

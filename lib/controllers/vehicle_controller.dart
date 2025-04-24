@@ -31,16 +31,16 @@ class VehicleController {
         if (isSuccess) {
           // Re-fetch vehicles to update the list
           await VehicleApi.fetchVehicles();
-          final message = "Vehicle added successfully!";
+          const message = "Vehicle added successfully!";
           onSuccess(message);
           NotificationUtils.showSuccess(context, message);
         } else {
-          final message = "Failed to add the vehicle!";
+          const message = "Failed to add the vehicle!";
           onError(message);
           NotificationUtils.showError(context, message);
         }
       } catch (e) {
-        final message = "An error occurred. Please try again.";
+        const message = "An error occurred. Please try again.";
         onError(message);
         NotificationUtils.showError(context, message);
       } finally {
@@ -74,11 +74,11 @@ class VehicleController {
         
         if (isSuccess) {
           await VehicleApi.fetchVehicles();
-          final message = "Vehicle updated successfully!";
+          const message = "Vehicle updated successfully!";
           onSuccess(message);
           NotificationUtils.showSuccess(context, message);
         } else {
-          final message = "Failed to update the vehicle";
+          const message = "Failed to update the vehicle";
           onError(message);
           NotificationUtils.showError(context, message);
         }
@@ -116,16 +116,16 @@ class VehicleController {
 
         if (isSuccess) {
           await VehicleApi.fetchVehicles();
-          final message = "Vehicle deleted successfully";
+          const message = "Vehicle deleted successfully";
           onSuccess(message);
           NotificationUtils.showSuccess(context, message);
         } else {
-          final message = "Failed to delete the vehicle";
+          const message = "Failed to delete the vehicle";
           onError(message);
           NotificationUtils.showError(context, message);
         }
       } catch (e) {
-        final message = "An error occurred. Please try again.";
+        const message = "An error occurred. Please try again.";
         onError(message);
         NotificationUtils.showError(context, message);
       } finally {

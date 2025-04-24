@@ -92,9 +92,7 @@ class DetailsPageState extends ConsumerState<DetailsPage> {
     final user = auth.getCurrentUser();
     
     // Pre-fill name if available from Google sign-in
-    if (name == null) {
-      name = user?.userMetadata?['full_name'] as String?;
-    }
+    name ??= user?.userMetadata?['full_name'] as String?;
     
     return Scaffold(
       backgroundColor: Apptheme.primary,
@@ -618,7 +616,7 @@ class DetailsPageState extends ConsumerState<DetailsPage> {
                   });
                 }
               },
-              fillColor: MaterialStateProperty.all(Apptheme.surface),
+              fillColor: WidgetStateProperty.all(Apptheme.surface),
             ),
           ],
         ),

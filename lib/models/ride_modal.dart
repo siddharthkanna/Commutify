@@ -1,4 +1,5 @@
 import 'package:commutify/models/vehicle_modal.dart';
+import 'package:flutter/material.dart';
 
 class Ride {
   final String id;
@@ -97,7 +98,7 @@ class Ride {
         estimatedDuration: _parseDouble(json['estimatedDuration']),
       );
     } catch (e) {
-      print('Error parsing ride: $e');
+      debugPrint('Error parsing ride: $e');
       throw FormatException('Failed to parse ride data: $e');
     }
   }
@@ -127,7 +128,7 @@ class Passenger {
       required this.phoneNumber});
 
   factory Passenger.fromJson(Map<String, dynamic> json) {
-    if (json == null || json.isEmpty) {
+    if (json.isEmpty) {
       return Passenger(
         id: '',
         status: '',
@@ -168,7 +169,7 @@ class LocationData {
   });
 
   factory LocationData.fromJson(Map<String, dynamic> json) {
-    if (json == null || json.isEmpty) {
+    if (json.isEmpty) {
       return LocationData(
         placeName: '',
         latitude: 0.0,

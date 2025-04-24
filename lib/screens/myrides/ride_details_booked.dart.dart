@@ -411,7 +411,7 @@ class _RideDetailsBookedState extends ConsumerState<RideDetailsBooked> with Sing
                                   height: 70,
                                   width: 2,
                                   decoration: BoxDecoration(
-                                    gradient: LinearGradient(
+                                    gradient: const LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [

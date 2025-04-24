@@ -32,7 +32,7 @@ class Vehicle {
   });
 
   factory Vehicle.fromJson(Map<String, dynamic> json) {
-    if (json == null || json.isEmpty) {
+    if (json.isEmpty) {
       return Vehicle(
         vehicleName: 'Unknown',
         vehicleNumber: 'Unknown',

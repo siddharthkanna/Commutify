@@ -1,7 +1,8 @@
+// ignore_for_file: file_names, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/common/error.dart';
-import 'package:commutify/common/loading.dart';
 import 'package:commutify/models/map_box_place.dart';
 import 'package:commutify/screens/Driver/DriverComponents/destination_location_input.dart';
 import 'package:commutify/screens/Driver/DriverComponents/pickup_location_input.dart';
@@ -16,6 +17,7 @@ import 'package:commutify/services/map_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/vehicle_modal.dart';
 
+// ignore: must_be_immutable
 class DriverScreen extends ConsumerStatefulWidget {
   MapBoxPlace? pickupLocation;
   MapBoxPlace? destinationLocation;
@@ -27,6 +29,7 @@ class DriverScreen extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _DriverScreenState createState() => _DriverScreenState();
 }
 
@@ -143,7 +146,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> with SingleTickerPr
         }
       });
     } catch (e) {
-      print('Error calculating route: $e');
+      debugPrint('Error calculating route: $e');
       setState(() {
         isCalculatingRoute = false;
       });
@@ -269,7 +272,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> with SingleTickerPr
 
     // Calculate responsive button sizes
     final buttonWidth = screenSize.width * 0.85;
-    final buttonHeight = 60.0;
+    const buttonHeight = 60.0;
 
     Future<void> publishRide() async {
       // Validate required fields
@@ -730,6 +733,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> with SingleTickerPr
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.center,
+                      // ignore: prefer_const_literals_to_create_immutables
                       children: [
                         Icon(
                           Icons.swap_vert,
@@ -827,7 +831,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> with SingleTickerPr
       ),
       child: isCalculatingRoute
           ? Center(
-              child: Column(
+              child: const Column(
                 children: [
                   SizedBox(
                     height: 20,
@@ -837,7 +841,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> with SingleTickerPr
                       valueColor: AlwaysStoppedAnimation<Color>(Apptheme.primary),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     'Calculating route...',
                     style: TextStyle(
@@ -1004,14 +1008,14 @@ class _DriverScreenState extends ConsumerState<DriverScreen> with SingleTickerPr
                       color: Apptheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(
                           Icons.info_outline,
                           size: 12,
                           color: Apptheme.primary,
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Text(
                           'Auto-suggested',
                           style: TextStyle(

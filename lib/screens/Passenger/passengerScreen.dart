@@ -1,8 +1,9 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/common/loading.dart';
-import 'package:commutify/common/error.dart';
 import 'package:commutify/services/ride_api.dart';
 import '../../models/ride_modal.dart';
 import '../../models/map_box_place.dart';
@@ -27,6 +28,7 @@ class PassengerScreen extends ConsumerStatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _PassengerScreenState createState() => _PassengerScreenState();
 }
 
@@ -101,7 +103,7 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> with SingleTi
         }
       });
     } catch (error) {
-      print('Error fetching rides: $error');
+      debugPrint('Error fetching rides: $error');
       setState(() {
         isLoading = false;
         hasError = true;
@@ -474,9 +476,3 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> with SingleTi
   }
 }
 
-String _getShortPlaceName(String placeName) {
-  if (placeName.isEmpty) return '';
-  // Split the place name by a delimiter (e.g., comma) and take the first part
-  List<String> parts = placeName.split(',');
-  return parts[0].trim();
-}

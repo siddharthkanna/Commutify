@@ -1,9 +1,9 @@
+// ignore_for_file: library_private_types_in_public_api, unused_local_variable, use_build_context_synchronously, prefer_const_literals_to_create_immutables, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:commutify/Themes/app_theme.dart';
-import 'package:commutify/screens/myrides/ride_details_booked.dart.dart';
 import 'package:commutify/services/ride_api.dart';
-import 'package:timeline_tile/timeline_tile.dart';
 import '../../models/ride_modal.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:commutify/common/error.dart';
@@ -328,7 +328,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
                                               ),
                                             ),
                                             // Dotted line
-                                            Container(
+                                            SizedBox(
                                               height: 40,
                                               child: LayoutBuilder(
                                                 builder: (context, constraints) {
@@ -1492,70 +1492,6 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
     );
   }
 
-  // Helper method for route detail items
-  Widget _buildRouteDetailItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    bool isWide = false,
-  }) {
-    return Container(
-      width: isWide ? double.infinity : null,
-      padding: EdgeInsets.symmetric(
-        horizontal: isWide ? 10 : 0,
-        vertical: isWide ? 10 : 0,
-      ),
-      child: Column(
-        children: [
-          Icon(
-              icon,
-              color: Apptheme.primary,
-            size: 22,
-            ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade600,
-              fontFamily: 'Outfit',
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Outfit',
-                              ),
-                            ),
-                        ],
-                      ),
-    );
-  }
-
-  // Helper method for vehicle details
-  Widget _buildVehicleDetail(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 16,
-          color: Colors.grey.shade700,
-        ),
-        const SizedBox(width: 5),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade700,
-            fontFamily: 'Outfit',
-          ),
-        ),
-      ],
-    );
-  }
   
   // Helper method to get vehicle icon
   IconData _getVehicleIcon(String vehicleType) {
@@ -1581,23 +1517,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
     }
   }
   
-  // Helper for month name
-  String _getMonthName(int month) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return months[month - 1];
-  }
-  
-  // Helper for formatting time
-  String _formatTime(int hour, int minute) {
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final formattedHour = hour > 12 ? hour - 12 : hour == 0 ? 12 : hour;
-    final formattedMinute = minute.toString().padLeft(2, '0');
-    return '$formattedHour:$formattedMinute $period';
-  }
-
+ 
   // Method to build the address details bottom sheet
   Widget _buildAddressDetails(
     String pickupName, 

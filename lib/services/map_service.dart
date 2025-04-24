@@ -5,11 +5,8 @@ import 'package:commutify/models/map_box_place.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapService {
-  // Default Mapbox token in case .env fails
-  static const String FALLBACK_MAPBOX_TOKEN = 'pk.eyJ1Ijoic2lkZGhhcnRoa2FubmEiLCJhIjoiY201aWN3amljMHJqdTJsc2czMmowN2NwOCJ9.9G2HoNPdQYrW1NuXX5CWDA';
-  
   // Get the token from environment variables or use fallback
-  static final String mapBoxAccessToken = dotenv.env['accessToken'] ?? FALLBACK_MAPBOX_TOKEN;
+  static final String mapBoxAccessToken = dotenv.env['accessToken']!;
 
   /// Calculates the route details (distance, duration) between two points
   /// 

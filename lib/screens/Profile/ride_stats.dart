@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/common/loading.dart';
-import 'package:commutify/common/error.dart';
 import 'package:commutify/controllers/ride_stats_controller.dart';
 import 'package:commutify/models/ride_stats_model.dart';
 

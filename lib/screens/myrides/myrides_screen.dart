@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/common/error.dart';
-import 'package:commutify/common/loading.dart';
 import 'package:commutify/screens/myrides/booked_card.dart';
 import 'package:commutify/screens/myrides/ride_details_booked.dart.dart';
 import 'package:commutify/screens/myrides/ride_details_published.dart';
@@ -11,8 +10,6 @@ import 'published_card.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
-import 'package:http/http.dart' as http;
-import '../../config/config.dart';
 
 class MyRides extends ConsumerStatefulWidget {
   const MyRides({Key? key}) : super(key: key);

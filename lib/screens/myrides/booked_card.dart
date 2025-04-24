@@ -1,6 +1,7 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
-import 'package:commutify/services/user_api.dart';
 import '../../models/ride_modal.dart';
 
 class BookedCard extends StatelessWidget {
