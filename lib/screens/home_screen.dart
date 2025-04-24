@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously, prefer_const_constructors
 
+import 'package:commutify/services/map_service.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/location_service.dart';
@@ -10,7 +11,6 @@ import 'package:commutify/Themes/app_theme.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   Future<String> getAddressFromCoordinates(double latitude, double longitude) async {
     try {
       // Use fallback token if needed
-      final mapBoxAccessToken = dotenv.env['accessToken'] ?? 'pk.eyJ1Ijoic2lkZGhhcnRoa2FubmEiLCJhIjoiY201aWN3amljMHJqdTJsc2czMmowN2NwOCJ9.9G2HoNPdQYrW1NuXX5CWDA';
+      final mapBoxAccessToken = MapService.mapBoxAccessToken;
       final url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/$longitude,$latitude.json?access_token=$mapBoxAccessToken';
       
       print("Making geocoding request to: $url");

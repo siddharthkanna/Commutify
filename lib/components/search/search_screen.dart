@@ -1,12 +1,13 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:commutify/services/map_service.dart';
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
-import 'package:commutify/components/map_widget.dart';
 import 'package:commutify/models/map_box_place.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:commutify/services/recent_searches_service.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -34,27 +35,10 @@ class _SearchScreenState extends State<SearchScreen> {
     _loadRecentSearches();
   }
 
-  void _loadRecentSearches() {
-    // In a real app, you would load these from local storage
-    // For now, we'll use dummy data
+  Future<void> _loadRecentSearches() async {
+    final searches = await RecentSearchesService.getRecentSearches();
     setState(() {
-      _recentSearches = [
-        MapBoxPlace(
-          placeName: 'Home - 123 Main Street, Bengaluru',
-          longitude: 77.5946,
-          latitude: 12.9716,
-        ),
-        MapBoxPlace(
-          placeName: 'Work - Tech Park, Bengaluru',
-          longitude: 77.6196,
-          latitude: 12.9312,
-        ),
-        MapBoxPlace(
-          placeName: 'MG Road, Bengaluru',
-          longitude: 77.6101,
-          latitude: 12.9749,
-        ),
-      ];
+      _recentSearches = searches;
     });
   }
 
@@ -90,7 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<List<MapBoxPlace>> fetchLocationSuggestions(String query) async {
-    final apiKey = mapBoxAccessToken;
+    final apiKey = MapService.mapBoxAccessToken;
     const country = 'IN';
     final endpoint =
         'https://api.mapbox.com/geocoding/v5/mapbox.places/$query.json?country=$country&access_token=$apiKey';
@@ -132,9 +116,13 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  void _selectLocation(MapBoxPlace place) {
+  void _selectLocation(MapBoxPlace place) async {
     HapticFeedback.selectionClick();
-    Navigator.pop(context, [place]);
+    // Save to recent searches before returning
+    await RecentSearchesService.addRecentSearch(place);
+    if (mounted) {
+      Navigator.pop(context, [place]);
+    }
   }
 
   @override
@@ -244,30 +232,77 @@ class _SearchScreenState extends State<SearchScreen> {
   }
   
   Widget _buildRecentSearches() {
+    if (_recentSearches.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search,
+              size: 48,
+              color: Apptheme.textSecondary.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No recent searches',
+              style: TextStyle(
+                color: Apptheme.textSecondary,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-          child: Text(
-            'Recent Searches',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Apptheme.text,
-            ),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recent Searches',
+                style: TextStyle(
+                  color: Apptheme.textSecondary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (_recentSearches.isNotEmpty)
+                TextButton(
+                  onPressed: () async {
+                    await RecentSearchesService.clearRecentSearches();
+                    setState(() {
+                      _recentSearches = [];
+                    });
+                  },
+                  child: Text(
+                    'Clear All',
+                    style: TextStyle(
+                      color: Apptheme.primary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: _recentSearches.length,
             itemBuilder: (context, index) {
               final place = _recentSearches[index];
-              return _buildPlaceItem(
-                place: place,
-                icon: Icons.history,
-                iconColor: Apptheme.textSecondary,
+              return ListTile(
+                leading: const Icon(Icons.history),
+                title: Text(
+                  place.placeName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onTap: () => _selectLocation(place),
               );
             },
           ),
