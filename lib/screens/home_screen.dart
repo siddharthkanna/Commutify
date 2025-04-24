@@ -9,6 +9,7 @@ import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/rendering.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,13 +18,16 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
   LatLng? pickupLocation;
   LatLng? destinationLocation;
   bool showCurrentLocationButton = true;
   bool isLoading = false;
 
   MapBoxPlace? currentLocation;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -166,6 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final screenSize = MediaQuery.of(context).size;
     // Add padding for navigation bar
     final bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -222,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Map layer - always show map for debugging
           MapWidget(
-            key: ValueKey('map-${DateTime.now().millisecondsSinceEpoch}-${pickupLocation?.latitude}-${pickupLocation?.longitude}-${destinationLocation?.latitude}-${destinationLocation?.longitude}'),
+            key: ValueKey('map-${pickupLocation?.latitude}-${pickupLocation?.longitude}-${destinationLocation?.latitude}-${destinationLocation?.longitude}'),
             pickupLocation: pickupLocation,
             destinationLocation: destinationLocation,
             isCurrentLocation: true,

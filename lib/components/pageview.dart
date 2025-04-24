@@ -66,9 +66,9 @@ class _PageViewScreenState extends State<PageViewScreen>
         onPageChanged: _onPageChanged,
         physics: const ClampingScrollPhysics(),
         children: const [
-          HomeScreen(),
-          MyRides(),
-          ProfileScreen(),
+          KeepAlivePage(child: HomeScreen()),
+          KeepAlivePage(child: MyRides()),
+          KeepAlivePage(child: ProfileScreen()),
         ],
       ),
       bottomNavigationBar: Padding(

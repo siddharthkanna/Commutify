@@ -1,44 +1,39 @@
+//ignore: constant_identifier_names
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:math';
 import 'package:commutify/Themes/app_theme.dart';
 
-// Default Mapbox token in case .env fails - you should replace this with your own valid token
-const String FALLBACK_MAPBOX_TOKEN = 'pk.eyJ1Ijoic2lkZGhhcnRoa2FubmEiLCJhIjoiY201aWN3amljMHJqdTJsc2czMmowN2NwOCJ9.9G2HoNPdQYrW1NuXX5CWDA';
 
 // Using direct values instead of env variables for debugging
-final mapBoxAccessToken = dotenv.env['accessToken'] ?? FALLBACK_MAPBOX_TOKEN;
+final mapBoxAccessToken = dotenv.env['accessToken'];
 final mapBoxStyleId = dotenv.env['styleId']?.replaceAll('mapbox://', '') ?? 'cli6i055s00pt01qua5srcxrl';
 const myLocation = LatLng(0, 0);
 
 // Print debug information
 void printMapBoxDebugInfo() {
-  print('MapBox Debug Info:');
-  print('Access Token: $mapBoxAccessToken');
-  print('Style ID: $mapBoxStyleId');
-  
-  // Test token validity with a direct API call
+  // Only log if token is invalid
+  if (mapBoxAccessToken?.isEmpty == true) {
+    debugPrint('Warning: MapBox access token is empty');
+  }
   testMapboxToken();
 }
 
 Future<void> testMapboxToken() async {
-  print('Testing MapBox token validity...');
   try {
     final response = await http.get(
       Uri.parse('https://api.mapbox.com/geocoding/v5/mapbox.places/New York.json?access_token=$mapBoxAccessToken')
     );
-    print('MapBox API Test Response Status: ${response.statusCode}');
-    if (response.statusCode == 200) {
-      print('MapBox token is valid!');
-    } else {
-      print('MapBox token test failed: ${response.body}');
+    if (response.statusCode != 200) {
+      debugPrint('MapBox token validation failed: ${response.body}');
     }
   } catch (e) {
-    print('Error testing MapBox token: $e');
+    debugPrint('Error testing MapBox token: $e');
   }
 }
 
@@ -101,24 +96,23 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     // Initialize with delayed to ensure we catch any map loading errors
     Future.delayed(Duration.zero, () {
       try {
-        if (mapBoxAccessToken.isEmpty) {
+        if (mapBoxAccessToken?.isEmpty == true) {
           setState(() {
             hasMapLoadError = true;
             mapErrorMessage = "MapBox access token is empty - trying OpenStreetMap as fallback";
           });
-          print("WARNING: MapBox access token is empty or invalid - using OpenStreetMap fallback");
+          debugPrint("Warning: MapBox access token is empty - using OpenStreetMap fallback");
         }
         
         // Move to location - use default if none provided
         LatLng center = widget.pickupLocation ?? defaultLocation;
-        print("Moving map to center: $center");
         mapController.move(center, 13.0);
       } catch (e) {
         setState(() {
           hasMapLoadError = true;
           mapErrorMessage = "Error initializing map: $e";
         });
-        print("ERROR initializing map: $e");
+        debugPrint("Error initializing map: $e");
       }
     });
   }
@@ -134,7 +128,6 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
     // Check if destination location has changed
     if (widget.destinationLocation != oldWidget.destinationLocation) {
-      print("ROUTE DEBUG: Destination location changed, calculating route");
       moveToDestinationLocation();
     }
     
@@ -171,25 +164,18 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       });
       
       try {
-        print("ROUTE DEBUG: Calculating route from ${widget.pickupLocation!.latitude},${widget.pickupLocation!.longitude} to ${widget.destinationLocation!.latitude},${widget.destinationLocation!.longitude}");
-        
         final response = await http.get(
           Uri.parse(
             "https://api.mapbox.com/directions/v5/mapbox/driving/${widget.pickupLocation!.longitude},${widget.pickupLocation!.latitude};${widget.destinationLocation!.longitude},${widget.destinationLocation!.latitude}?geometries=geojson&overview=full&access_token=$mapBoxAccessToken",
           ),
         );
-
-        print("ROUTE DEBUG: Response status code: ${response.statusCode}");
         
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
-          print("ROUTE DEBUG: Response data received: ${data.toString().substring(0, min(100, data.toString().length))}...");
           
           if (data['routes'] != null && data['routes'].isNotEmpty) {
             final List<dynamic> coordinates =
                 data['routes'][0]['geometry']['coordinates'];
-                
-            print("ROUTE DEBUG: Coordinates found: ${coordinates.length}");
                 
             if (coordinates.isNotEmpty) {
               // Convert coordinates format
@@ -200,45 +186,42 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   })
                   .toList();
               
-              print("ROUTE DEBUG: Converted ${newRouteCoordinates.length} points");
-              print("ROUTE DEBUG: First point: ${newRouteCoordinates.first}, Last point: ${newRouteCoordinates.last}");
-                
               setState(() {
                 routeCoordinates = newRouteCoordinates;
                 
                 // Log route data for debugging
-                print("ROUTE DEBUG: Route found with ${routeCoordinates.length} points");
+                debugPrint("ROUTE DEBUG: Route found with ${routeCoordinates.length} points");
                 
                 // Adjust map to show the entire route
                 adjustMapZoom();
                 isRouteLoading = false;
               });
             } else {
-              print("ROUTE DEBUG: No coordinates found in route response");
+              debugPrint("ROUTE DEBUG: No coordinates found in route response");
               setState(() {
                 isRouteLoading = false;
               });
             }
           } else {
-            print("ROUTE DEBUG: No routes found in response: ${response.body}");
+            debugPrint("ROUTE DEBUG: No routes found in response: ${response.body}");
             setState(() {
               isRouteLoading = false;
             });
           }
         } else {
-          print("ROUTE DEBUG: Error calculating route: ${response.statusCode} - ${response.body}");
+          debugPrint("ROUTE DEBUG: Error calculating route: ${response.statusCode} - ${response.body}");
           setState(() {
             isRouteLoading = false;
           });
         }
       } catch (e) {
-        print("ROUTE DEBUG: Exception calculating route: $e");
+        debugPrint("ROUTE DEBUG: Exception calculating route: $e");
         setState(() {
           isRouteLoading = false;
         });
       }
     } else {
-      print("ROUTE DEBUG: Cannot calculate route - pickup or destination is null");
+      debugPrint("ROUTE DEBUG: Cannot calculate route - pickup or destination is null");
     }
   }
 
@@ -272,10 +255,10 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
             ),
           );
           
-          print("Map adjusted to show full route");
+          debugPrint("Map adjusted to show full route");
         });
       } catch (e) {
-        print("Error adjusting map zoom: $e");
+        debugPrint("Error adjusting map zoom: $e");
       }
     }
   }
@@ -283,7 +266,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   // Create a test route for debugging
   void createTestRoute() {
     if (widget.pickupLocation != null && widget.destinationLocation != null) {
-      print("ROUTE TESTING: Creating direct test route");
+      debugPrint("ROUTE TESTING: Creating direct test route");
       
       // Create a simple straight line route between pickup and destination
       final LatLng start = widget.pickupLocation!;
@@ -307,8 +290,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         end
       ];
       
-      print("ROUTE TESTING: Created test route with ${testRoute.length} points");
-      print("ROUTE TESTING: Start: $start, End: $end");
+      debugPrint("ROUTE TESTING: Created test route with ${testRoute.length} points");
+      debugPrint("ROUTE TESTING: Start: $start, End: $end");
       
       setState(() {
         routeCoordinates = testRoute;
@@ -324,14 +307,14 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     // Use direct hardcoded values for debugging
     // Try Mapbox raster tiles instead of vector tiles
-    final String urlTemplate = "https://api.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}@2x.png?access_token={accessToken}";
+    const String urlTemplate = "https://api.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}@2x.png?access_token={accessToken}";
     final Map<String, String> additionalOptions = {
-      'accessToken': mapBoxAccessToken,
+      'accessToken': mapBoxAccessToken ?? '',
     };
     
-    print("ROUTE DEBUG: Building map with ${routeCoordinates.length} route points");
+    debugPrint("ROUTE DEBUG: Building map with ${routeCoordinates.length} route points");
     if (routeCoordinates.isNotEmpty) {
-      print("ROUTE DEBUG: First route point: ${routeCoordinates.first}, Last route point: ${routeCoordinates.last}");
+      debugPrint("ROUTE DEBUG: First route point: ${routeCoordinates.first}, Last route point: ${routeCoordinates.last}");
     }
     
     return Stack(
@@ -436,8 +419,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   ],
                 );
               } catch (e, stackTrace) {
-                print("ERROR in FlutterMap: $e");
-                print("Stack trace: $stackTrace");
+                debugPrint("ERROR in FlutterMap: $e");
+                debugPrint("Stack trace: $stackTrace");
                 return Container(
                   color: Apptheme.background,
                   child: Center(

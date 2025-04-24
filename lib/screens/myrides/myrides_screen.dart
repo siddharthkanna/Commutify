@@ -53,7 +53,6 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
       final user = authService.getCurrentUser();
       
       if (user == null ||  user.id.isEmpty) {
-        print('MyRides: User is not authenticated or has no ID');
         setState(() {
           isLoading = false;
         });
@@ -67,16 +66,13 @@ class _MyRidesState extends ConsumerState<MyRides> with SingleTickerProviderStat
         return;
       }
       
-      print('MyRides: Fetching published rides for user ID: ${user.id}');
       List<Ride> rides = await RideApi.fetchPublishedRides();
-      print('MyRides: Successfully fetched ${rides.length} published rides');
 
       setState(() {
         publishedRides = rides;
         isLoading = false;
       });
     } catch (e) {
-      print('MyRides: Error fetching published rides: $e');
       setState(() {
         publishedRides = [];
         isLoading = false;

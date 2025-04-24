@@ -28,7 +28,6 @@ class UserApi {
         return false;
       }
     } catch (error) {
-      print('Error: $error');
       return false;
     }
   }
@@ -44,11 +43,9 @@ class UserApi {
       if (response.statusCode == 201) {
         return true;
       } else {
-        print('Failed to create user: ${response.body}');
         return false;
       }
     } catch (error) {
-      print('Error creating user: $error');
       return false;
     }
   }
@@ -85,25 +82,20 @@ class UserApi {
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         
-        // Check if the response has the expected structure
         if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
           final userData = jsonResponse['data']['user'];
           
-          // Handle roles which can be a list or string
           var roles = userData['roles'];
           String roleString;
           
-          // Convert roles to string if it's a list
           if (roles is List) {
-            // If it's the first item in the list or join with comma if multiple
             roleString = roles.isNotEmpty ? (roles.length == 1 ? roles[0].toString() : roles.join(',')) : 'PASSENGER';
           } else if (roles is String) {
             roleString = roles;
           } else {
-            roleString = 'PASSENGER'; // Default role
+            roleString = 'PASSENGER';
           }
           
-          // Return user data in the expected format
           return {
             'uid': userData['uid'],
             'id': userData['id'],
@@ -113,14 +105,12 @@ class UserApi {
             'photoUrl': userData['photoUrl'],
             'roles': roleString,
             'bio': userData['bio'],
-            // Include additional fields as needed
           };
         }
         return {};
       }
       return {};
     } catch (error) {
-      print('Error fetching user details: $error');
       return {};
     }
   }

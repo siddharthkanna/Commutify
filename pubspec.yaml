@@ -59,5 +59,4 @@ flutter:
 
   assets:
     - assets/
-    - assets/svg/
     - .env

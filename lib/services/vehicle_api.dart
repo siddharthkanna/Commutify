@@ -29,7 +29,6 @@ class VehicleApi {
         return vehicleList;
       }
     } catch (error) {
-      print('Error fetching vehicles: $error');
       return vehicleList;
     }
   }
@@ -47,14 +46,11 @@ class VehicleApi {
       );
 
       if (response.statusCode == 201) {
-        return true; // Vehicle added successfully
+        return true;
       } else {
-        final errorData = json.decode(response.body);
-        print('Failed to add vehicle: ${errorData['message'] ?? 'Unknown error'}');
         return false;
       }
     } catch (error) {
-      print('Error adding vehicle: $error');
       return false;
     }
   }
@@ -74,12 +70,9 @@ class VehicleApi {
       if (response.statusCode == 200) {
         return true;
       } else {
-        final errorData = json.decode(response.body);
-        print('Failed to update vehicle: ${errorData['message'] ?? 'Unknown error'}');
         return false;
       }
     } catch (error) {
-      print('Error updating vehicle: $error');
       return false;
     }
   }
@@ -98,12 +91,9 @@ class VehicleApi {
       if (response.statusCode == 200) {
         return true;
       } else {
-        final errorData = json.decode(response.body);
-        print('Failed to delete vehicle: ${errorData['message'] ?? 'Unknown error'}');
         return false;
       }
     } catch (error) {
-      print('Error deleting vehicle: $error');
       return false;
     }
   }
@@ -146,14 +136,12 @@ class VehicleApi {
         return false;
       }
       
-      // First, get the current vehicle details
       final vehicleList = await fetchVehicles();
       final vehicle = vehicleList.firstWhere(
         (v) => v.id == vehicleId,
         orElse: () => throw Exception('Vehicle not found'),
       );
       
-      // Create a new vehicle with updated isActive status
       final updatedVehicle = Vehicle(
         id: vehicle.id,
         vehicleName: vehicle.vehicleName,
@@ -173,7 +161,6 @@ class VehicleApi {
       
       return await updateVehicle(vehicleId, updatedVehicle);
     } catch (error) {
-      print('Error setting vehicle active status: $error');
       return false;
     }
   }

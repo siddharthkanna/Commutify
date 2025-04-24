@@ -17,16 +17,11 @@ void main() async {
   // Load environment variables
   await dotenv.load();
   
-  print("Initializing Supabase...");
-  print("URL: ${dotenv.env['SUPABASE_URL']}");
-  
   // Initialize Supabase
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL'] ?? '',
     anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
-  
-  print("Supabase initialized successfully");
   
   runApp(const ProviderScope(child: MyApp()));
 }

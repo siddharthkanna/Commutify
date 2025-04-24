@@ -1573,21 +1573,11 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
   
   // Helper method to format time string
   String _formatTimeString(String timeString) {
-    if (timeString.isEmpty) {
-      return 'Time not available';
-    }
-    
     try {
-      final DateTime dateTime = DateTime.parse(timeString);
-      final String day = dateTime.day.toString();
-      final String month = _getMonthName(dateTime.month);
-      final String year = dateTime.year.toString();
-      final String time = _formatTime(dateTime.hour, dateTime.minute);
-      
-      return '$day $month, $year at $time';
+      DateTime dateTime = DateTime.parse(timeString);
+      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } catch (e) {
-      print('Error parsing date: $e');
-      return timeString;
+      return 'Invalid time';
     }
   }
   
@@ -1720,15 +1710,12 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
     );
   }
 
-  void launchPhoneDialer(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
+  Future<void> _launchPhoneNumber(String phoneNumber) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
     try {
-      await launchUrl(launchUri);
+      await launchUrl(phoneUri);
     } catch (e) {
-      print('Could not launch dialer: $e');
+      Snackbar.showErrorSnackbar(context, 'Could not launch phone dialer');
     }
   }
 
@@ -1794,7 +1781,7 @@ class _RideDetailsPublishedState extends ConsumerState<RideDetailsPublished> {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                  launchPhoneDialer(passenger.phoneNumber);
+                  _launchPhoneNumber(passenger.phoneNumber);
                 },
               ),
               const Divider(),

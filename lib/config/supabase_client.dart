@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Class to access the Supabase client instance
@@ -15,7 +16,7 @@ class SupabaseClientSingleton {
     try {
       return Supabase.instance.client;
     } catch (e) {
-      print("Error accessing Supabase client: $e");
+      debugPrint("Error accessing Supabase client: $e");
       rethrow;
     }
   }
@@ -25,7 +26,7 @@ class SupabaseClientSingleton {
     try {
       return Supabase.instance.client.auth;
     } catch (e) {
-      print("Error accessing Supabase auth: $e");
+      debugPrint("Error accessing Supabase auth: $e");
       rethrow;
     }
   }
