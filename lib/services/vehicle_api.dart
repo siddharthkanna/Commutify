@@ -2,17 +2,25 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/config.dart';
 import '../models/vehicle_modal.dart';
-import '../services/user_api.dart';
+import '../config/supabase_client.dart';
 
 class VehicleApi {
+  // Helper method to get headers with JWT token
+  static Map<String, String> _getHeaders() {
+    final session = supabaseClient.auth.currentSession;
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${session?.accessToken ?? ""}',
+    };
+  }
+
   static Future<List<Vehicle>> fetchVehicles() async {
     List<Vehicle> vehicleList = [];
     try {
-      if (userId == null) {
-        return vehicleList;
-      }
-      
-      final response = await http.get(Uri.parse('$fetchVehiclesUrl/$userId'));
+      final response = await http.get(
+        Uri.parse(fetchVehiclesUrl),
+        headers: _getHeaders(),
+      );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         
@@ -33,38 +41,38 @@ class VehicleApi {
     }
   }
 
-  static Future<bool> createVehicle(Vehicle vehicle) async {
-    try {
-      if (userId == null) {
-        return false;
-      }
-      
-      final response = await http.post(
-        Uri.parse("$addVehicleUrl/$userId"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(vehicle.toJson()),
-      );
+static Future<bool> createVehicle(Vehicle vehicle) async {
+  final url = Uri.parse(addVehicleUrl);
+  final headers = _getHeaders();
+  final body = jsonEncode(vehicle.toJson());
 
-      if (response.statusCode == 201) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
+  try {
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: body,
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
       return false;
     }
+  } catch (error) {
+    return false;
   }
+}
 
   static Future<bool> updateVehicle(String vehicleId, Vehicle updatedVehicle) async {
+    final url = Uri.parse("$updateVehicleUrl/$vehicleId");
+    final headers = _getHeaders();
+    final body = jsonEncode(updatedVehicle.toJson());
+
     try {
-      if (userId == null) {
-        return false;
-      }
-      
       final response = await http.post(
-        Uri.parse("$updateVehicleUrl/$userId/$vehicleId"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(updatedVehicle.toJson()),
+        url,
+        headers: headers,
+        body: body,
       );
 
       if (response.statusCode == 200) {
@@ -79,13 +87,9 @@ class VehicleApi {
 
   static Future<bool> deleteVehicle(String vehicleId) async {
     try {
-      if (userId == null) {
-        return false;
-      }
-
       final response = await http.post(
-        Uri.parse("$deleteVehicleUrl/$userId/$vehicleId"),
-        headers: {'Content-Type': 'application/json'},
+        Uri.parse("$deleteVehicleUrl/$vehicleId"),
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
@@ -132,10 +136,6 @@ class VehicleApi {
   
   static Future<bool> setVehicleActiveStatus(String vehicleId, bool isActive) async {
     try {
-      if (userId == null) {
-        return false;
-      }
-      
       final vehicleList = await fetchVehicles();
       final vehicle = vehicleList.firstWhere(
         (v) => v.id == vehicleId,

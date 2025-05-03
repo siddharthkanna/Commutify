@@ -15,18 +15,17 @@ class RideStatsController {
     
     try {
       final rideStats = await RideApi.fetchRideStats();
+      onLoadingEnd();
       
-      if (rideStats != null) {
-        onLoadingEnd();
-        return rideStats;
-      } else {
-        onLoadingEnd();
-        NotificationUtils.showWarning(context, 'No ride statistics found');
+      if (rideStats == null) {
+        NotificationUtils.showError(context, 'Something went wrong. Please try again.');
         return null;
       }
+      
+      return rideStats;
     } catch (e) {
       onLoadingEnd();
-      NotificationUtils.showError(context, 'Failed to load ride statistics. Please try again.');
+      NotificationUtils.showError(context, 'Something went wrong. Please try again.');
       return null;
     }
   }

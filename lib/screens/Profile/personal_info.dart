@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/providers/auth_provider.dart';
 import 'package:commutify/controllers/profile_controller.dart';
+import 'package:commutify/common/loading.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
   const ProfileEditScreen({super.key});
@@ -116,7 +117,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Apptheme.primary))
+          ? const Center(child: Loader())
           : SafeArea(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(

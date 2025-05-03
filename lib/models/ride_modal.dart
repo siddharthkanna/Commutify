@@ -38,26 +38,19 @@ class Ride {
 
   factory Ride.fromJson(Map<String, dynamic> json) {
     try {
-      // Extract ride ID (either 'id' or 'rideId')
       final String id = json['id'] ?? json['rideId'] ?? '';
-      
-      // Extract driver info - could be nested or flat
       final Map<String, dynamic> driver = json['driver'] is Map ? json['driver'] : {};
       final String driverName = driver['name'] ?? json['driverName'] ?? 'Unknown Driver';
       final String driverPhoto = driver['photoUrl'] ?? json['photoUrl'] ?? '';
       final String driverNumber = driver['mobileNumber'] ?? json['driverNumber'] ?? '';
       
-      // Handle vehicle data
       final vehicle = Vehicle.fromJson(json['vehicle'] ?? {});
       
-      // Handle location data
       final pickup = json['pickup'] ?? json['pickupLocation'] ?? {};
       final destination = json['destination'] ?? json['destinationLocation'] ?? {};
       
-      // Extract passengers/bookings
       final List<dynamic> bookings = json['bookings'] ?? json['passengerInfo'] ?? [];
       
-      // Handle price (could be int or string)
       int price = 0;
       if (json['price'] != null) {
         if (json['price'] is int) {
@@ -67,11 +60,9 @@ class Ride {
         }
       }
 
-      // Handle status fields - could be in different formats
       String rideStatus = json['rideStatus'] ?? '';
       String passengerStatus = json['passengerStatus'] ?? json['bookingStatus'] ?? '';
       
-      // Normalize status values
       if (passengerStatus.toLowerCase() == 'cancelled') {
         passengerStatus = 'Cancelled';
       } else if (passengerStatus.toLowerCase() == 'completed') {

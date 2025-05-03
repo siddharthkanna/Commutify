@@ -1,4 +1,3 @@
-// ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
@@ -6,6 +5,7 @@ import 'package:commutify/models/map_box_place.dart';
 import 'package:flutter/services.dart';
 import 'package:commutify/services/recent_searches_service.dart';
 import 'dart:math';
+import 'dart:async';
 import 'package:commutify/services/map_box_search_service.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -18,6 +18,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  Timer? _debounceTimer;
   
   String _sessionToken = '';
   bool _showClearButton = false;
@@ -43,15 +44,14 @@ class _SearchScreenState extends State<SearchScreen> {
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
-  /// Generates a unique session token for MapBox API requests
   void _generateSessionToken() {
     _sessionToken = '${DateTime.now().millisecondsSinceEpoch}-${1000000 + Random().nextInt(9000000)}';
   }
 
-  /// Loads recent searches from local storage
   Future<void> _loadRecentSearches() async {
     final searches = await RecentSearchesService.getRecentSearches();
     setState(() {
@@ -59,7 +59,6 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  /// Handles text changes in the search field
   void _onTextChanged() {
     final query = _searchController.text;
     setState(() {
@@ -67,8 +66,12 @@ class _SearchScreenState extends State<SearchScreen> {
       _errorMessage = '';
     });
     
+    _debounceTimer?.cancel();
+    
     if (query.length > 2) {
-      _updateSuggestions(query);
+      _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+        _updateSuggestions(query);
+      });
     } else if (query.isEmpty) {
       setState(() {
         _suggestions = [];
@@ -76,7 +79,6 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  /// Clears the search field
   void _clearText() {
     HapticFeedback.lightImpact();
     setState(() {
@@ -87,7 +89,6 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  /// Updates location suggestions based on search query
   Future<void> _updateSuggestions(String query) async {
     setState(() {
       _isLoading = true;
@@ -111,18 +112,15 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  /// Handles location selection
   Future<void> _selectLocation(MapBoxPlace place) async {
     HapticFeedback.selectionClick();
     
     if (place.mapboxId != null) {
       try {
-        // Get full place details including coordinates
         final fullPlace = await MapBoxSearchService.retrievePlace(
           mapboxId: place.mapboxId!,
           sessionToken: _sessionToken,
         );
-        // Save to recent searches before returning
         await RecentSearchesService.addRecentSearch(fullPlace);
         if (mounted) {
           Navigator.pop(context, [fullPlace]);
@@ -133,7 +131,6 @@ class _SearchScreenState extends State<SearchScreen> {
         });
       }
     } else {
-      // For backward compatibility with recent searches that might not have mapboxId
       await RecentSearchesService.addRecentSearch(place);
       if (mounted) {
         Navigator.pop(context, [place]);
@@ -141,7 +138,6 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  /// Clears all recent searches
   Future<void> _clearRecentSearches() async {
     HapticFeedback.lightImpact();
     await RecentSearchesService.clearRecentSearches();

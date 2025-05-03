@@ -1,3 +1,4 @@
+import 'package:commutify/config/config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -8,6 +9,7 @@ import 'dart:convert';
 import '../config/supabase_client.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../screens/auth/details.dart';
+import '../screens/auth/login.dart';
 
 final authProvider =
     ChangeNotifierProvider<AuthService>((ref) => AuthService());
@@ -99,7 +101,7 @@ class AuthService extends ChangeNotifier {
         return;
       }
       
-      final url = Uri.parse('http://192.168.29.98:5000/auth/login');
+      final url = Uri.parse('$apiUrl/auth/login');
       final Map<String, dynamic> requestBody = {
         'uid': user.id,
         'email': user.email,
@@ -112,12 +114,10 @@ class AuthService extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        // Parse the response to check if user is new
         final responseData = json.decode(response.body);
         final bool isNewUser = responseData['isNewUser'] ?? false;
         
         if (isNewUser) {
-          // User is new, redirect to the details page for onboarding
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -125,7 +125,6 @@ class AuthService extends ChangeNotifier {
             ),
           );
         } else {
-          // Existing user, redirect to the main app
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -146,18 +145,33 @@ class AuthService extends ChangeNotifier {
   }
 
   // Sign out
-  Future<void> signOut() async {
+  Future<void> signOut(BuildContext context) async {
     setLoading(true);
     setError('');
 
     try {
-      await supabaseClient.auth.signOut();
-      await _googleSignIn.signOut();
+      await Future.wait([
+        supabaseClient.auth.signOut(),
+        _googleSignIn.signOut(),
+      ]);
+
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const Login()),
+          (route) => false,
+        );
+      }
     } catch (e) {
       setError('Failed to sign out. Please try again: $e');
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const Login()),
+          (route) => false,
+        );
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
   // Get the current user

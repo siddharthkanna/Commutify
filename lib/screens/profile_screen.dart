@@ -259,7 +259,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     subtitle: 'Log out from your account',
                     iconColor: Colors.redAccent,
                     onTap: () async {
-                      showDialog(
+                      final shouldSignOut = await showDialog<bool>(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
@@ -270,20 +270,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () => Navigator.pop(context, false),
                                 child: const Text(
                                   'Cancel',
                                   style: TextStyle(color: Apptheme.primary),
                                 ),
                               ),
                               TextButton(
-                                onPressed: () async {
-                                  Navigator.pop(context);
-                                  await authService.signOut();
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (context) => Login()),
-                                  );
-                                },
+                                onPressed: () => Navigator.pop(context, true),
                                 child: const Text(
                                   'Sign Out',
                                   style: TextStyle(color: Colors.redAccent),
@@ -293,6 +287,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           );
                         },
                       );
+
+                      if (shouldSignOut == true && context.mounted) {
+                        await authService.signOut(context);
+                      }
                     },
                   ),
                   

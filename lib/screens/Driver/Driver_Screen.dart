@@ -1,5 +1,6 @@
 // ignore_for_file: file_names, prefer_const_constructors
 
+import 'package:commutify/utils/notification_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
 import 'package:commutify/common/error.dart';
@@ -395,20 +396,14 @@ class _DriverScreenState extends ConsumerState<DriverScreen> with SingleTickerPr
             ),
         );
       } else {
-          Snackbar.showSnackbar(
-            context, 
-            'Error while publishing the ride! Please try again.',
-          );
+          NotificationUtils.showError(context, 'Error while publishing the ride! Please try again.');
         }
       } catch (e) {
         setState(() {
           isRidePublishing = false;
         });
         
-        Snackbar.showSnackbar(
-          context,
-          'Error publishing ride: ${e.toString()}',
-        );
+        NotificationUtils.showError(context, 'Error while publishing the ride! Please try again.');
       }
     }
 

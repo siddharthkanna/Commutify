@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../config/config.dart';
+import '../config/supabase_client.dart';
 
 final uidProvider = Provider<String?>((ref) {
   final authService = ref.watch(authProvider);
@@ -13,6 +14,14 @@ final uidProvider = Provider<String?>((ref) {
 final String? userId = ProviderContainer().read(uidProvider);
 
 class UserApi {
+  static Map<String, String> _getHeaders() {
+    final session = supabaseClient.auth.currentSession;
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${session?.accessToken ?? ""}',
+    };
+  }
+
   static Future<bool> createUser(Map<String, dynamic> userData) async {
     try {
       final url = Uri.parse(createUserUrl);
@@ -34,7 +43,7 @@ class UserApi {
 
   static Future<bool> createNewUser(Map<String, dynamic> userData) async {
     try {
-      final url = Uri.parse("http://192.168.29.98:5000/auth/create");
+      final url = Uri.parse(createUserUrl);
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -58,9 +67,8 @@ class UserApi {
     try {
       final response = await http.post(
         Uri.parse(updateUserUrl),
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
         body: jsonEncode({
-          'uid': userId,
           'name': newName,
           'mobileNumber': newPhoneNumber,
           if (newBio != null) 'bio': newBio,
@@ -76,7 +84,8 @@ class UserApi {
   static Future<Map<String, dynamic>> getUserDetails() async {
     try {
       final response = await http.get(
-        Uri.parse('$getUserDetailsUrl/$userId'),
+        Uri.parse(getUserDetailsUrl),
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
