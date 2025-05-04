@@ -49,16 +49,15 @@ class _RideCardState extends State<RideCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 0,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.shade200),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          // Show detailed ride information in a modal bottom sheet
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
@@ -66,221 +65,304 @@ class _RideCardState extends State<RideCard> {
             builder: (context) => _buildRideDetails(context),
           );
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Ride info row
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Driver profile pic
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Apptheme.primary.withOpacity(0.1),
-                    backgroundImage: widget.ride.driverPhotoUrl.isNotEmpty ? 
-                      NetworkImage(widget.ride.driverPhotoUrl) : null,
-                    child: widget.ride.driverPhotoUrl.isEmpty ? 
-                      Icon(Icons.person, color: Apptheme.primary.withOpacity(0.7)) : null,
-                  ),
-                  const SizedBox(width: 16),
-                  
-                  // Ride details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Driver name and rating
-                        Row(
-                          children: [
-                            Text(
-                              widget.ride.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Apptheme.noir,
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Apptheme.primary,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                '₹${widget.ride.price}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                Colors.grey.shade50,
+              ],
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Apptheme.primary.withOpacity(0.1),
+                        backgroundImage: widget.ride.driverPhotoUrl.isNotEmpty ? 
+                          NetworkImage(widget.ride.driverPhotoUrl) : null,
+                        child: widget.ride.driverPhotoUrl.isEmpty ? 
+                          Icon(Icons.person, size: 24, color: Apptheme.primary.withOpacity(0.7)) : null,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.ride.name,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Apptheme.noir,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        
-                        // Vehicle info
-                        Row(
-                          children: [
-                            Text(
-                              '${_getVehicleIcon(widget.ride.vehicle.vehicleType)} ${widget.ride.vehicle.vehicleName}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade700,
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Apptheme.primary,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Apptheme.primary.withOpacity(0.2),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  '₹${widget.ride.price}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              width: 4,
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade400,
-                                shape: BoxShape.circle,
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${_getVehicleIcon(widget.ride.vehicle.vehicleType)} ${widget.ride.vehicle.vehicleName}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _formatTime(widget.ride.time),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade700,
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  _formatTime(widget.ride.time),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 12),
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.grey.shade200,
+                        Colors.grey.shade100,
+                        Colors.grey.shade200,
                       ],
                     ),
                   ),
-                ],
-              ),
-              
-              const SizedBox(height: 16),
-              const Divider(height: 1),
-              const SizedBox(height: 16),
-              
-              // Route information
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Route indicators
-                  Column(
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: Apptheme.success.withOpacity(0.2),
-                          border: Border.all(color: Apptheme.success, width: 2),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      Container(
-                        width: 2,
-                        height: 30,
-                        color: Colors.grey.shade300,
-                      ),
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: Apptheme.error.withOpacity(0.2),
-                          border: Border.all(color: Apptheme.error, width: 2),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(width: 16),
-                  
-                  // Addresses
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                const SizedBox(height: 12),
+                
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
                       children: [
-                        Text(
-                          _getShortPlaceName(widget.ride.pickupLocation.placeName),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Apptheme.success.withOpacity(0.2),
+                            border: Border.all(color: Apptheme.success, width: 2),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Apptheme.success.withOpacity(0.2),
+                                blurRadius: 2,
+                                spreadRadius: 1,
+                              ),
+                            ],
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 20),
-                        Text(
-                          _getShortPlaceName(widget.ride.destinationLocation.placeName),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                        Container(
+                          width: 2,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Apptheme.success.withOpacity(0.5),
+                                Apptheme.error.withOpacity(0.5),
+                              ],
+                            ),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Available seats and book button
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.event_seat_outlined,
-                          size: 16,
-                          color: Apptheme.noir,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${widget.ride.availableSeats} seats',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Apptheme.noir,
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Apptheme.error.withOpacity(0.2),
+                            border: Border.all(color: Apptheme.error, width: 2),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Apptheme.error.withOpacity(0.2),
+                                blurRadius: 2,
+                                spreadRadius: 1,
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const Spacer(),
-                  isBooking
-                    ? const SizedBox(width: 24, height: 24, child: Loader())
-                    : ElevatedButton(
-                        onPressed: _bookRide,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Apptheme.primary,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
+                    
+                    const SizedBox(width: 12),
+                    
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _getShortPlaceName(widget.ride.pickupLocation.placeName),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Apptheme.noir,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _getShortPlaceName(widget.ride.destinationLocation.placeName),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Apptheme.noir,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 12),
+                
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.event_seat_outlined,
+                            size: 14,
+                            color: Colors.grey.shade700,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${widget.ride.availableSeats} seats',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    isBooking
+                      ? Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Apptheme.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        ),
-                        child: const Text(
-                          'Book Now',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                          child: const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Apptheme.primary),
+                            ),
+                          ),
+                        )
+                      : ElevatedButton(
+                          onPressed: _bookRide,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Apptheme.primary,
+                            foregroundColor: Colors.white,
+                            elevation: 2,
+                            shadowColor: Apptheme.primary.withOpacity(0.3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          ),
+                          child: const Text(
+                            'Book Now',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

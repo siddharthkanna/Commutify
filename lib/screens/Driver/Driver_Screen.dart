@@ -256,6 +256,8 @@ class _DriverScreenState extends ConsumerState<DriverScreen> with SingleTickerPr
   void updateSelectedVehicle(Vehicle newValue) {
     setState(() {
       selectedVehicle = newValue;
+      // Reset selected capacity to 1 when vehicle changes
+      selectedCapacity = 1;
     });
   }
 
@@ -523,6 +525,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> with SingleTickerPr
             SeatingCapacitySelection(
               selectedCapacity: selectedCapacity,
               updateSelectedCapacity: updateSelectedCapacity,
+              selectedVehicle: selectedVehicle,
             ),
                       ],
                     ),

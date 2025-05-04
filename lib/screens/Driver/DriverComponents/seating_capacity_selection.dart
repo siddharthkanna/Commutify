@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:commutify/Themes/app_theme.dart';
+import 'package:commutify/models/vehicle_modal.dart';
 
 class SeatingCapacitySelection extends StatelessWidget {
   final int selectedCapacity;
   final Function(int) updateSelectedCapacity;
+  final Vehicle selectedVehicle;
 
   const SeatingCapacitySelection({
     Key? key,
     required this.selectedCapacity,
     required this.updateSelectedCapacity,
+    required this.selectedVehicle,
   }) : super(key: key);
 
   @override
@@ -66,11 +69,13 @@ class SeatingCapacitySelection extends StatelessWidget {
   }
 
   Widget _buildCapacitySelector() {
+    // Generate a list from 1 to vehicle capacity
+    final capacityOptions = List.generate(selectedVehicle.capacity, (index) => index + 1);
+    
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: List.generate(5, (index) {
-        final capacity = index + 1;
+      children: capacityOptions.map((capacity) {
         final isSelected = capacity == selectedCapacity;
         
         return GestureDetector(
@@ -122,7 +127,7 @@ class SeatingCapacitySelection extends StatelessWidget {
             ),
           ),
         );
-      }),
+      }).toList(),
     );
   }
 }

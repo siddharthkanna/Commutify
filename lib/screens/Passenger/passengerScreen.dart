@@ -42,20 +42,13 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> with SingleTi
   bool isRefreshing = false;
   
   late AnimationController _animationController;
-  late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
-    );
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
     );
     fetchRidesFromBackend();
   }
@@ -73,6 +66,7 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> with SingleTi
       isLoading = true;
       hasError = false;
       errorMessage = '';
+      _animationController.reset();
     });
 
     try {
@@ -97,10 +91,8 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> with SingleTi
         rides = fetchedRides;
         isLoading = false;
         
-        // Trigger animation
-        if (hasActiveFilters()) {
-          _animationController.forward();
-        }
+        // Start the animation
+        _animationController.forward();
       });
     } catch (error) {
       debugPrint('Error fetching rides: $error');
@@ -219,13 +211,7 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> with SingleTi
           slivers: [
             // Filter chips section
             SliverToBoxAdapter(
-              child: AnimatedBuilder(
-                animation: _opacityAnimation,
-                builder: (context, child) => Opacity(
-                  opacity: _opacityAnimation.value,
-                  child: _buildFilterSection(),
-                ),
-              ),
+              child: _buildFilterSection(),
             ),
             
             // Rides list, loading, or error
@@ -246,9 +232,28 @@ class _PassengerScreenState extends ConsumerState<PassengerScreen> with SingleTi
                             sliver: SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
-                                  return FadeTransition(
-                                    opacity: _opacityAnimation,
-                                    child: RideCard(ride: rides[index]),
+                                  return AnimatedBuilder(
+                                    animation: _animationController,
+                                    builder: (context, child) {
+                                      final delay = index * 0.2;
+                                      final start = 0.2;
+                                      final currentProgress = (_animationController.value - delay).clamp(0.0, start) / start;
+                                      
+                                      return Transform.translate(
+                                        offset: Offset(0, 100 * (1 - currentProgress)),
+                                        child: Opacity(
+                                          opacity: currentProgress,
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      child: RideCard(ride: rides[index]),
+                                    ),
                                   );
                                 },
                                 childCount: rides.length,
