@@ -1,6 +1,6 @@
 {
-    "name": "commutify",
-    "short_name": "commutify",
+    "name": "Commutify",
+    "short_name": "Commutify",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
