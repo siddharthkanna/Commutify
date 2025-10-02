@@ -94,26 +94,9 @@ class AuthService extends ChangeNotifier {
     setLoading(true);
 
     try {
-      print('[loginUser] Attempting to get current user...');
       final user = getCurrentUser();
       if (user == null) {
-        print('[loginUser] No authenticated user found');
         setError('No authenticated user found');
-        setLoading(false);
-        return;
-      }
-      print('[loginUser] Current user: id=${user.id}, email=${user.email}');
-      
-      // Check if API URL is configured
-      if (apiUrl == null || apiUrl!.isEmpty) {
-        print('[loginUser] API_URL not configured, skipping API call');
-        // For now, assume existing users and go to main screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PageViewScreen(),
-          ),
-        );
         setLoading(false);
         return;
       }
@@ -123,23 +106,18 @@ class AuthService extends ChangeNotifier {
         'uid': user.id,
         'email': user.email,
       };
-      print('[loginUser] Sending POST to $url with body: $requestBody');
       
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestBody),
       );
-      print('[loginUser] Received response: statusCode=${response.statusCode}, body=${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        print('[loginUser] Response data: $responseData');
         final bool isNewUser = responseData['isNewUser'] ?? false;
-        print('[loginUser] isNewUser: $isNewUser');
         
         if (isNewUser) {
-          print('[loginUser] Navigating to DetailsPage');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -147,7 +125,6 @@ class AuthService extends ChangeNotifier {
             ),
           );
         } else {
-          print('[loginUser] Navigating to PageViewScreen');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -156,19 +133,16 @@ class AuthService extends ChangeNotifier {
           );
         }
       } else {
-        print('[loginUser] Login failed with status: ${response.statusCode}');
         final errorData = json.decode(response.body);
-        print('[loginUser] Error data: $errorData');
         final errorMessage = errorData['message'] ?? 'Authentication failed. Please try again.';
         setError(errorMessage);
       }
     } catch (e) {
-      print('[loginUser] Failed to login. Please try again: $e');
+      print('Failed to login. Please try again: $e');
       setError('Failed to login. Please try again: $e');
     }
 
     setLoading(false);
-    print('[loginUser] Finished loginUser');
   }
 
   // Sign out
